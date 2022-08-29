@@ -1,29 +1,28 @@
 package DBMS;
 
 import java.io.FileReader;
+
+import DBMS.operators.ScanOperator;
+import DBMS.utils.Catalog;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 
-/**
- * Example class for getting started with JSQLParser. Reads SQL statements from
- * a file and prints them to screen; then extracts SelectBody from each query
- * and also prints it to screen.
- * 
- * @author Lucja Kot
- */
-public class Main {
+public class Interpreter {
 
-	private static final String queriesFile = "samples/input/queries.sql";
+	private static final String queriesFile = "samples/input/queries_scan.sql";
 
 	public static void main(String[] args) {
 		try {
+			Catalog.init("samples/input");
 			CCJSqlParser parser = new CCJSqlParser(new FileReader(queriesFile));
 			Statement statement;
 			while ((statement = parser.Statement()) != null) {
-				System.out.println("Read statement: " + statement);
 				Select select = (Select) statement;
-				System.out.println("Select body is " + select.getSelectBody());
+				PlainSelect body = (PlainSelect) select.getSelectBody();
+				ScanOperator table = new ScanOperator(body.getFromItem().toString());
+				table.dump();
 			}
 		} catch (Exception e) {
 			System.err.println("Exception occurred during parsing");
