@@ -5,3 +5,5 @@ SELECT * FROM Sailors WHERE 1 < 3;
 SELECT * FROM Sailors WHERE 1 < 3 AND 5 < 4;
 SELECT * FROM Sailors WHERE Sailors.A < 3;
 SELECT * FROM Boats WHERE Boats.E = Boats.F;
+SELECT Sailors.A FROM Sailors;
+SELECT Boats.F, Boats.E from Boats;

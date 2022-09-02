@@ -10,7 +10,7 @@ public class SelectOperator extends Operator {
     private Expression expression;
     private ExpressionParseVisitor visitor= new ExpressionParseVisitor();
 
-    /** Constructs SelectOperator
+    /** Requires expression is not null.
      *
      * @param scanOperator child operator of SelectOperator
      * @param expression   the WHERE expression which we select for */
@@ -29,7 +29,6 @@ public class SelectOperator extends Operator {
     public Tuple getNextTuple() {
         Tuple nextTuple= scanOperator.getNextTuple();
         if (nextTuple == null) return null;
-        if (expression == null) return nextTuple;
         visitor.currentTuple= nextTuple;
         expression.accept(visitor);
         return visitor.getBooleanResult() ? nextTuple : getNextTuple();

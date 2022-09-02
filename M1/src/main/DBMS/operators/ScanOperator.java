@@ -3,6 +3,8 @@ package DBMS.operators;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import DBMS.utils.Catalog;
@@ -34,9 +36,10 @@ public class ScanOperator extends Operator {
             String next= reader.readLine();
             if (next == null) return null;
             StringTokenizer data= new StringTokenizer(next, ",");
-            int[] nums= new int[data.countTokens()];
-            for (int i= 0; i < nums.length; i++ ) {
-                nums[i]= Integer.parseInt(data.nextToken());
+            int size= data.countTokens();
+            List<Integer> nums= new ArrayList<>(size);
+            for (int i= 0; i < size; i++ ) {
+                nums.add(Integer.parseInt(data.nextToken()));
             }
             return new Tuple(Catalog.getInstance().getTableColumns(name), nums);
         } catch (IOException e) {
