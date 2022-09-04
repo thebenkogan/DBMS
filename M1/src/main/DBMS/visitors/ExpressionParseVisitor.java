@@ -131,7 +131,8 @@ public class ExpressionParseVisitor implements ExpressionVisitor {
         longResult= currentTuple.get(col.getColumnName());
     }
 
-    // Remaining methods are unimplemented. Generated automatically to extend ExpressionVisitor
+    // Remaining methods are unimplemented. Generated automatically to extend
+    // ExpressionVisitor
 
     @Override
     public void visit(NullValue arg0) {
