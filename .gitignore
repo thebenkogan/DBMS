@@ -28,6 +28,7 @@ hs_err_pid*
 *.metadata
 *.project
 *.settings
+*.code-workspace
 /.idea
 /bin/
 
