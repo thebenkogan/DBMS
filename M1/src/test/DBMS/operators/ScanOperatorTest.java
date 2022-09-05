@@ -8,22 +8,24 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import DBMS.utils.Catalog;
 
 class ScanOperatorTest {
-    // Try to init Scan Op with nonexistent table
+    @BeforeAll
+    public static void setup() throws IOException {
+        Catalog.init("samples/input");
+    }
+
     @Test
-    void testScanOpFail() throws FileNotFoundException {
+    void testFail() throws IOException {
         assertThrows(FileNotFoundException.class, () -> new ScanOperator("Failure"));
     }
 
-    // reset scan to top of table
-    // read up to last tuple in db
     @Test
     void testGetNextTuple() throws IOException {
-        Catalog.init("samples/input");
         ScanOperator scanOp= new ScanOperator("Boats");
 
         assertEquals(Arrays.toString(new int[] { 101, 2, 3 }),
@@ -39,4 +41,16 @@ class ScanOperatorTest {
         assertNull(scanOp.getNextTuple());
     }
 
+    @Test
+    void testReset() throws IOException {
+        ScanOperator scanOp= new ScanOperator("Boats");
+
+        assertEquals(Arrays.toString(new int[] { 101, 2, 3 }),
+            scanOp.getNextTuple().toString());
+
+        scanOp.reset();
+
+        assertEquals(Arrays.toString(new int[] { 101, 2, 3 }),
+            scanOp.getNextTuple().toString());
+    }
 }
