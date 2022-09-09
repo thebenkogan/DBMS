@@ -9,7 +9,7 @@ import net.sf.jsqlparser.statement.Statement;
 
 public class Interpreter {
 
-    private static final String queriesFile= "samples/input/queries_project.sql";
+    private static final String queriesFile= "samples/input/queries_join.sql";
     private static final String inputPath= "samples/input";
 
     public static void main(String[] args) {

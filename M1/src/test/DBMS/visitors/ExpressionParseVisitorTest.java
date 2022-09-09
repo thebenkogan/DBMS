@@ -42,11 +42,11 @@ class ExpressionParseVisitorTest {
         queries.put("t.A=3 AND t.B=10", true);
         queries.put("t.A=t.B", false);
         ExpressionParseVisitor epv= new ExpressionParseVisitor();
-        epv.currentTuple= new Tuple(Arrays.asList(new String[] { "A", "B" }),
+        epv.currentTuple= new Tuple("t", Arrays.asList(new String[] { "A", "B" }),
             Arrays.asList(new Integer[] { 3, 10 }));
 
         queries.forEach((test, expected) -> {
-            Expression exp= Helpers.expressionFromQuery("select * from t where " + test);
+            Expression exp= Helpers.strExpToExp(test);
             exp.accept(epv);
             assertTrue(test, expected == epv.getBooleanResult());
         });

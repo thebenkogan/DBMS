@@ -21,8 +21,7 @@ class SelectOperatorTest {
     }
 
     SelectOperator getOperator() throws FileNotFoundException {
-        Expression exp= Helpers
-            .expressionFromQuery("select * from Boats where Boats.D > 102 AND Boats.E != 1");
+        Expression exp= Helpers.strExpToExp("Boats.D > 102 AND Boats.E != 1");
         ScanOperator scanOp= new ScanOperator("Boats");
         return new SelectOperator(scanOp, exp);
     }

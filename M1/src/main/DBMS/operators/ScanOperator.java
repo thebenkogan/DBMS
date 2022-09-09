@@ -41,7 +41,7 @@ public class ScanOperator extends Operator {
             for (int i= 0; i < size; i++ ) {
                 nums.add(Integer.parseInt(data.nextToken()));
             }
-            return new Tuple(Catalog.getInstance().getTableColumns(name), nums);
+            return new Tuple(name, Catalog.getInstance().getTableColumns(name), nums);
         } catch (IOException e) {
             e.printStackTrace();
         }

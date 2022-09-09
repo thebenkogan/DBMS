@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -25,13 +26,20 @@ public class Helpers {
         return null;
     }
 
-    public static Expression expressionFromQuery(String query) {
-        return convertQuery(query).getWhere();
+    public static Expression strExpToExp(String exp) {
+        return convertQuery("select * from t where " + exp).getWhere();
     }
 
     @SuppressWarnings("unchecked")
     public static List<SelectItem> selectItemsFromQuery(String query) {
         return convertQuery(query).getSelectItems();
+    }
+
+    public static AndExpression wrapExpressionWithAnd(Expression exp) {
+        if (exp instanceof AndExpression) return (AndExpression) exp;
+        AndExpression andExp= new AndExpression();
+        andExp.setRightExpression(exp);
+        return andExp;
     }
 
 }

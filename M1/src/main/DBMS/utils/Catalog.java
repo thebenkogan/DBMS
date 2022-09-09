@@ -27,6 +27,8 @@ public class Catalog {
         return instance;
     }
 
+    // TODO: add alias (running map, erase between queries)
+
     /** @param path path to file
      * @return BufferedReader for the file at path
      * @throws FileNotFoundException */
@@ -64,5 +66,7 @@ public class Catalog {
     public List<String> getTableColumns(String name) {
         return schema.get(name);
     }
+
+    // TODO table name
 
 }
