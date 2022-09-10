@@ -20,7 +20,8 @@ public class Interpreter {
             while ((statement= parser.Statement()) != null) {
                 System.out.println(statement);
                 QueryPlanBuilder queryPlan= new QueryPlanBuilder(statement);
-                queryPlan.operator.dump();
+                // TODO: Change interpreter to accept inputpath and outputpath and
+                // dump the query to outputpath
             }
         } catch (Exception e) {
             System.err.println("Exception occurred during parsing");

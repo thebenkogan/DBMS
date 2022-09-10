@@ -69,7 +69,7 @@ public class Tuple {
         for (int i= 0; i < columnOrder.length; i++ ) {
             data[i]= this.get(columnOrder[i][0], columnOrder[i][1]);
         }
-        return Arrays.toString(data);
+        return Arrays.toString(data).replaceAll("\\s|\\[|\\]", "");
     }
 
     /** Merges left and right into a new Tuple. Merged columnOrder is the concatenation of

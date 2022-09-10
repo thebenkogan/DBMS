@@ -32,33 +32,24 @@ class JoinOperatorTest {
 
     @Test
     void testGetNextTuple() throws IOException {
-        JoinOperator projectOp= getOperator();
+        JoinOperator joinOp= getOperator();
 
-        assertEquals(Arrays.toString(new int[] { 1, 200, 50, 1, 101 }),
-            projectOp.getNextTuple().toString());
-        assertEquals(Arrays.toString(new int[] { 1, 200, 50, 1, 102 }),
-            projectOp.getNextTuple().toString());
-        assertEquals(Arrays.toString(new int[] { 1, 200, 50, 1, 103 }),
-            projectOp.getNextTuple().toString());
-        assertEquals(Arrays.toString(new int[] { 2, 200, 200, 2, 101 }),
-            projectOp.getNextTuple().toString());
-        assertEquals(Arrays.toString(new int[] { 3, 100, 105, 3, 102 }),
-            projectOp.getNextTuple().toString());
-        assertEquals(Arrays.toString(new int[] { 4, 100, 50, 4, 104 }),
-            projectOp.getNextTuple().toString());
-        assertNull(projectOp.getNextTuple());
+        assertEquals("1,200,50,1,101", joinOp.getNextTuple().toString());
+        assertEquals("1,200,50,1,102", joinOp.getNextTuple().toString());
+        assertEquals("1,200,50,1,103", joinOp.getNextTuple().toString());
+        assertEquals("2,200,200,2,101", joinOp.getNextTuple().toString());
+        assertEquals("3,100,105,3,102", joinOp.getNextTuple().toString());
+        assertEquals("4,100,50,4,104", joinOp.getNextTuple().toString());
+        assertNull(joinOp.getNextTuple());
     }
 
     @Test
     void testReset() throws IOException {
-        JoinOperator projectOp= getOperator();
+        JoinOperator joinOp= getOperator();
 
-        assertEquals(Arrays.toString(new int[] { 1, 200, 50, 1, 101 }),
-            projectOp.getNextTuple().toString());
+        assertEquals("1,200,50,1,101", joinOp.getNextTuple().toString());
+        joinOp.reset();
+        assertEquals("1,200,50,1,101", joinOp.getNextTuple().toString());
 
-        projectOp.reset();
-
-        assertEquals(Arrays.toString(new int[] { 1, 200, 50, 1, 101 }),
-            projectOp.getNextTuple().toString());
     }
 }

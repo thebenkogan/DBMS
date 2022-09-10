@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -32,16 +31,11 @@ class ProjectOperatorTest {
     void testGetNextTuple() throws IOException {
         ProjectOperator projectOp= getOperator();
 
-        assertEquals(Arrays.toString(new int[] { 3, 101 }),
-            projectOp.getNextTuple().toString());
-        assertEquals(Arrays.toString(new int[] { 4, 102 }),
-            projectOp.getNextTuple().toString());
-        assertEquals(Arrays.toString(new int[] { 2, 104 }),
-            projectOp.getNextTuple().toString());
-        assertEquals(Arrays.toString(new int[] { 1, 103 }),
-            projectOp.getNextTuple().toString());
-        assertEquals(Arrays.toString(new int[] { 8, 107 }),
-            projectOp.getNextTuple().toString());
+        assertEquals("3,101", projectOp.getNextTuple().toString());
+        assertEquals("4,102", projectOp.getNextTuple().toString());
+        assertEquals("2,104", projectOp.getNextTuple().toString());
+        assertEquals("1,103", projectOp.getNextTuple().toString());
+        assertEquals("8,107", projectOp.getNextTuple().toString());
         assertNull(projectOp.getNextTuple());
     }
 
@@ -49,12 +43,8 @@ class ProjectOperatorTest {
     void testReset() throws IOException {
         ProjectOperator projectOp= getOperator();
 
-        assertEquals(Arrays.toString(new int[] { 3, 101 }),
-            projectOp.getNextTuple().toString());
-
+        assertEquals("3,101", projectOp.getNextTuple().toString());
         projectOp.reset();
-
-        assertEquals(Arrays.toString(new int[] { 3, 101 }),
-            projectOp.getNextTuple().toString());
+        assertEquals("3,101", projectOp.getNextTuple().toString());
     }
 }

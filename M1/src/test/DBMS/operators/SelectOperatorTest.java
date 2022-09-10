@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -30,10 +29,8 @@ class SelectOperatorTest {
     void testGetNextTuple() throws IOException {
         SelectOperator selectOp= getOperator();
 
-        assertEquals(Arrays.toString(new int[] { 104, 104, 2 }),
-            selectOp.getNextTuple().toString());
-        assertEquals(Arrays.toString(new int[] { 107, 2, 8 }),
-            selectOp.getNextTuple().toString());
+        assertEquals("104,104,2", selectOp.getNextTuple().toString());
+        assertEquals("107,2,8", selectOp.getNextTuple().toString());
         assertNull(selectOp.getNextTuple());
     }
 
@@ -41,12 +38,8 @@ class SelectOperatorTest {
     void testReset() throws IOException {
         SelectOperator selectOp= getOperator();
 
-        assertEquals(Arrays.toString(new int[] { 104, 104, 2 }),
-            selectOp.getNextTuple().toString());
-
+        assertEquals("104,104,2", selectOp.getNextTuple().toString());
         selectOp.reset();
-
-        assertEquals(Arrays.toString(new int[] { 104, 104, 2 }),
-            selectOp.getNextTuple().toString());
+        assertEquals("104,104,2", selectOp.getNextTuple().toString());
     }
 }

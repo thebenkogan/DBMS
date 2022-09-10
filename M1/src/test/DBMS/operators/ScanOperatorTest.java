@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -28,16 +27,11 @@ class ScanOperatorTest {
     void testGetNextTuple() throws IOException {
         ScanOperator scanOp= new ScanOperator("Boats");
 
-        assertEquals(Arrays.toString(new int[] { 101, 2, 3 }),
-            scanOp.getNextTuple().toString());
-        assertEquals(Arrays.toString(new int[] { 102, 3, 4 }),
-            scanOp.getNextTuple().toString());
-        assertEquals(Arrays.toString(new int[] { 104, 104, 2 }),
-            scanOp.getNextTuple().toString());
-        assertEquals(Arrays.toString(new int[] { 103, 1, 1 }),
-            scanOp.getNextTuple().toString());
-        assertEquals(Arrays.toString(new int[] { 107, 2, 8 }),
-            scanOp.getNextTuple().toString());
+        assertEquals("101,2,3", scanOp.getNextTuple().toString());
+        assertEquals("102,3,4", scanOp.getNextTuple().toString());
+        assertEquals("104,104,2", scanOp.getNextTuple().toString());
+        assertEquals("103,1,1", scanOp.getNextTuple().toString());
+        assertEquals("107,2,8", scanOp.getNextTuple().toString());
         assertNull(scanOp.getNextTuple());
     }
 
@@ -45,12 +39,8 @@ class ScanOperatorTest {
     void testReset() throws IOException {
         ScanOperator scanOp= new ScanOperator("Boats");
 
-        assertEquals(Arrays.toString(new int[] { 101, 2, 3 }),
-            scanOp.getNextTuple().toString());
-
+        assertEquals("101,2,3", scanOp.getNextTuple().toString());
         scanOp.reset();
-
-        assertEquals(Arrays.toString(new int[] { 101, 2, 3 }),
-            scanOp.getNextTuple().toString());
+        assertEquals("101,2,3", scanOp.getNextTuple().toString());
     }
 }
