@@ -2,16 +2,18 @@ package DBMS.utils;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
 import net.sf.jsqlparser.schema.Column;
 
 public class Tuple {
+    private static final String delimiter= "/";
     /** Maps table.column key to value in row. Insertion order represents column ordering. */
     private LinkedHashMap<String, Integer> row;
 
     /** Constructs a key to look up the corresponding value in the row */
-    private String key(String tableName, String columnName) {
-        return tableName + "/" + columnName;
+    public static String key(String tableName, String columnName) {
+        return tableName + delimiter + columnName;
     }
 
     /** Creates a new tuple for the items in columns. Requires columns and items are of the same
@@ -35,6 +37,18 @@ public class Tuple {
      * @return value in the column */
     public int get(String tableName, String columnName) {
         return row.get(key(tableName, columnName));
+    }
+
+    public static String getTableName(String name) {
+        return name.split(delimiter)[0];
+    }
+
+    public static String getColumnName(String name) {
+        return name.split(delimiter)[1];
+    }
+
+    public Set<String> getTableColumnNames() {
+        return row.keySet();
     }
 
     /** Projects this tuple to those in columns. Requires: columns is a subset of the columns in

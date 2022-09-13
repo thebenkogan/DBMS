@@ -6,3 +6,5 @@ SELECT * FROM Sailors, Reserves WHERE Sailors.A = Reserves.G;
 SELECT * FROM Sailors S1, Sailors S2 WHERE S1.A < S2.A;
 SELECT DISTINCT R.G FROM Reserves R;
 SELECT * FROM Sailors ORDER BY Sailors.B;
+SELECT * FROM Boats ORDER BY Boats.D;
+SELECT * FROM Boats, Sailors ON Boats.E = Sailors.A ORDER BY Boats.D;

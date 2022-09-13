@@ -9,6 +9,7 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.ParseException;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
@@ -28,6 +29,11 @@ public class Helpers {
 
     public static Expression strExpToExp(String exp) {
         return convertQuery("select * from t where " + exp).getWhere();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<OrderByElement> getOrderByElementsFromQuery(String query) {
+        return convertQuery(query).getOrderByElements();
     }
 
     @SuppressWarnings("unchecked")

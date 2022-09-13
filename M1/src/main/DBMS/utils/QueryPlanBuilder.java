@@ -11,11 +11,13 @@ import DBMS.operators.Operator;
 import DBMS.operators.ProjectOperator;
 import DBMS.operators.ScanOperator;
 import DBMS.operators.SelectOperator;
+import DBMS.operators.SortOperator;
 import DBMS.visitors.JoinVisitor;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
@@ -32,7 +34,8 @@ public class QueryPlanBuilder {
         String tableName= tables.remove(0);
         Expression exp= jv.getExpression(tableName);
         Operator op= new ScanOperator(tableName);
-        if (exp != null) op= new SelectOperator(op, exp);
+        if (exp != null)
+            op= new SelectOperator(op, exp);
         return op;
     }
 
@@ -70,7 +73,8 @@ public class QueryPlanBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    public QueryPlanBuilder(Statement statement) throws FileNotFoundException {
+    public QueryPlanBuilder(Statement statement)
+        throws FileNotFoundException {
         Select select= (Select) statement;
         PlainSelect body= (PlainSelect) select.getSelectBody();
         List<SelectItem> selectItems= body.getSelectItems();
@@ -78,11 +82,10 @@ public class QueryPlanBuilder {
         Expression exp= body.getWhere();
         String fromTable= body.getFromItem().toString();
         List<Join> joins= body.getJoins();
-
+        List<OrderByElement> orderByElements= body.getOrderByElements();
         Operator subRoot;
         if (joins != null) {
-            LinkedList<String> joinNames= joins.stream()
-                .map(j -> j.toString())
+            LinkedList<String> joinNames= joins.stream().map(j -> j.toString())
                 .collect(Collectors.toCollection(LinkedList::new));
             joinNames.addFirst(fromTable);
             JoinVisitor jv= new JoinVisitor(joinNames);
@@ -92,7 +95,7 @@ public class QueryPlanBuilder {
             Operator scanOp= new ScanOperator(body.getFromItem().toString());
             subRoot= exp != null ? new SelectOperator(scanOp, exp) : scanOp;
         }
-
-        operator= !isAllColumns ? new ProjectOperator(subRoot, selectItems) : subRoot;
+        if (!isAllColumns) subRoot= new ProjectOperator(subRoot, selectItems);
+        operator= orderByElements != null ? new SortOperator(subRoot, orderByElements) : subRoot;
     }
 }
