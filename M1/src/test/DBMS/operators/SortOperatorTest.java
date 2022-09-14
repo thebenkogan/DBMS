@@ -17,7 +17,7 @@ import net.sf.jsqlparser.statement.select.OrderByElement;
 class SortOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("samples/input");
+        Catalog.init("samples/input", null);
     }
 
     SortOperator getOperator(String selectColumns, String whereCondition, String columnNames)
