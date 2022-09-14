@@ -16,7 +16,7 @@ import net.sf.jsqlparser.expression.Expression;
 class SelectOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("samples/input");
+        Catalog.init("samples/input", null);
     }
 
     SelectOperator getOperator() throws FileNotFoundException {

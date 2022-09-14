@@ -17,7 +17,7 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 class ProjectOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("samples/input");
+        Catalog.init("samples/input", null);
     }
 
     ProjectOperator getOperator() throws FileNotFoundException {

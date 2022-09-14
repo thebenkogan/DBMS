@@ -1,31 +1,33 @@
 package DBMS;
 
-import java.io.FileReader;
+import java.io.IOException;
 
 import DBMS.utils.Catalog;
 import DBMS.utils.QueryPlanBuilder;
 import net.sf.jsqlparser.parser.CCJSqlParser;
+import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.statement.Statement;
 
 public class Interpreter {
 
-    private static final String queriesFile= "samples/input/queries_join.sql";
-    private static final String inputPath= "samples/input";
-
-    public static void main(String[] args) {
-        try {
-            Catalog.init(inputPath);
-            CCJSqlParser parser= new CCJSqlParser(new FileReader(queriesFile));
-            Statement statement;
-            while ((statement= parser.Statement()) != null) {
-                System.out.println(statement);
+    public static void run() throws IOException, ParseException {
+        CCJSqlParser parser= Catalog.getInstance().getQueryFile();
+        int i= 1;
+        Statement statement;
+        while ((statement= parser.Statement()) != null) {
+            try {
                 QueryPlanBuilder queryPlan= new QueryPlanBuilder(statement);
-                // TODO: Change interpreter to accept inputpath and outputpath and
-                // dump the query to outputpath
+                queryPlan.operator.dump(Catalog.getInstance().getOutputWriter(i));
+            } catch (Exception e) {
+                System.out.println("Failure: " + statement);
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            System.err.println("Exception occurred during parsing");
-            e.printStackTrace();
+            i++ ;
         }
+    }
+
+    public static void main(String[] args) throws IOException, ParseException {
+        Catalog.init(args[0], args[1]);
+        run();
     }
 }

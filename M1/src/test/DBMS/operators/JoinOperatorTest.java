@@ -18,7 +18,7 @@ import net.sf.jsqlparser.expression.Expression;
 class JoinOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("samples/input");
+        Catalog.init("samples/input", null);
     }
 
     JoinOperator getOperator() throws FileNotFoundException {

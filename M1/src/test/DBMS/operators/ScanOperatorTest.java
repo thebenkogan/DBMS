@@ -15,7 +15,7 @@ import DBMS.utils.Catalog;
 class ScanOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("samples/input");
+        Catalog.init("samples/input", null);
     }
 
     @Test
