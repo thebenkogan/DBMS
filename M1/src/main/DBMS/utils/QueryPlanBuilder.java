@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import DBMS.operators.DuplicateEliminationOperator;
 import DBMS.operators.JoinOperator;
 import DBMS.operators.Operator;
 import DBMS.operators.ProjectOperator;
@@ -17,6 +18,7 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.AllColumns;
+import net.sf.jsqlparser.statement.select.Distinct;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.OrderByElement;
@@ -36,8 +38,6 @@ public class QueryPlanBuilder {
         String tableName= tables.remove(0);
         Expression exp= jv.getExpression(tableName);
 
-        // Scan Operator must use the real table name, since it directly
-        // accesses the table
         Operator op= new ScanOperator(tableName);
         if (exp != null)
             op= new SelectOperator(op, exp);
@@ -90,11 +90,10 @@ public class QueryPlanBuilder {
         List<Join> joins= body.getJoins();
         List<OrderByElement> orderByElements= body.getOrderByElements();
         boolean usingAliases= mainFromItem.getAlias() != null;
+        Distinct distinct= body.getDistinct();
 
         String fromTable;
-        // set fromTable to be alias if it exists, and table name otherwise
         if (usingAliases) {
-            // add first alias to alias map
             Catalog.populateAliasMap(mainFromItem);
             fromTable= mainFromItem.getAlias();
         } else {
@@ -125,6 +124,9 @@ public class QueryPlanBuilder {
             subRoot= exp != null ? new SelectOperator(scanOp, exp) : scanOp;
         }
         if (!isAllColumns) subRoot= new ProjectOperator(subRoot, selectItems);
-        operator= orderByElements != null ? new SortOperator(subRoot, orderByElements) : subRoot;
+        subRoot= orderByElements != null || distinct != null ?
+            new SortOperator(subRoot, orderByElements) :
+            subRoot;
+        operator= distinct != null ? new DuplicateEliminationOperator(subRoot) : subRoot;
     }
 }

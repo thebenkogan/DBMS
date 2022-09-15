@@ -1,5 +1,6 @@
 package DBMS.utils;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -75,6 +76,13 @@ public class Tuple {
     @Override
     public String toString() {
         return row.values().toString().replaceAll("\\s|\\[|\\]", "");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Tuple other= (Tuple) o;
+        return Arrays.equals(row.values().toArray(), other.row.values().toArray());
     }
 
     /** Merges left and right into a new Tuple. Merged columnOrder is the concatenation of

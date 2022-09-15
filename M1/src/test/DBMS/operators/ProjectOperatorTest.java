@@ -21,8 +21,7 @@ class ProjectOperatorTest {
     }
 
     ProjectOperator getOperator() throws FileNotFoundException {
-        List<SelectItem> items= Helpers
-            .selectItemsFromQuery("select Boats.F, Boats.D from Boats");
+        List<SelectItem> items= Helpers.strSelectItemsToSelectItems("Boats.F", "Boats.D");
         ScanOperator scanOp= new ScanOperator("Boats");
         return new ProjectOperator(scanOp, items);
     }

@@ -20,14 +20,9 @@ class SortOperatorTest {
         Catalog.init("samples/input", null);
     }
 
-    SortOperator getOperator(String selectColumns, String whereCondition, String columnNames)
+    SortOperator getOperator(String selectColumns, String whereCondition, String orderBy)
         throws FileNotFoundException {
-        boolean scan= whereCondition.isBlank();
-        String where= (!scan) ? "where " + whereCondition : "";
-        List<OrderByElement> orderByElements= Helpers
-            .getOrderByElementsFromQuery(
-                "select " + selectColumns + " from Boats " + where + " order by " +
-                    columnNames);
+        List<OrderByElement> orderByElements= Helpers.strOrderBysToOrderBys(orderBy);
 
         ScanOperator scanOperator= new ScanOperator("Boats");
         if (whereCondition.isBlank()) {
@@ -36,9 +31,7 @@ class SortOperatorTest {
             Expression exp= Helpers.strExpToExp(whereCondition);
             SelectOperator selectOperator= new SelectOperator(scanOperator, exp);
             return new SortOperator(selectOperator, orderByElements);
-
         }
-
     }
 
     @Test

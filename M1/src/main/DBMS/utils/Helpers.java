@@ -32,13 +32,15 @@ public class Helpers {
     }
 
     @SuppressWarnings("unchecked")
-    public static List<OrderByElement> getOrderByElementsFromQuery(String query) {
-        return convertQuery(query).getOrderByElements();
+    public static List<OrderByElement> strOrderBysToOrderBys(String... orderBys) {
+        return convertQuery("select * from t order by " + String.join(", ", orderBys))
+            .getOrderByElements();
     }
 
     @SuppressWarnings("unchecked")
-    public static List<SelectItem> selectItemsFromQuery(String query) {
-        return convertQuery(query).getSelectItems();
+    public static List<SelectItem> strSelectItemsToSelectItems(String... selectItems) {
+        return convertQuery("select " + String.join(", ", selectItems) + " from t")
+            .getSelectItems();
     }
 
     public static AndExpression wrapExpressionWithAnd(Expression exp) {

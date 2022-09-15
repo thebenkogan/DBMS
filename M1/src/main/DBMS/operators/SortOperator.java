@@ -17,6 +17,8 @@ public class SortOperator extends Operator {
     private List<OrderByElement> orderBys;
     private int index= 0;
 
+    /** @param child child operator
+     * @param orderBys list of orderBys, null if none */
     public SortOperator(Operator child, List<OrderByElement> orderBys) {
         this.child= child;
         this.orderBys= orderBys;
@@ -29,11 +31,13 @@ public class SortOperator extends Operator {
      *         statement */
     private List<String> getTableColumnNames() {
         List<String> tableColumnNames= new LinkedList<>();
-        for (OrderByElement orderBy : orderBys) {
-            Column col= (Column) orderBy.getExpression();
-            String tableName= col.getTable().getName();
-            String columnName= col.getColumnName();
-            tableColumnNames.add(Tuple.key(tableName, columnName));
+        if (orderBys != null) {
+            for (OrderByElement orderBy : orderBys) {
+                Column col= (Column) orderBy.getExpression();
+                String tableName= col.getTable().getName();
+                String columnName= col.getColumnName();
+                tableColumnNames.add(Tuple.key(tableName, columnName));
+            }
         }
         if (table.size() > 0) {
             for (String tableColumnName : table.get(0).getTableColumnNames()) {
