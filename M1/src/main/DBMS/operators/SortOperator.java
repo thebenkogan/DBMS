@@ -13,7 +13,7 @@ import net.sf.jsqlparser.statement.select.OrderByElement;
 public class SortOperator extends Operator {
 
     private Operator child;
-    private ArrayList<Tuple> table= new ArrayList<Tuple>();
+    private ArrayList<Tuple> table= new ArrayList<>();
     private List<OrderByElement> orderBys;
     private int index= 0;
 
@@ -24,10 +24,11 @@ public class SortOperator extends Operator {
         Collections.sort(table, new TupleComparator(getTableColumnNames()));
     }
 
-    /** @return column names in order of sorting; first the columns specified in the ORDER BY
-     *         statement, then the columns not previously mentioned from the SELECT statement */
+    /** @return table (aliased) & column names in order of sorting; first the columns specified in
+     *         the ORDER BY statement, then the columns not previously mentioned from the SELECT
+     *         statement */
     private List<String> getTableColumnNames() {
-        List<String> tableColumnNames= new LinkedList<String>();
+        List<String> tableColumnNames= new LinkedList<>();
         for (OrderByElement orderBy : orderBys) {
             Column col= (Column) orderBy.getExpression();
             String tableName= col.getTable().getName();

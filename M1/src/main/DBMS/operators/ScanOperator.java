@@ -12,7 +12,7 @@ import DBMS.utils.Tuple;
 
 public class ScanOperator extends Operator {
 
-    /** name of underlying table */
+    /** name (aliased) of underlying table */
     private String name;
 
     /** reader for the underlying table */
@@ -25,9 +25,11 @@ public class ScanOperator extends Operator {
         return Catalog.getInstance().getTable(tableName);
     }
 
+    /** @param tableName name (aliased) of underlying table
+     * @throws FileNotFoundException */
     public ScanOperator(String tableName) throws FileNotFoundException {
         name= tableName;
-        reader= getReader(tableName);
+        reader= getReader(Catalog.getRealTableName(tableName));
     }
 
     @Override
@@ -41,7 +43,8 @@ public class ScanOperator extends Operator {
             for (int i= 0; i < size; i++ ) {
                 nums.add(Integer.parseInt(data.nextToken()));
             }
-            return new Tuple(name, Catalog.getInstance().getTableColumns(name), nums);
+            return new Tuple(name,
+                Catalog.getInstance().getTableColumns(Catalog.getRealTableName(name)), nums);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -52,7 +55,7 @@ public class ScanOperator extends Operator {
     public void reset() {
         try {
             reader.close();
-            reader= getReader(name);
+            reader= getReader(Catalog.getRealTableName(name));
         } catch (IOException e) {
             e.printStackTrace();
         }

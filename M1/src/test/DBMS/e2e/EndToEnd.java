@@ -27,9 +27,11 @@ class EndToEnd {
         File[] outputFiles= (new File(outputPath)).listFiles();
         File[] expectedFiles= (new File(expectedOutputPath)).listFiles();
         for (int i= 0; i < outputFiles.length; i++ ) {
-            String outputText= new String(Files.readAllBytes(Paths.get(outputFiles[i].getPath())));
+            String outputText= new String(Files.readAllBytes(Paths.get(outputFiles[i].getPath())))
+                .replaceAll("\\n|\\r", "");
             String expectedText= new String(
-                Files.readAllBytes(Paths.get(expectedFiles[i].getPath())));
+                Files.readAllBytes(Paths.get(expectedFiles[i].getPath()))).replaceAll("\\n|\\r",
+                    "");
             assertEquals(outputText, expectedText);
         }
     }

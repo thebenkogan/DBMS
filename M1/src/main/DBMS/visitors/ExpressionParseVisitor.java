@@ -97,7 +97,9 @@ public class ExpressionParseVisitor extends ExpressionVisitorBase {
 
     @Override
     public void visit(Column col) {
-        longResult= currentTuple.get(col.getTable().getName(), col.getColumnName());
+        String tableName= col.getTable().getAlias();
+        if (tableName == null) tableName= col.getTable().getName();
+        longResult= currentTuple.get(tableName, col.getColumnName());
     }
 
 }

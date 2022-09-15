@@ -36,7 +36,7 @@ public class JoinVisitor extends ExpressionVisitorBase {
     }
 
     /** Constructs a key from two table names to lookup their corresponding expressions.
-     * 
+     *
      * @param name1 first name
      * @param name2 second name
      * @return expressions key */

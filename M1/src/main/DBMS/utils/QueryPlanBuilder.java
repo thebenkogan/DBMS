@@ -14,8 +14,10 @@ import DBMS.operators.SelectOperator;
 import DBMS.operators.SortOperator;
 import DBMS.visitors.JoinVisitor;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.AllColumns;
+import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -25,7 +27,7 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 public class QueryPlanBuilder {
     public Operator operator;
 
-    /** @param tables table names, removes first
+    /** @param tables table names (aliased), removes first
      * @param jv     join visitor
      * @return scan/select operator from first table name in tables
      * @throws FileNotFoundException */
@@ -33,6 +35,9 @@ public class QueryPlanBuilder {
         throws FileNotFoundException {
         String tableName= tables.remove(0);
         Expression exp= jv.getExpression(tableName);
+
+        // Scan Operator must use the real table name, since it directly
+        // accesses the table
         Operator op= new ScanOperator(tableName);
         if (exp != null)
             op= new SelectOperator(op, exp);
@@ -40,8 +45,9 @@ public class QueryPlanBuilder {
     }
 
     /** Requires: tables.length > 1
-     * 
-     * @param tables tables to place in tree
+     *
+     * @param tables tables to place in tree. If aliases exist, then tables consists solely of
+     *               aliases. Otherwise, tables contains actual table names
      * @throws FileNotFoundException */
     private JoinOperator createLeftDeepTree(List<String> tables, JoinVisitor jv)
         throws FileNotFoundException {
@@ -80,19 +86,42 @@ public class QueryPlanBuilder {
         List<SelectItem> selectItems= body.getSelectItems();
         boolean isAllColumns= selectItems.get(0) instanceof AllColumns;
         Expression exp= body.getWhere();
-        String fromTable= body.getFromItem().toString();
+        FromItem mainFromItem= body.getFromItem();
         List<Join> joins= body.getJoins();
         List<OrderByElement> orderByElements= body.getOrderByElements();
+        boolean usingAliases= mainFromItem.getAlias() != null;
+
+        String fromTable;
+        // set fromTable to be alias if it exists, and table name otherwise
+        if (usingAliases) {
+            // add first alias to alias map
+            Catalog.populateAliasMap(mainFromItem);
+            fromTable= mainFromItem.getAlias();
+        } else {
+            fromTable= mainFromItem.toString();
+        }
+
         Operator subRoot;
         if (joins != null) {
-            LinkedList<String> joinNames= joins.stream().map(j -> j.toString())
+            if (usingAliases) {
+                // populate alias map with the rest of the aliases
+                Catalog.populateAliasMap(joins.stream()
+                    .map(j -> j.getRightItem())
+                    .collect(Collectors.toCollection(LinkedList::new)));
+            }
+
+            // if there are aliases, joinNames consists of the aliases
+            // of joins. otherwise, joinNames consists of the table names
+            LinkedList<String> joinNames= joins.stream()
+                .map(j -> usingAliases ? ((Table) j.getRightItem()).getAlias() : j.toString())
                 .collect(Collectors.toCollection(LinkedList::new));
             joinNames.addFirst(fromTable);
+
             JoinVisitor jv= new JoinVisitor(joinNames);
             Helpers.wrapExpressionWithAnd(exp).accept(jv);
             subRoot= createLeftDeepTree(joinNames, jv);
         } else {
-            Operator scanOp= new ScanOperator(body.getFromItem().toString());
+            Operator scanOp= new ScanOperator(fromTable);
             subRoot= exp != null ? new SelectOperator(scanOp, exp) : scanOp;
         }
         if (!isAllColumns) subRoot= new ProjectOperator(subRoot, selectItems);

@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import net.sf.jsqlparser.parser.CCJSqlParser;
+import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.select.FromItem;
 
 public class Catalog {
 
@@ -22,8 +24,11 @@ public class Catalog {
     /** path to output directory */
     private static String output;
 
-    /** Map from table name to list of column names */
+    /** Map from (unaliased) table name to list of column names */
     private static Map<String, List<String>> schema= new HashMap<>();
+
+    /** Map of aliases to real table names */
+    private static Map<String, String> aliasMap= new HashMap<>();
 
     private static Catalog instance= new Catalog();
 
@@ -66,17 +71,38 @@ public class Catalog {
         }
     }
 
-    /** @param name name of the table to lookup
+    /** @param name (unaliased) name of the table to lookup
      * @return BufferedReader for the table
      * @throws FileNotFoundException */
     public BufferedReader getTable(String name) throws FileNotFoundException {
         return readerFromPath(input, "db", "data", name);
     }
 
-    /** @param name name of the table to extract columns
+    /** @param name (unaliased) name of the table to extract columns
      * @return list of column names */
     public List<String> getTableColumns(String name) {
         return schema.get(name);
+    }
+
+    /** @param fromItem table with one alias */
+    public static void populateAliasMap(FromItem fromItem) {
+        Table table= (Table) fromItem;
+        aliasMap.put(table.getAlias(), table.getWholeTableName());
+    }
+
+    /** @param fromItems tables with list of aliases */
+    public static void populateAliasMap(List<FromItem> fromItems) {
+        for (FromItem fromItem : fromItems) {
+            Table table= (Table) fromItem;
+            aliasMap.put(table.getAlias(), table.getWholeTableName());
+        }
+    }
+
+    /** @param name table name (aliased)
+     * @return the actual table name corresponding to the input */
+    public static String getRealTableName(String name) {
+        if (aliasMap.containsKey(name)) return aliasMap.get(name);
+        return name;
     }
 
     /** @return Parser for the query file corresponding to the Catalog input.
