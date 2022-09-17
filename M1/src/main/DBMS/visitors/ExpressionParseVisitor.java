@@ -31,11 +31,15 @@ public class ExpressionParseVisitor extends ExpressionVisitorBase {
         return booleanResult;
     }
 
+    /** @param exp The expression which the visitor evaluates
+     * @return the boolean result of evaluating exp */
     private boolean evaluateBoolean(Expression exp) {
         exp.accept(this);
         return booleanResult;
     }
 
+    /** @param exp The expression which the visitor evaluates
+     * @return the long result of evaluating exp */
     private long evaluateLong(Expression exp) {
         exp.accept(this);
         return longResult;
