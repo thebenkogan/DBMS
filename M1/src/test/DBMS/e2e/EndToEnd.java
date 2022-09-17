@@ -14,11 +14,15 @@ import DBMS.utils.Catalog;
 import net.sf.jsqlparser.parser.ParseException;
 
 class EndToEnd {
-
     private static final String inputPath= "samples/input";
     private static final String outputPath= "samples/e2e_output";
     private static final String expectedOutputPath= "samples/expected_output";
 
+    /** Initializes catalog, runs the input queries file, and asserts interpreter output with
+     * expected output.
+     * 
+     * @throws IOException
+     * @throws ParseException */
     @Test
     void endToEndTest() throws IOException, ParseException {
         Catalog.init(inputPath, outputPath);

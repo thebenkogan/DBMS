@@ -107,7 +107,7 @@ public class Catalog {
 
     /** @return Parser for the query file corresponding to the Catalog input.
      * @throws FileNotFoundException */
-    public CCJSqlParser getQueryFile() throws FileNotFoundException {
+    public CCJSqlParser getQueriesFile() throws FileNotFoundException {
         return new CCJSqlParser(new FileReader(join(input, "queries.sql")));
     }
 

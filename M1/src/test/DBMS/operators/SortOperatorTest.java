@@ -1,5 +1,6 @@
 package DBMS.operators;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.FileNotFoundException;
@@ -42,11 +43,13 @@ class SortOperatorTest {
         assertEquals("103,1,1", sortOperation1.getNextTuple().toString());
         assertEquals("107,2,8", sortOperation1.getNextTuple().toString());
         assertEquals("104,104,2", sortOperation1.getNextTuple().toString());
+        assertNull(sortOperation1.getNextTuple());
         assertEquals("101,2,3", sortOperation2.getNextTuple().toString());
         assertEquals("102,3,4", sortOperation2.getNextTuple().toString());
         assertEquals("103,1,1", sortOperation2.getNextTuple().toString());
         assertEquals("104,104,2", sortOperation2.getNextTuple().toString());
         assertEquals("107,2,8", sortOperation2.getNextTuple().toString());
+        assertNull(sortOperation2.getNextTuple());
     }
 
     @Test

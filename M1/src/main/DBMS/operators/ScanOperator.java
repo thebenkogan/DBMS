@@ -32,11 +32,13 @@ public class ScanOperator extends Operator {
         reader= getReader(Catalog.getRealTableName(tableName));
     }
 
+    /** @return next Tuple from underlying DB file */
     @Override
     public Tuple getNextTuple() {
         try {
             String next= reader.readLine();
-            if (next == null) return null;
+            if (next == null)
+                return null;
             StringTokenizer data= new StringTokenizer(next, ",");
             int size= data.countTokens();
             List<Integer> nums= new ArrayList<>(size);
@@ -51,6 +53,7 @@ public class ScanOperator extends Operator {
         return null;
     }
 
+    /** closes DB file reader and opens a new one starting at the top of the file */
     @Override
     public void reset() {
         try {

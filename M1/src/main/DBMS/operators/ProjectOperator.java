@@ -17,16 +17,14 @@ public class ProjectOperator extends Operator {
     private List<String> columnNames;
     /** name (aliased) of projected tables */
     private List<String> tableNames;
-    // invariant: tableNames[i] must be the real table name (not alias) of columnNames[i]
+    // invariant: tableNames[i] must be the real table name of columnNames[i]
 
-    /** Requires selectItems does not contain AllColumns.
-     *
-     * @param child       child operator to project
-     * @param selectItems columns to project */
+    /** @param child   child operator to project
+     * @param selectItems columns to project; does not contain AllColumns */
     public ProjectOperator(Operator child, List<SelectItem> selectItems) {
         this.child= child;
-        columnNames= selectItems.stream()
-            .map(item -> ((Column) ((SelectExpressionItem) item).getExpression()).getColumnName())
+        columnNames= selectItems.stream().map(
+            item -> ((Column) ((SelectExpressionItem) item).getExpression()).getColumnName())
             .collect(Collectors.toList());
         tableNames= new LinkedList<>();
         for (SelectItem item : selectItems) {
@@ -36,11 +34,13 @@ public class ProjectOperator extends Operator {
         }
     }
 
+    /** resets child operator */
     @Override
     public void reset() {
         child.reset();
     }
 
+    /** @return next projected Tuple */
     @Override
     public Tuple getNextTuple() {
         Tuple nextTuple= child.getNextTuple();

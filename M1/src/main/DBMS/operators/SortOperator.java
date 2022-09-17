@@ -13,11 +13,17 @@ import net.sf.jsqlparser.statement.select.OrderByElement;
 public class SortOperator extends Operator {
 
     private Operator child;
-    private ArrayList<Tuple> table= new ArrayList<>();
     private List<OrderByElement> orderBys;
+
+    /** internal buffer that holds all of child's output in ascending order */
+    private ArrayList<Tuple> table= new ArrayList<>();
+
+    /** index of the next tuple to return in table */
     private int index= 0;
 
-    /** @param child child operator
+    /** Reads all Tuples from child into table, then sorts in the order specified by orderBys.
+     * 
+     * @param child    child operator
      * @param orderBys list of orderBys, null if none */
     public SortOperator(Operator child, List<OrderByElement> orderBys) {
         this.child= child;
@@ -48,13 +54,14 @@ public class SortOperator extends Operator {
         return tableColumnNames;
     }
 
+    /** @return Tuple at index in table */
     @Override
     public Tuple getNextTuple() {
         if (index == table.size()) return null;
         return table.get(index++ );
     }
 
-    /** {@summary} populate tuples into table */
+    /** reads all of the Tuples from the child operator and adds them to table */
     public void populateTable() {
         Tuple currTuple;
         while ((currTuple= child.getNextTuple()) != null) {
@@ -62,6 +69,7 @@ public class SortOperator extends Operator {
         }
     }
 
+    /** resets internal buffer index */
     @Override
     public void reset() {
         index= 0;
@@ -75,13 +83,15 @@ class TupleComparator implements Comparator<Tuple> {
         this.tableColumnNames= tableColumnNames;
     }
 
+    /** compares Tuples column by column as specified by tableColumnNames */
     @Override
     public int compare(Tuple t1, Tuple t2) {
         for (String name : tableColumnNames) {
             String tableName= Tuple.getTableName(name);
             String columnName= Tuple.getColumnName(name);
             int comp= Integer.compare(t1.get(tableName, columnName), t2.get(tableName, columnName));
-            if (comp != 0) return comp;
+            if (comp != 0)
+                return comp;
         }
         return 0;
     }

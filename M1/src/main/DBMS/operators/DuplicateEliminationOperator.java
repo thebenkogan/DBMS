@@ -12,6 +12,7 @@ public class DuplicateEliminationOperator extends Operator {
         this.child= child;
     }
 
+    /** @return next unique Tuple */
     @Override
     public Tuple getNextTuple() {
         Tuple next;
