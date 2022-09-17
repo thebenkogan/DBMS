@@ -13,6 +13,7 @@ import DBMS.Interpreter;
 import DBMS.utils.Catalog;
 import net.sf.jsqlparser.parser.ParseException;
 
+/** Runs end-to-end tests. */
 class EndToEnd {
     private static final String inputPath= "samples/input";
     private static final String outputPath= "samples/e2e_output";

@@ -15,6 +15,7 @@ import DBMS.utils.Helpers;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
+/** Unit tests for the SortOperator */
 class SortOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {

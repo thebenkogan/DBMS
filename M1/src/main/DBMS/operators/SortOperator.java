@@ -10,10 +10,11 @@ import DBMS.utils.Tuple;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
+/** An operator that reads all of its child Tuples, stores and sorts them in ascending order, and
+ * returns them one-by-one as requested. */
 public class SortOperator extends Operator {
 
     private Operator child;
-    private List<OrderByElement> orderBys;
 
     /** internal buffer that holds all of child's output in ascending order */
     private ArrayList<Tuple> table= new ArrayList<>();
@@ -27,15 +28,15 @@ public class SortOperator extends Operator {
      * @param orderBys list of orderBys, null if none */
     public SortOperator(Operator child, List<OrderByElement> orderBys) {
         this.child= child;
-        this.orderBys= orderBys;
         populateTable();
-        Collections.sort(table, new TupleComparator(getTableColumnNames()));
+        Collections.sort(table, new TupleComparator(getTableColumnNames(orderBys)));
     }
 
-    /** @return table (aliased) & column names in order of sorting; first the columns specified in
-     *         the ORDER BY statement, then the columns not previously mentioned from the SELECT
-     *         statement */
-    private List<String> getTableColumnNames() {
+    /** @param orderBys list of columns to prioritize for sorting
+     * @return table (aliased) & column names in order of sorting; first the columns specified in
+     *         the ORDER BY statement, then the columns not previously mentioned as they appear in
+     *         the child Tuples */
+    private List<String> getTableColumnNames(List<OrderByElement> orderBys) {
         List<String> tableColumnNames= new LinkedList<>();
         if (orderBys != null) {
             for (OrderByElement orderBy : orderBys) {
@@ -76,9 +77,12 @@ public class SortOperator extends Operator {
     }
 }
 
+/** A comparator that compares two Tuples by comparing their equality based on a specified column
+ * ordering. */
 class TupleComparator implements Comparator<Tuple> {
     private List<String> tableColumnNames;
 
+    /** @param tableColumnNames (aliased) table.column names to sort by */
     public TupleComparator(List<String> tableColumnNames) {
         this.tableColumnNames= tableColumnNames;
     }

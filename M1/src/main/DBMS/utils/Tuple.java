@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
+/** The representation of a row in a table. */
 public class Tuple {
     /** Maps (aliased) table.column key to value in row. Insertion order represents column
      * ordering. */

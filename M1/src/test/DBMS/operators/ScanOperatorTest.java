@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import DBMS.utils.Catalog;
 
+/** Unit tests for the ScanOperator */
 class ScanOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {

@@ -4,12 +4,13 @@ import DBMS.utils.Tuple;
 import DBMS.visitors.ExpressionParseVisitor;
 import net.sf.jsqlparser.expression.Expression;
 
+/** An operator that returns only those child Tuples that satisfy a specified expression. */
 public class SelectOperator extends Operator {
 
     private Operator scanOperator;
     private ExpressionParseVisitor visitor= new ExpressionParseVisitor();
 
-    /** select expression, Tuple is returned if this evaluates to true */
+    /** select expression; Tuple is returned if this evaluates to true */
     private Expression exp;
 
     /** @param scanOperator child operator of SelectOperator
@@ -32,7 +33,7 @@ public class SelectOperator extends Operator {
         if (nextTuple == null) return null;
         visitor.currentTuple= nextTuple;
         exp.accept(visitor);
-        return visitor.getBooleanResult() ? nextTuple : getNextTuple();
+        return visitor.booleanResult ? nextTuple : getNextTuple();
     }
 
 }

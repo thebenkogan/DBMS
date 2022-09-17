@@ -2,12 +2,15 @@ package DBMS.operators;
 
 import DBMS.utils.Tuple;
 
+/** An operator that assumes its child returns Tuples in sorted order and filters out any
+ * duplicates. */
 public class DuplicateEliminationOperator extends Operator {
     Operator child;
 
     /** previous Tuple returned */
     Tuple prev= null;
 
+    /** @param child child operator; must be a sort operator */
     public DuplicateEliminationOperator(Operator child) {
         this.child= child;
     }
@@ -21,6 +24,7 @@ public class DuplicateEliminationOperator extends Operator {
         return next;
     }
 
+    /** resets the child operator and sets prev to null */
     @Override
     public void reset() {
         child.reset();

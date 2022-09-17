@@ -8,6 +8,7 @@ import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.statement.Statement;
 
+/** Main entry point of the DBMS and the corresponding query runner */
 public class Interpreter {
 
     /** Executes all queries in the catalog queries file and writes the output to the catalog output

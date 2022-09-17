@@ -16,6 +16,9 @@ import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
 
+/** A singleton responsible for storing the information of the input queries file, schema file, and
+ * DB files. Also creates and maintains an alias map so that all parts of the DBMS can easily
+ * retrieve the full table name for a given alias. */
 public class Catalog {
 
     /** path to input directory */
@@ -30,10 +33,12 @@ public class Catalog {
     /** Map of aliases to real table names */
     private static Map<String, String> aliasMap= new HashMap<>();
 
+    /** single instance */
     private static Catalog instance= new Catalog();
 
     private Catalog() {}
 
+    /** @return singleton instance */
     public static Catalog getInstance() {
         return instance;
     }
@@ -51,7 +56,9 @@ public class Catalog {
         return new BufferedReader(new FileReader(join(path)));
     }
 
-    /** @param input path to input directory
+    /** initializes the input and output paths and reads the corresponding schema file
+     * 
+     * @param input  path to input directory
      * @param output path to output directory
      * @throws IOException */
     public static void init(String input, String output) throws IOException {
@@ -112,7 +119,7 @@ public class Catalog {
     }
 
     /** @param i query number
-     * @return FileWriter for dumping the query results
+     * @return FileWriter for dumping the query results to write file in the output path
      * @throws IOException */
     public FileWriter getOutputWriter(int i) throws IOException {
         File file= new File(join(output, "query" + i));

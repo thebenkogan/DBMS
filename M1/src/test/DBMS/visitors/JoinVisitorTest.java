@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import DBMS.utils.Helpers;
 import net.sf.jsqlparser.expression.Expression;
 
+/** Unit tests for the JoinVisitor */
 class JoinVisitorTest {
 
     @Test

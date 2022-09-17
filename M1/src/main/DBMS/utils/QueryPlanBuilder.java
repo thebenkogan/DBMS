@@ -26,6 +26,7 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
+/** Builds a query plan from a Statement and stores the root operator. */
 public class QueryPlanBuilder {
     public Operator operator;
 
@@ -44,10 +45,8 @@ public class QueryPlanBuilder {
         return op;
     }
 
-    /** Requires: tables.length > 1
-     *
-     * @param tables tables to place in tree. If aliases exist, then tables consists solely of
-     *               aliases. Otherwise, tables contains actual table names
+    /** @param tables tables to place in tree. If aliases exist, then tables consists solely of
+     *               aliases. Otherwise, tables contains actual table names; tables.length > 1
      * @throws FileNotFoundException */
     private JoinOperator createLeftDeepTree(List<String> tables, JoinVisitor jv)
         throws FileNotFoundException {
@@ -78,9 +77,11 @@ public class QueryPlanBuilder {
         return joinOp;
     }
 
+    /** @param statement Statement for which to build a query plan and create a root operator
+     * @throws FileNotFoundException */
     @SuppressWarnings("unchecked")
-    public QueryPlanBuilder(Statement statement)
-        throws FileNotFoundException {
+    public QueryPlanBuilder(Statement statement) throws FileNotFoundException {
+        // extract relevant items from statement
         Select select= (Select) statement;
         PlainSelect body= (PlainSelect) select.getSelectBody();
         List<SelectItem> selectItems= body.getSelectItems();
@@ -92,6 +93,7 @@ public class QueryPlanBuilder {
         boolean usingAliases= mainFromItem.getAlias() != null;
         Distinct distinct= body.getDistinct();
 
+        // get aliased (or not) from table and store in alias map
         String fromTable;
         if (usingAliases) {
             Catalog.populateAliasMap(mainFromItem);
@@ -102,27 +104,30 @@ public class QueryPlanBuilder {
 
         Operator subRoot;
         if (joins != null) {
+            // store the join tables in the alias map if aliased
             if (usingAliases) {
-                // populate alias map with the rest of the aliases
                 Catalog.populateAliasMap(joins.stream()
                     .map(j -> j.getRightItem())
                     .collect(Collectors.toCollection(LinkedList::new)));
             }
 
-            // if there are aliases, joinNames consists of the aliases
-            // of joins. otherwise, joinNames consists of the table names
+            // get full list of (aliased) table names to join
             LinkedList<String> joinNames= joins.stream()
                 .map(j -> usingAliases ? ((Table) j.getRightItem()).getAlias() : j.toString())
                 .collect(Collectors.toCollection(LinkedList::new));
             joinNames.addFirst(fromTable);
 
+            // build left deep tree of expressions and operators
             JoinVisitor jv= new JoinVisitor(joinNames);
             Helpers.wrapExpressionWithAnd(exp).accept(jv);
             subRoot= createLeftDeepTree(joinNames, jv);
         } else {
+            // if no joins, create a scan/select operator for the from table
             Operator scanOp= new ScanOperator(fromTable);
             subRoot= exp != null ? new SelectOperator(scanOp, exp) : scanOp;
         }
+
+        // add if necessary: projection, sorting, duplicate elimination
         if (!isAllColumns) subRoot= new ProjectOperator(subRoot, selectItems);
         subRoot= orderByElements != null || distinct != null ?
             new SortOperator(subRoot, orderByElements) :

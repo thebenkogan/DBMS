@@ -15,6 +15,7 @@ import DBMS.utils.Helpers;
 import DBMS.visitors.JoinVisitor;
 import net.sf.jsqlparser.expression.Expression;
 
+/** Unit tests for the JoinOperator */
 class JoinOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {

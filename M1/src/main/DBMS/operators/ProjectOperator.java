@@ -9,6 +9,7 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
+/** An operator that projects the Tuples from its child to a specified list of columns. */
 public class ProjectOperator extends Operator {
 
     private Operator child;

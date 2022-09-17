@@ -13,11 +13,13 @@ import DBMS.utils.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.ParseException;
 
+/** Unit tests for the ExpressionParseVisitor */
 class ExpressionParseVisitorTest {
-
     @Test
     void testExpressionVisitor() throws ParseException, IOException {
+        /** maps string expressions to expected evaluation */
         HashMap<String, Boolean> queries= new HashMap<String, Boolean>();
+
         queries.put("4<5", true);
         queries.put("5<4", false);
         queries.put("4<=4", true);
@@ -48,7 +50,7 @@ class ExpressionParseVisitorTest {
         queries.forEach((test, expected) -> {
             Expression exp= Helpers.strExpToExp(test);
             exp.accept(epv);
-            assertTrue(test, expected == epv.getBooleanResult());
+            assertTrue(test, expected == epv.booleanResult);
         });
     }
 

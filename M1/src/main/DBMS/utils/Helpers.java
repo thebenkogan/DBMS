@@ -14,6 +14,8 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
+/** A static class that provides helpful functions for converting string SQL segments to JsqlParser
+ * segments, and other useful functions for expressions. */
 public class Helpers {
 
     /*** @param query The string representation of a query

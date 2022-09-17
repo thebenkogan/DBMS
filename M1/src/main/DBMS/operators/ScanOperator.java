@@ -10,6 +10,7 @@ import java.util.StringTokenizer;
 import DBMS.utils.Catalog;
 import DBMS.utils.Tuple;
 
+/** An operator that reads data from file and builds Tuples. */
 public class ScanOperator extends Operator {
 
     /** name (aliased) of underlying table */

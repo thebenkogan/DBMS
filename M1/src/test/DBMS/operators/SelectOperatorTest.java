@@ -13,6 +13,7 @@ import DBMS.utils.Catalog;
 import DBMS.utils.Helpers;
 import net.sf.jsqlparser.expression.Expression;
 
+/** Unit tests for the SelectOperator */
 class SelectOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {

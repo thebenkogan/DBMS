@@ -14,6 +14,7 @@ import DBMS.utils.Catalog;
 import DBMS.utils.Helpers;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
+/** Unit tests for the ProjectOperator */
 class ProjectOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {

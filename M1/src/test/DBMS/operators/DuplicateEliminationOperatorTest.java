@@ -15,6 +15,7 @@ import DBMS.utils.Helpers;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
+/** Unit tests for the DuplicateEliminationOperator */
 class DuplicateEliminationOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {

@@ -22,6 +22,8 @@ import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 
+/** A visitor that reads a list of table names and an expression, and stores the running expressions
+ * for each unique combination of table names and the expressions that reference them. */
 public class JoinVisitor extends ExpressionVisitorBase {
 
     /** Map from table key to list of expressions referencing those tables */
@@ -46,6 +48,8 @@ public class JoinVisitor extends ExpressionVisitorBase {
         return tables.toString();
     }
 
+    /** @param tableNames list of (aliased) table names for which to create combinations of running
+     *                   expressions */
     public JoinVisitor(List<String> tableNames) {
         for (int i= 0; i < tableNames.size(); i++ ) {
             expressions.put(tableNames.get(i), new LinkedList<>());
@@ -85,6 +89,7 @@ public class JoinVisitor extends ExpressionVisitorBase {
     /** Table names referenced in current conjunct. */
     private Set<String> refTables= new HashSet<>();
 
+    /** reads the next conjunct and stores the expression based on the referenced tables */
     @Override
     public void visit(AndExpression exp) {
         refTables.clear();
@@ -94,7 +99,7 @@ public class JoinVisitor extends ExpressionVisitorBase {
 
         if (refTables.isEmpty()) {
             right.accept(epv);
-            if (!epv.getBooleanResult()) {
+            if (!epv.booleanResult) {
                 throw new ArithmeticException("Join condition always fails");
             }
         } else {
@@ -107,47 +112,55 @@ public class JoinVisitor extends ExpressionVisitorBase {
         left.accept(this);
     }
 
+    /** evaluates referenced tables */
     @Override
     public void visit(EqualsTo exp) {
         exp.getLeftExpression().accept(this);
         exp.getRightExpression().accept(this);
     }
 
+    /** evaluates referenced tables */
     @Override
     public void visit(GreaterThan exp) {
         exp.getLeftExpression().accept(this);
         exp.getRightExpression().accept(this);
     }
 
+    /** evaluates referenced tables */
     @Override
     public void visit(GreaterThanEquals exp) {
         exp.getLeftExpression().accept(this);
         exp.getRightExpression().accept(this);
     }
 
+    /** evaluates referenced tables */
     @Override
     public void visit(MinorThan exp) {
         exp.getLeftExpression().accept(this);
         exp.getRightExpression().accept(this);
     }
 
+    /** evaluates referenced tables */
     @Override
     public void visit(MinorThanEquals exp) {
         exp.getLeftExpression().accept(this);
         exp.getRightExpression().accept(this);
     }
 
+    /** evaluates referenced tables */
     @Override
     public void visit(NotEqualsTo exp) {
         exp.getLeftExpression().accept(this);
         exp.getRightExpression().accept(this);
     }
 
+    /** ignores numerical values as they do not reference any tables */
     @Override
     public void visit(LongValue longValue) {
         // noop
     }
 
+    /** extracts the table referenced by the column */
     @Override
     public void visit(Column col) {
         refTables.add(col.getTable().getName());
