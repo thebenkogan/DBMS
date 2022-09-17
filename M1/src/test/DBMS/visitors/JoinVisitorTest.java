@@ -1,7 +1,6 @@
 package DBMS.visitors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 
@@ -30,16 +29,6 @@ class JoinVisitorTest {
         assertEquals(
             jv.getExpression(name3, Arrays.asList(new String[] { name1, name2 })).toString(),
             "t.A = c.A AND b.A = c.A");
-    }
-
-    @Test
-    void testJoinConditionAlwaysFails() {
-        String name1= "t";
-        String name2= "b";
-
-        JoinVisitor jv= new JoinVisitor(Arrays.asList(new String[] { name1, name2 }));
-        Expression exp= Helpers.strExpToExp("b.A = t.G AND 1 > 2 AND t.H > 3 AND 99 < b.Y");
-        assertThrows(ArithmeticException.class, () -> exp.accept(jv));
     }
 
 }

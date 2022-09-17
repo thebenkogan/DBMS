@@ -100,7 +100,9 @@ public class JoinVisitor extends ExpressionVisitorBase {
         if (refTables.isEmpty()) {
             right.accept(epv);
             if (!epv.booleanResult) {
-                throw new ArithmeticException("Join condition always fails");
+                for (String key : expressions.keySet()) {
+                    expressions.get(key).add(right);
+                }
             }
         } else {
             String[] tables= refTables.toArray(String[]::new);

@@ -10,8 +10,8 @@ SELECT DISTINCT R.G FROM Reserves R;
 SELECT * FROM Boats, Sailors WHERE Boats.E = Sailors.A ORDER BY Boats.D;
 SELECT DISTINCT R.G, S.A FROM Reserves R, Sailors S WHERE R.G < 3;
 SELECT DISTINCT R.G, S.A FROM Reserves R, Sailors S WHERE R.G < 3 ORDER BY S.A;
-SELECT Sailors.B, Sailors.C FROM Sailors ORDER BY Sailors.C
-SELECT * FROM Boats, Sailors
+SELECT Sailors.B, Sailors.C FROM Sailors ORDER BY Sailors.C;
+SELECT * FROM Boats, Sailors;
 SELECT R.G FROM Reserves R WHERE R.G > 3;
 SELECT DISTINCT S.A, B.D, R.H FROM Sailors S, Boats B, Reserves R ORDER BY B.D, R.H; 
 SELECT * FROM Sailors, Boats WHERE Boats.F = Sailors.A AND Sailors.C > Boats.D ORDER BY Boats.D;
@@ -34,3 +34,5 @@ SELECT * FROM Reserves R1, Reserves R2, Reserves R3 WHERE R1.G < R2.G AND R3.H >
 SELECT * FROM Reserves R1, Reserves R2 WHERE R1.H = R2.H AND R1.G > R2.G ORDER BY R2.G, R1.G;
 SELECT * FROM Boats B1, Sailors S1, Sailors S2, Reserves R1 WHERE R1.H = B1.E AND B1.F < R1.G AND S1.C = S2.C AND S1.C < R1.H ORDER BY R1.G, B1.D, S2.A;
 SELECT S1.A, S2.B, B1.D, B2.E, B3.F, R1.G, R2.H FROM Sailors S1, Sailors S2, Boats B1, Boats B2, Boats B3, Reserves R1, Reserves R2 WHERE R2.G = B3.F AND R1.H = B1.E AND R2.G = B2.F AND S1.B > S2.C AND B2.E >= B3.D AND B3.D > S2.B ORDER BY S2.B, S1.A;
+SELECT * FROM Sailors, Reserves WHERE 50 < 49;
+SELECT S1.A, S2.B, B1.D, B2.E, B3.F, R1.G, R2.H FROM Sailors S1, Sailors S2, Boats B1, Boats B2, Boats B3, Reserves R1, Reserves R2 WHERE R2.G = B3.F AND R1.H = B1.E AND 4 > 5 AND R2.G = B2.F AND S1.B > S2.C AND B2.E >= B3.D AND B3.D > S2.B ORDER BY S2.B, S1.A;
