@@ -35,3 +35,11 @@ hs_err_pid*
 
 # Dependencies
 /dependencies
+
+# Testing Data
+/input
+/output
+
+# Gradle
+.gradle
+build
