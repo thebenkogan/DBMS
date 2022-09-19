@@ -1,11 +1,9 @@
 package com.dbms.operators;
 
+import com.dbms.utils.Tuple;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.dbms.utils.Tuple;
-
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
@@ -25,14 +23,15 @@ public class ProjectOperator extends Operator {
      * @param selectItems columns to project; does not contain AllColumns */
     public ProjectOperator(Operator child, List<SelectItem> selectItems) {
         this.child= child;
-        columnNames= selectItems.stream().map(
-            item -> ((Column) ((SelectExpressionItem) item).getExpression()).getColumnName())
+        columnNames= selectItems.stream()
+            .map(item -> ((Column) ((SelectExpressionItem) item).getExpression()).getColumnName())
             .collect(Collectors.toList());
         tableNames= new LinkedList<>();
         for (SelectItem item : selectItems) {
             Column col= ((Column) ((SelectExpressionItem) item).getExpression());
-            tableNames.add(col.getTable().getAlias() != null ? col.getTable().getAlias() :
-                col.getTable().getWholeTableName());
+            tableNames.add(
+                col.getTable().getAlias() != null ? col.getTable().getAlias() :
+                    col.getTable().getWholeTableName());
         }
     }
 

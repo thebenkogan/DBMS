@@ -1,13 +1,11 @@
 package com.dbms.operators;
 
+import com.dbms.utils.Tuple;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-
-import com.dbms.utils.Tuple;
-
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
@@ -24,7 +22,7 @@ public class SortOperator extends Operator {
     private int index= 0;
 
     /** Reads all Tuples from child into table, then sorts in the order specified by orderBys.
-     * 
+     *
      * @param child    child operator
      * @param orderBys list of orderBys, null if none */
     public SortOperator(Operator child, List<OrderByElement> orderBys) {
@@ -95,10 +93,8 @@ class TupleComparator implements Comparator<Tuple> {
             String tableName= Tuple.getTableName(name);
             String columnName= Tuple.getColumnName(name);
             int comp= Integer.compare(t1.get(tableName, columnName), t2.get(tableName, columnName));
-            if (comp != 0)
-                return comp;
+            if (comp != 0) return comp;
         }
         return 0;
     }
-
 }

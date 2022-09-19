@@ -1,16 +1,10 @@
 package com.dbms.visitors;
 
 import com.dbms.utils.Tuple;
-
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.MinorThan;
-import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 
 /** A visitor that evaluates the following types of JsqlParser expressions: AndExpression, Column,
@@ -100,7 +94,7 @@ public class ExpressionParseVisitor extends ExpressionVisitorBase {
     /** evaluates a long value */
     @Override
     public void visit(LongValue longValue) {
-        longResult= longValue.toLong();
+        longResult= longValue.getValue();
     }
 
     /** evaluates a column reference by looking up the corresponding column in the current Tuple */

@@ -3,18 +3,15 @@ package com.dbms.operators;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.dbms.utils.Catalog;
+import com.dbms.utils.Helpers;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
-import com.dbms.utils.Catalog;
-import com.dbms.utils.Helpers;
-
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.SelectItem;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for the DuplicateEliminationOperator */
 class DuplicateEliminationOperatorTest {

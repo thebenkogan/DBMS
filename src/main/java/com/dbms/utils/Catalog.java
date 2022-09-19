@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
@@ -57,7 +56,7 @@ public class Catalog {
     }
 
     /** initializes the input and output paths and reads the corresponding schema file
-     * 
+     *
      * @param input  path to input directory
      * @param output path to output directory
      * @throws IOException */
@@ -126,5 +125,4 @@ public class Catalog {
         file.getParentFile().mkdirs();
         return new FileWriter(file);
     }
-
 }

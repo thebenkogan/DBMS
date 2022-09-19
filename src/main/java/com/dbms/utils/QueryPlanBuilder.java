@@ -41,8 +41,7 @@ public class QueryPlanBuilder {
         Expression exp= jv.getExpression(tableName);
 
         Operator op= new ScanOperator(tableName);
-        if (exp != null)
-            op= new SelectOperator(op, exp);
+        if (exp != null) op= new SelectOperator(op, exp);
         return op;
     }
 
@@ -107,7 +106,7 @@ public class QueryPlanBuilder {
         if (joins != null) {
             // store the join tables in the alias map if aliased
             if (usingAliases) {
-                Catalog.populateAliasMap(joins.stream()
+                Catalog.populateAliasMap((LinkedList<FromItem>) joins.stream()
                     .map(j -> j.getRightItem())
                     .collect(Collectors.toCollection(LinkedList::new)));
             }

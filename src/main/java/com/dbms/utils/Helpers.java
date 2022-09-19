@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.parser.CCJSqlParser;
@@ -57,9 +56,7 @@ public class Helpers {
      * @return the AndExpression whose rightExpression is exp and leftExpression is empty */
     public static AndExpression wrapExpressionWithAnd(Expression exp) {
         if (exp instanceof AndExpression) return (AndExpression) exp;
-        AndExpression andExp= new AndExpression();
-        andExp.setRightExpression(exp);
+        AndExpression andExp= new AndExpression(null, exp);
         return andExp;
     }
-
 }

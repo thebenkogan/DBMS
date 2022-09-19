@@ -34,7 +34,7 @@ public class Tuple {
     }
 
     /** Creates a new Tuple from a derived row of an old Tuple
-     * 
+     *
      * @param row row map */
     private Tuple(LinkedHashMap<String, Integer> row) {
         this.row= row;
@@ -65,7 +65,7 @@ public class Tuple {
     }
 
     /** Projects this tuple to those in columns.
-     * 
+     *
      * @param tableNames  projected (aliased) table names
      * @param columnNames projected column names; must be a subset of the columns in this tuple. */
     public void project(List<String> tableNames, List<String> columnNames) {
@@ -87,11 +87,10 @@ public class Tuple {
     }
 
     /** @param o other object to compare
-     * @return true if o is a Tuple with the same data and order as this Tuple **/
+     * @return true if o is a Tuple with the same data and order as this Tuple * */
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Tuple other= (Tuple) o;
         return Arrays.equals(row.values().toArray(), other.row.values().toArray());
     }

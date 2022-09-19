@@ -13,7 +13,7 @@ SELECT DISTINCT R.G, S.A FROM Reserves R, Sailors S WHERE R.G < 3 ORDER BY S.A;
 SELECT Sailors.B, Sailors.C FROM Sailors ORDER BY Sailors.C;
 SELECT * FROM Boats, Sailors;
 SELECT R.G FROM Reserves R WHERE R.G > 3;
-SELECT DISTINCT S.A, B.D, R.H FROM Sailors S, Boats B, Reserves R ORDER BY B.D, R.H; 
+SELECT DISTINCT S.A, B.D, R.H FROM Sailors S, Boats B, Reserves R ORDER BY B.D, R.H;
 SELECT * FROM Sailors, Boats WHERE Boats.F = Sailors.A AND Sailors.C > Boats.D ORDER BY Boats.D;
 SELECT Boats.D, Boats.F FROM Boats ORDER BY Boats.F;
 SELECT DISTINCT S.B, S.C FROM Sailors S WHERE S.C > 100;

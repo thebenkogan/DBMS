@@ -1,7 +1,5 @@
 package com.dbms;
 
-import java.io.IOException;
-
 import com.dbms.utils.Catalog;
 import com.dbms.utils.QueryPlanBuilder;
 
@@ -9,13 +7,15 @@ import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.statement.Statement;
 
+import java.io.IOException;
+
 /** Main entry point of the DBMS and the corresponding query runner */
 public class Interpreter {
 
     /** Executes all queries in the catalog queries file and writes the output to the catalog output
      * directory with ascending query number. If a query fails during the process, this prints the
      * failed query and error message to the console, then continues to the next query.
-     * 
+     *
      * @throws IOException
      * @throws ParseException */
     public static void run() throws IOException, ParseException {
@@ -35,7 +35,7 @@ public class Interpreter {
     }
 
     /** Initializes the catalog with the provided input and output paths, then runs the interpreter.
-     * 
+     *
      * @param args args[0] = input path, args[1] = output path
      * @throws IOException
      * @throws ParseException */

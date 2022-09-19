@@ -2,17 +2,14 @@ package com.dbms.visitors;
 
 import static org.junit.Assert.assertTrue;
 
+import com.dbms.utils.Helpers;
+import com.dbms.utils.Tuple;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-
-import org.junit.jupiter.api.Test;
-
-import com.dbms.utils.Helpers;
-import com.dbms.utils.Tuple;
-
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.ParseException;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for the ExpressionParseVisitor */
 class ExpressionParseVisitorTest {
@@ -45,14 +42,14 @@ class ExpressionParseVisitorTest {
         queries.put("t.A=3 AND t.B=10", true);
         queries.put("t.A=t.B", false);
         ExpressionParseVisitor epv= new ExpressionParseVisitor();
-        epv.currentTuple= new Tuple("t", Arrays.asList(new String[] { "A", "B" }),
-            Arrays.asList(new Integer[] { 3, 10 }));
+        epv.currentTuple= new Tuple(
+            "t", Arrays.asList(new String[] { "A", "B" }), Arrays.asList(new Integer[] { 3, 10 }));
 
-        queries.forEach((test, expected) -> {
-            Expression exp= Helpers.strExpToExp(test);
-            exp.accept(epv);
-            assertTrue(test, expected == epv.booleanResult);
-        });
+        queries.forEach(
+            (test, expected) -> {
+                Expression exp= Helpers.strExpToExp(test);
+                exp.accept(epv);
+                assertTrue(test, expected == epv.booleanResult);
+            });
     }
-
 }

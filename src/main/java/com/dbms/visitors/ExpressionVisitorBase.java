@@ -223,4 +223,5 @@ public abstract class ExpressionVisitorBase implements ExpressionVisitor {
     public void visit(BitwiseXor arg0) {
         throw new UnsupportedOperationException("Unsupported Expression");
     }
+
 }

@@ -2,13 +2,10 @@ package com.dbms.visitors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
-
-import org.junit.jupiter.api.Test;
-
 import com.dbms.utils.Helpers;
-
+import java.util.Arrays;
 import net.sf.jsqlparser.expression.Expression;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for the JoinVisitor */
 class JoinVisitorTest {
@@ -31,5 +28,4 @@ class JoinVisitorTest {
             jv.getExpression(name3, Arrays.asList(new String[] { name1, name2 })).toString(),
             "t.A = c.A AND b.A = c.A");
     }
-
 }

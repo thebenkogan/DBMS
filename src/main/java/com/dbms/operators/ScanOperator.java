@@ -1,14 +1,13 @@
 package com.dbms.operators;
 
+import com.dbms.utils.Catalog;
+import com.dbms.utils.Tuple;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-
-import com.dbms.utils.Catalog;
-import com.dbms.utils.Tuple;
 
 /** An operator that reads data from file and builds Tuples. */
 public class ScanOperator extends Operator {
@@ -38,16 +37,15 @@ public class ScanOperator extends Operator {
     public Tuple getNextTuple() {
         try {
             String next= reader.readLine();
-            if (next == null)
-                return null;
+            if (next == null) return null;
             StringTokenizer data= new StringTokenizer(next, ",");
             int size= data.countTokens();
             List<Integer> nums= new ArrayList<>(size);
             for (int i= 0; i < size; i++ ) {
                 nums.add(Integer.parseInt(data.nextToken()));
             }
-            return new Tuple(name,
-                Catalog.getInstance().getTableColumns(Catalog.getRealTableName(name)), nums);
+            return new Tuple(
+                name, Catalog.getInstance().getTableColumns(Catalog.getRealTableName(name)), nums);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -64,5 +62,4 @@ public class ScanOperator extends Operator {
             e.printStackTrace();
         }
     }
-
 }

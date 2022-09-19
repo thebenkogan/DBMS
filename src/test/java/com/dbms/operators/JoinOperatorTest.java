@@ -3,18 +3,15 @@ package com.dbms.operators;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Arrays;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import com.dbms.utils.Catalog;
 import com.dbms.utils.Helpers;
 import com.dbms.visitors.JoinVisitor;
-
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Arrays;
 import net.sf.jsqlparser.expression.Expression;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for the JoinOperator */
 class JoinOperatorTest {
@@ -52,6 +49,5 @@ class JoinOperatorTest {
         assertEquals("1,200,50,1,101", joinOp.getNextTuple().toString());
         joinOp.reset();
         assertEquals("1,200,50,1,101", joinOp.getNextTuple().toString());
-
     }
 }

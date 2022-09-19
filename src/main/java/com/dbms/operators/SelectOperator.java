@@ -36,5 +36,4 @@ public class SelectOperator extends Operator {
         exp.accept(visitor);
         return visitor.booleanResult ? nextTuple : getNextTuple();
     }
-
 }

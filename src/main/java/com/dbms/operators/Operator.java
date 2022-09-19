@@ -1,9 +1,8 @@
 package com.dbms.operators;
 
+import com.dbms.utils.Tuple;
 import java.io.FileWriter;
 import java.io.IOException;
-
-import com.dbms.utils.Tuple;
 
 public abstract class Operator {
 

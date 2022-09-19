@@ -3,16 +3,13 @@ package com.dbms.operators;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import com.dbms.utils.Catalog;
 import com.dbms.utils.Helpers;
-
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import net.sf.jsqlparser.expression.Expression;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /** Unit tests for the SelectOperator */
 class SelectOperatorTest {

@@ -4,13 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.dbms.utils.Catalog;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-
-import com.dbms.utils.Catalog;
 
 /** Unit tests for the ScanOperator */
 class ScanOperatorTest {

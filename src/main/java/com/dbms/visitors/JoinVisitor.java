@@ -1,5 +1,6 @@
 package com.dbms.visitors;
 
+import com.dbms.utils.Helpers;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,9 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.dbms.utils.Helpers;
-
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;

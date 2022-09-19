@@ -15,14 +15,14 @@ import com.dbms.utils.Catalog;
 import net.sf.jsqlparser.parser.ParseException;
 
 /** Runs end-to-end tests. */
-class EndToEnd {
+class EndToEndTest {
     private static final String inputPath= "samples/input";
     private static final String outputPath= "samples/e2e_output";
     private static final String expectedOutputPath= "samples/expected_output";
 
     /** Initializes catalog, runs the input queries file, and asserts interpreter output with
      * expected output.
-     * 
+     *
      * @throws IOException
      * @throws ParseException */
     @Test
@@ -36,8 +36,8 @@ class EndToEnd {
             String outputText= new String(Files.readAllBytes(Paths.get(outputFiles[i].getPath())))
                 .replaceAll("\\n|\\r", "");
             String expectedText= new String(
-                Files.readAllBytes(Paths.get(expectedFiles[i].getPath()))).replaceAll("\\n|\\r",
-                    "");
+                Files.readAllBytes(Paths.get(expectedFiles[i].getPath())))
+                    .replaceAll("\\n|\\r", "");
             assertEquals(outputText, expectedText);
         }
     }

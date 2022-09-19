@@ -56,5 +56,4 @@ public class JoinOperator extends Operator {
             if (visitor.booleanResult) return combinedTuple;
         }
     }
-
 }
