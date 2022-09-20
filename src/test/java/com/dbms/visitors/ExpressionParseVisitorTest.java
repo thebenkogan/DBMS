@@ -16,7 +16,7 @@ class ExpressionParseVisitorTest {
     @Test
     void testExpressionVisitor() throws ParseException, IOException {
         /** maps string expressions to expected evaluation */
-        HashMap<String, Boolean> queries= new HashMap<String, Boolean>();
+        HashMap<String, Boolean> queries = new HashMap<String, Boolean>();
 
         queries.put("4<5", true);
         queries.put("5<4", false);
@@ -41,15 +41,13 @@ class ExpressionParseVisitorTest {
         queries.put("5>3 AND 12=12 AND 3>2 AND 4>1", true);
         queries.put("t.A=3 AND t.B=10", true);
         queries.put("t.A=t.B", false);
-        ExpressionParseVisitor epv= new ExpressionParseVisitor();
-        epv.currentTuple= new Tuple(
-            "t", Arrays.asList(new String[] { "A", "B" }), Arrays.asList(new Integer[] { 3, 10 }));
+        ExpressionParseVisitor epv = new ExpressionParseVisitor();
+        epv.currentTuple = new Tuple("t", Arrays.asList(new String[] {"A", "B"}), Arrays.asList(new Integer[] {3, 10}));
 
-        queries.forEach(
-            (test, expected) -> {
-                Expression exp= Helpers.strExpToExp(test);
-                exp.accept(epv);
-                assertTrue(test, expected == epv.booleanResult);
-            });
+        queries.forEach((test, expected) -> {
+            Expression exp = Helpers.strExpToExp(test);
+            exp.accept(epv);
+            assertTrue(test, expected == epv.booleanResult);
+        });
     }
 }

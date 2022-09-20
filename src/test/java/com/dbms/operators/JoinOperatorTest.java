@@ -21,17 +21,17 @@ class JoinOperatorTest {
     }
 
     JoinOperator getOperator() throws FileNotFoundException {
-        ScanOperator scanOp1= new ScanOperator("Sailors");
-        ScanOperator scanOp2= new ScanOperator("Reserves");
-        JoinVisitor jv= new JoinVisitor(Arrays.asList(new String[] { "Sailors", "Reserves" }));
-        Expression exp= Helpers.strExpToExp("Sailors.A = Reserves.G");
+        ScanOperator scanOp1 = new ScanOperator("Sailors");
+        ScanOperator scanOp2 = new ScanOperator("Reserves");
+        JoinVisitor jv = new JoinVisitor(Arrays.asList(new String[] {"Sailors", "Reserves"}));
+        Expression exp = Helpers.strExpToExp("Sailors.A = Reserves.G");
         exp.accept(jv);
         return new JoinOperator(scanOp1, scanOp2, exp);
     }
 
     @Test
     void testGetNextTuple() throws IOException {
-        JoinOperator joinOp= getOperator();
+        JoinOperator joinOp = getOperator();
 
         assertEquals("1,200,50,1,101", joinOp.getNextTuple().toString());
         assertEquals("1,200,50,1,102", joinOp.getNextTuple().toString());
@@ -44,7 +44,7 @@ class JoinOperatorTest {
 
     @Test
     void testReset() throws IOException {
-        JoinOperator joinOp= getOperator();
+        JoinOperator joinOp = getOperator();
 
         assertEquals("1,200,50,1,101", joinOp.getNextTuple().toString());
         joinOp.reset();

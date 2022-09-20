@@ -20,24 +20,23 @@ class SortOperatorTest {
         Catalog.init("samples/input", null);
     }
 
-    SortOperator getOperator(String selectColumns, String whereCondition, String orderBy)
-        throws FileNotFoundException {
-        List<OrderByElement> orderByElements= Helpers.strOrderBysToOrderBys(orderBy);
+    SortOperator getOperator(String selectColumns, String whereCondition, String orderBy) throws FileNotFoundException {
+        List<OrderByElement> orderByElements = Helpers.strOrderBysToOrderBys(orderBy);
 
-        ScanOperator scanOperator= new ScanOperator("Boats");
+        ScanOperator scanOperator = new ScanOperator("Boats");
         if (whereCondition.isBlank()) {
             return new SortOperator(scanOperator, orderByElements);
         } else {
-            Expression exp= Helpers.strExpToExp(whereCondition);
-            SelectOperator selectOperator= new SelectOperator(scanOperator, exp);
+            Expression exp = Helpers.strExpToExp(whereCondition);
+            SelectOperator selectOperator = new SelectOperator(scanOperator, exp);
             return new SortOperator(selectOperator, orderByElements);
         }
     }
 
     @Test
     void testGetNextTuple() throws IOException {
-        SortOperator sortOperation1= getOperator("*", "Boats.D > 102", "Boats.E");
-        SortOperator sortOperation2= getOperator("*", "", "Boats.D");
+        SortOperator sortOperation1 = getOperator("*", "Boats.D > 102", "Boats.E");
+        SortOperator sortOperation2 = getOperator("*", "", "Boats.D");
 
         assertEquals("103,1,1", sortOperation1.getNextTuple().toString());
         assertEquals("107,2,8", sortOperation1.getNextTuple().toString());
@@ -53,7 +52,7 @@ class SortOperatorTest {
 
     @Test
     void testReset() throws IOException {
-        SortOperator sortOperator= getOperator("*", "Boats.D > 102", "Boats.E");
+        SortOperator sortOperator = getOperator("*", "Boats.D > 102", "Boats.E");
 
         assertEquals("103,1,1", sortOperator.getNextTuple().toString());
         sortOperator.reset();

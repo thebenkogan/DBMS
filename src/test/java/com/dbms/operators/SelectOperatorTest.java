@@ -19,14 +19,14 @@ class SelectOperatorTest {
     }
 
     SelectOperator getOperator() throws FileNotFoundException {
-        Expression exp= Helpers.strExpToExp("Boats.D > 102 AND Boats.E != 1");
-        ScanOperator scanOp= new ScanOperator("Boats");
+        Expression exp = Helpers.strExpToExp("Boats.D > 102 AND Boats.E != 1");
+        ScanOperator scanOp = new ScanOperator("Boats");
         return new SelectOperator(scanOp, exp);
     }
 
     @Test
     void testGetNextTuple() throws IOException {
-        SelectOperator selectOp= getOperator();
+        SelectOperator selectOp = getOperator();
 
         assertEquals("104,104,2", selectOp.getNextTuple().toString());
         assertEquals("107,2,8", selectOp.getNextTuple().toString());
@@ -35,7 +35,7 @@ class SelectOperatorTest {
 
     @Test
     void testReset() throws IOException {
-        SelectOperator selectOp= getOperator();
+        SelectOperator selectOp = getOperator();
 
         assertEquals("104,104,2", selectOp.getNextTuple().toString());
         selectOp.reset();

@@ -19,19 +19,22 @@ public class ProjectOperator extends Operator {
     private List<String> tableNames;
     // invariant: tableNames[i] must be the real table name of columnNames[i]
 
-    /** @param child   child operator to project
-     * @param selectItems columns to project; does not contain AllColumns */
+    /**
+     * @param child child operator to project
+     * @param selectItems columns to project; does not contain AllColumns
+     */
     public ProjectOperator(Operator child, List<SelectItem> selectItems) {
-        this.child= child;
-        columnNames= selectItems.stream()
-            .map(item -> ((Column) ((SelectExpressionItem) item).getExpression()).getColumnName())
-            .collect(Collectors.toList());
-        tableNames= new LinkedList<>();
+        this.child = child;
+        columnNames = selectItems.stream()
+                .map(item -> ((Column) ((SelectExpressionItem) item).getExpression()).getColumnName())
+                .collect(Collectors.toList());
+        tableNames = new LinkedList<>();
         for (SelectItem item : selectItems) {
-            Column col= ((Column) ((SelectExpressionItem) item).getExpression());
+            Column col = ((Column) ((SelectExpressionItem) item).getExpression());
             tableNames.add(
-                col.getTable().getAlias() != null ? col.getTable().getAlias() :
-                    col.getTable().getWholeTableName());
+                    col.getTable().getAlias() != null
+                            ? col.getTable().getAlias()
+                            : col.getTable().getWholeTableName());
         }
     }
 
@@ -41,10 +44,12 @@ public class ProjectOperator extends Operator {
         child.reset();
     }
 
-    /** @return next projected Tuple */
+    /**
+     * @return next projected Tuple
+     */
     @Override
     public Tuple getNextTuple() {
-        Tuple nextTuple= child.getNextTuple();
+        Tuple nextTuple = child.getNextTuple();
         if (nextTuple == null) return null;
         nextTuple.project(tableNames, columnNames);
         return nextTuple;

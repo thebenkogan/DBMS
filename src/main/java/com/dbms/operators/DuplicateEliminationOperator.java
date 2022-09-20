@@ -2,25 +2,30 @@ package com.dbms.operators;
 
 import com.dbms.utils.Tuple;
 
-/** An operator that assumes its child returns Tuples in sorted order and filters out any
- * duplicates. */
+/**
+ * An operator that assumes its child returns Tuples in sorted order and filters out any duplicates.
+ */
 public class DuplicateEliminationOperator extends Operator {
     Operator child;
 
     /** previous Tuple returned */
-    Tuple prev= null;
+    Tuple prev = null;
 
-    /** @param child child operator; must be a sort operator */
+    /**
+     * @param child child operator; must be a sort operator
+     */
     public DuplicateEliminationOperator(Operator child) {
-        this.child= child;
+        this.child = child;
     }
 
-    /** @return next unique Tuple */
+    /**
+     * @return next unique Tuple
+     */
     @Override
     public Tuple getNextTuple() {
         Tuple next;
-        while ((next= child.getNextTuple()) != null && next.equals(prev)) {}
-        prev= next;
+        while ((next = child.getNextTuple()) != null && next.equals(prev)) {}
+        prev = next;
         return next;
     }
 
@@ -28,6 +33,6 @@ public class DuplicateEliminationOperator extends Operator {
     @Override
     public void reset() {
         child.reset();
-        prev= null;
+        prev = null;
     }
 }

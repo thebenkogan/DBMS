@@ -24,7 +24,7 @@ class ScanOperatorTest {
 
     @Test
     void testGetNextTuple() throws IOException {
-        ScanOperator scanOp= new ScanOperator("Boats");
+        ScanOperator scanOp = new ScanOperator("Boats");
 
         assertEquals("101,2,3", scanOp.getNextTuple().toString());
         assertEquals("102,3,4", scanOp.getNextTuple().toString());
@@ -36,7 +36,7 @@ class ScanOperatorTest {
 
     @Test
     void testReset() throws IOException {
-        ScanOperator scanOp= new ScanOperator("Boats");
+        ScanOperator scanOp = new ScanOperator("Boats");
 
         assertEquals("101,2,3", scanOp.getNextTuple().toString());
         scanOp.reset();

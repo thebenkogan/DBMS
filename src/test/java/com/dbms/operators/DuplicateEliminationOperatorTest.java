@@ -21,17 +21,17 @@ class DuplicateEliminationOperatorTest {
     }
 
     DuplicateEliminationOperator getOperator() throws FileNotFoundException {
-        List<SelectItem> items= Helpers.strSelectItemsToSelectItems("Reserves.H");
-        ScanOperator scanOp= new ScanOperator("Reserves");
-        ProjectOperator projectOp= new ProjectOperator(scanOp, items);
-        List<OrderByElement> orderBys= Helpers.strOrderBysToOrderBys("Reserves.H");
-        SortOperator sortOp= new SortOperator(projectOp, orderBys);
+        List<SelectItem> items = Helpers.strSelectItemsToSelectItems("Reserves.H");
+        ScanOperator scanOp = new ScanOperator("Reserves");
+        ProjectOperator projectOp = new ProjectOperator(scanOp, items);
+        List<OrderByElement> orderBys = Helpers.strOrderBysToOrderBys("Reserves.H");
+        SortOperator sortOp = new SortOperator(projectOp, orderBys);
         return new DuplicateEliminationOperator(sortOp);
     }
 
     @Test
     void testGetNextTuple() throws IOException {
-        DuplicateEliminationOperator duplicateOp= getOperator();
+        DuplicateEliminationOperator duplicateOp = getOperator();
 
         assertEquals("101", duplicateOp.getNextTuple().toString());
         assertEquals("102", duplicateOp.getNextTuple().toString());
@@ -42,7 +42,7 @@ class DuplicateEliminationOperatorTest {
 
     @Test
     void testReset() throws IOException {
-        DuplicateEliminationOperator duplicateOp= getOperator();
+        DuplicateEliminationOperator duplicateOp = getOperator();
 
         assertEquals("101", duplicateOp.getNextTuple().toString());
         duplicateOp.reset();

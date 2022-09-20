@@ -1,9 +1,20 @@
 plugins {
 	java
+	eclipse
+	id("com.diffplug.spotless") version "6.11.0"
 }
 
 repositories {
 	mavenCentral()
+}
+
+spotless {
+	java {
+	    importOrder()
+	    removeUnusedImports()
+	    palantirJavaFormat()
+	    formatAnnotations()
+	}
 }
 
 java {
@@ -17,8 +28,6 @@ dependencies {
 	testImplementation(platform("org.junit:junit-bom:5.9.0"))
 	testImplementation("org.junit.jupiter:junit-jupiter")
 }
-
-apply(plugin="eclipse")
 
 tasks.test {
 	useJUnitPlatform()
