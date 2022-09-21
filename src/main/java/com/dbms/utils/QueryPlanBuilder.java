@@ -14,7 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.Distinct;
@@ -97,7 +96,7 @@ public class QueryPlanBuilder {
         String fromTable;
         if (usingAliases) {
             Catalog.populateAliasMap(mainFromItem);
-            fromTable = mainFromItem.getAlias();
+            fromTable = mainFromItem.getAlias().getName();
         } else {
             fromTable = mainFromItem.toString();
         }
@@ -112,7 +111,7 @@ public class QueryPlanBuilder {
 
             // get full list of (aliased) table names to join
             LinkedList<String> joinNames = joins.stream()
-                    .map(j -> usingAliases ? ((Table) j.getRightItem()).getAlias() : j.toString())
+                    .map(j -> usingAliases ? j.getRightItem().getAlias().getName() : j.toString())
                     .collect(Collectors.toCollection(LinkedList::new));
             joinNames.addFirst(fromTable);
 

@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
 
@@ -109,7 +108,7 @@ public class Catalog {
      */
     public static void populateAliasMap(FromItem fromItem) {
         Table table = (Table) fromItem;
-        aliasMap.put(table.getAlias(), table.getWholeTableName());
+        aliasMap.put(table.getAlias().getName(), table.getName());
     }
 
     /**
@@ -118,7 +117,7 @@ public class Catalog {
     public static void populateAliasMap(List<FromItem> fromItems) {
         for (FromItem fromItem : fromItems) {
             Table table = (Table) fromItem;
-            aliasMap.put(table.getAlias(), table.getWholeTableName());
+            aliasMap.put(table.getAlias().getName(), table.getName());
         }
     }
 
@@ -132,11 +131,11 @@ public class Catalog {
     }
 
     /**
-     * @return Parser for the query file corresponding to the Catalog input.
+     * @return BufferedReader for the query file corresponding to the Catalog input. Each line will be the query as a string.
      * @throws FileNotFoundException
      */
-    public CCJSqlParser getQueriesFile() throws FileNotFoundException {
-        return new CCJSqlParser(new FileReader(join(input, "queries.sql")));
+    public BufferedReader getQueriesFile() throws FileNotFoundException {
+        return new BufferedReader(new FileReader(String.join(File.separator, input, "queries.sql")));
     }
 
     /**

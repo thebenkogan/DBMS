@@ -33,8 +33,8 @@ public class ProjectOperator extends Operator {
             Column col = ((Column) ((SelectExpressionItem) item).getExpression());
             tableNames.add(
                     col.getTable().getAlias() != null
-                            ? col.getTable().getAlias()
-                            : col.getTable().getWholeTableName());
+                            ? col.getTable().getAlias().getName()
+                            : col.getTable().getName());
         }
     }
 

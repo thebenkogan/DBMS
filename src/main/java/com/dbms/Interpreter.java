@@ -2,8 +2,9 @@ package com.dbms;
 
 import com.dbms.utils.Catalog;
 import com.dbms.utils.QueryPlanBuilder;
+import java.io.BufferedReader;
 import java.io.IOException;
-import net.sf.jsqlparser.parser.CCJSqlParser;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.statement.Statement;
 
@@ -18,12 +19,14 @@ public class Interpreter {
      * @throws IOException
      * @throws ParseException
      */
-    public static void run() throws IOException, ParseException {
-        CCJSqlParser parser = Catalog.getInstance().getQueriesFile();
+    public static void run() throws IOException {
+        BufferedReader fileReader = Catalog.getInstance().getQueriesFile();
         int i = 1;
-        Statement statement;
-        while ((statement = parser.Statement()) != null) {
+        String currentQuery;
+        Statement statement = null;
+        while ((currentQuery = fileReader.readLine()) != null) {
             try {
+                statement = CCJSqlParserUtil.parse(currentQuery);
                 QueryPlanBuilder queryPlan = new QueryPlanBuilder(statement);
                 queryPlan.operator.dump(Catalog.getInstance().getOutputWriter(i));
             } catch (Exception e) {

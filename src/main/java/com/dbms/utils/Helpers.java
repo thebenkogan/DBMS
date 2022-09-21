@@ -1,13 +1,10 @@
 package com.dbms.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
+import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
-import net.sf.jsqlparser.parser.CCJSqlParser;
-import net.sf.jsqlparser.parser.ParseException;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
@@ -23,10 +20,8 @@ public class Helpers {
      * @return the query (PlainSelect) which the string represents */
     private static PlainSelect convertQuery(String query) {
         try {
-            InputStream is = new ByteArrayInputStream(query.getBytes(StandardCharsets.UTF_8));
-            CCJSqlParser parser = new CCJSqlParser(is);
-            return (PlainSelect) ((Select) parser.Statement()).getSelectBody();
-        } catch (ParseException e) {
+            return (PlainSelect) ((Select) CCJSqlParserUtil.parse(query)).getSelectBody();
+        } catch (JSQLParserException e) {
             e.printStackTrace();
         }
         return null;

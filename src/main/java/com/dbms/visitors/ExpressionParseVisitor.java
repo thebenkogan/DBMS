@@ -4,7 +4,12 @@ import com.dbms.utils.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
-import net.sf.jsqlparser.expression.operators.relational.*;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
+import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
+import net.sf.jsqlparser.expression.operators.relational.MinorThan;
+import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
+import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 
 /**
@@ -105,7 +110,7 @@ public class ExpressionParseVisitor extends ExpressionVisitorBase {
     /** evaluates a column reference by looking up the corresponding column in the current Tuple */
     @Override
     public void visit(Column col) {
-        String tableName = col.getTable().getAlias();
+        String tableName = col.getTable().getName();
         if (tableName == null) tableName = col.getTable().getName();
         longResult = currentTuple.get(tableName, col.getColumnName());
     }
