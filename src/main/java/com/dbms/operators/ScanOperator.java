@@ -2,12 +2,9 @@ package com.dbms.operators;
 
 import com.dbms.utils.Catalog;
 import com.dbms.utils.Tuple;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
+import com.dbms.utils.TupleReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 /** An operator that reads data from file and builds Tuples. */
 public class ScanOperator extends Operator {
@@ -16,41 +13,26 @@ public class ScanOperator extends Operator {
     private String name;
 
     /** reader for the underlying table */
-    private BufferedReader reader;
+    private TupleReader reader;
 
-    /**
-     * @param tableName name of table to get a reader
-     * @return Reader to table
-     * @throws FileNotFoundException
-     */
-    private BufferedReader getReader(String tableName) throws FileNotFoundException {
-        return Catalog.getInstance().getTable(tableName);
+    /** @param tableName name (aliased) of underlying table
+     * @throws IOException */
+    public ScanOperator(String tableName) {
+        try {
+            name = tableName;
+            reader = new TupleReader(Catalog.getRealTableName(tableName));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    /**
-     * @param tableName name (aliased) of underlying table
-     * @throws FileNotFoundException
-     */
-    public ScanOperator(String tableName) throws FileNotFoundException {
-        name = tableName;
-        reader = getReader(Catalog.getRealTableName(tableName));
-    }
-
-    /**
-     * @return next Tuple from underlying DB file
-     */
+    /** @return next Tuple from underlying DB file */
     @Override
     public Tuple getNextTuple() {
         try {
-            String next = reader.readLine();
+            List<Integer> next = reader.nextTuple();
             if (next == null) return null;
-            StringTokenizer data = new StringTokenizer(next, ",");
-            int size = data.countTokens();
-            List<Integer> nums = new ArrayList<>(size);
-            for (int i = 0; i < size; i++) {
-                nums.add(Integer.parseInt(data.nextToken()));
-            }
-            return new Tuple(name, Catalog.getInstance().getTableColumns(Catalog.getRealTableName(name)), nums);
+            return new Tuple(name, Catalog.getInstance().getTableColumns(Catalog.getRealTableName(name)), next);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -61,8 +43,7 @@ public class ScanOperator extends Operator {
     @Override
     public void reset() {
         try {
-            reader.close();
-            reader = getReader(Catalog.getRealTableName(name));
+            reader.reset();
         } catch (IOException e) {
             e.printStackTrace();
         }

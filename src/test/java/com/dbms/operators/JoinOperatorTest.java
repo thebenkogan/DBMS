@@ -17,14 +17,14 @@ import org.junit.jupiter.api.Test;
 class JoinOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("samples/input", null);
+        Catalog.init("samples2/input", null);
     }
 
     JoinOperator getOperator() throws FileNotFoundException {
         ScanOperator scanOp1 = new ScanOperator("Sailors");
         ScanOperator scanOp2 = new ScanOperator("Reserves");
         JoinVisitor jv = new JoinVisitor(Arrays.asList(new String[] {"Sailors", "Reserves"}));
-        Expression exp = Helpers.strExpToExp("Sailors.A = Reserves.G");
+        Expression exp = Helpers.strExpToExp("Sailors.A = Reserves.G AND Reserves.H = 23 AND Sailors.A = 106");
         exp.accept(jv);
         return new JoinOperator(scanOp1, scanOp2, exp);
     }
@@ -33,12 +33,12 @@ class JoinOperatorTest {
     void testGetNextTuple() throws IOException {
         JoinOperator joinOp = getOperator();
 
-        assertEquals("1,200,50,1,101", joinOp.getNextTuple().toString());
-        assertEquals("1,200,50,1,102", joinOp.getNextTuple().toString());
-        assertEquals("1,200,50,1,103", joinOp.getNextTuple().toString());
-        assertEquals("2,200,200,2,101", joinOp.getNextTuple().toString());
-        assertEquals("3,100,105,3,102", joinOp.getNextTuple().toString());
-        assertEquals("4,100,50,4,104", joinOp.getNextTuple().toString());
+        assertEquals("106,39,42,106,23", joinOp.getNextTuple().toString());
+        assertEquals("106,102,163,106,23", joinOp.getNextTuple().toString());
+        assertEquals("106,71,138,106,23", joinOp.getNextTuple().toString());
+        assertEquals("106,99,118,106,23", joinOp.getNextTuple().toString());
+        assertEquals("106,59,191,106,23", joinOp.getNextTuple().toString());
+        assertEquals("106,142,77,106,23", joinOp.getNextTuple().toString());
         assertNull(joinOp.getNextTuple());
     }
 
@@ -46,8 +46,8 @@ class JoinOperatorTest {
     void testReset() throws IOException {
         JoinOperator joinOp = getOperator();
 
-        assertEquals("1,200,50,1,101", joinOp.getNextTuple().toString());
+        assertEquals("106,39,42,106,23", joinOp.getNextTuple().toString());
         joinOp.reset();
-        assertEquals("1,200,50,1,101", joinOp.getNextTuple().toString());
+        assertEquals("106,39,42,106,23", joinOp.getNextTuple().toString());
     }
 }

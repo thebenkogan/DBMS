@@ -17,45 +17,38 @@ import org.junit.jupiter.api.Test;
 class SortOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("samples/input", null);
+        Catalog.init("samples2/input", null);
     }
 
-    SortOperator getOperator(String selectColumns, String whereCondition, String orderBy) throws FileNotFoundException {
-        List<OrderByElement> orderByElements = Helpers.strOrderBysToOrderBys(orderBy);
-
-        ScanOperator scanOperator = new ScanOperator("Boats");
-        if (whereCondition.isBlank()) {
-            return new SortOperator(scanOperator, orderByElements);
-        } else {
-            Expression exp = Helpers.strExpToExp(whereCondition);
-            SelectOperator selectOperator = new SelectOperator(scanOperator, exp);
-            return new SortOperator(selectOperator, orderByElements);
-        }
+    SortOperator getOperator() throws FileNotFoundException {
+        List<OrderByElement> orderByElements = Helpers.strOrderBysToOrderBys("Boats.E");
+        Expression exp = Helpers.strExpToExp("Boats.D = 32 AND Boats.E != 100");
+        ScanOperator scanOp = new ScanOperator("Boats");
+        SelectOperator selectOp = new SelectOperator(scanOp, exp);
+        return new SortOperator(selectOp, orderByElements);
     }
 
     @Test
     void testGetNextTuple() throws IOException {
-        SortOperator sortOperation1 = getOperator("*", "Boats.D > 102", "Boats.E");
-        SortOperator sortOperation2 = getOperator("*", "", "Boats.D");
+        SortOperator sortOp = getOperator();
 
-        assertEquals("103,1,1", sortOperation1.getNextTuple().toString());
-        assertEquals("107,2,8", sortOperation1.getNextTuple().toString());
-        assertEquals("104,104,2", sortOperation1.getNextTuple().toString());
-        assertNull(sortOperation1.getNextTuple());
-        assertEquals("101,2,3", sortOperation2.getNextTuple().toString());
-        assertEquals("102,3,4", sortOperation2.getNextTuple().toString());
-        assertEquals("103,1,1", sortOperation2.getNextTuple().toString());
-        assertEquals("104,104,2", sortOperation2.getNextTuple().toString());
-        assertEquals("107,2,8", sortOperation2.getNextTuple().toString());
-        assertNull(sortOperation2.getNextTuple());
+        assertEquals("32,20,161", sortOp.getNextTuple().toString());
+        assertEquals("32,54,122", sortOp.getNextTuple().toString());
+        assertEquals("32,72,66", sortOp.getNextTuple().toString());
+        assertEquals("32,90,191", sortOp.getNextTuple().toString());
+        assertEquals("32,121,84", sortOp.getNextTuple().toString());
+        assertEquals("32,126,129", sortOp.getNextTuple().toString());
+        assertEquals("32,138,178", sortOp.getNextTuple().toString());
+        assertEquals("32,180,138", sortOp.getNextTuple().toString());
+        assertNull(sortOp.getNextTuple());
     }
 
     @Test
     void testReset() throws IOException {
-        SortOperator sortOperator = getOperator("*", "Boats.D > 102", "Boats.E");
+        SortOperator sortOp = getOperator();
 
-        assertEquals("103,1,1", sortOperator.getNextTuple().toString());
-        sortOperator.reset();
-        assertEquals("103,1,1", sortOperator.getNextTuple().toString());
+        assertEquals("32,20,161", sortOp.getNextTuple().toString());
+        sortOp.reset();
+        assertEquals("32,20,161", sortOp.getNextTuple().toString());
     }
 }

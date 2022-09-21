@@ -11,11 +11,11 @@ import net.sf.jsqlparser.expression.operators.relational.MinorThan;
 import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
 
-/**
- * A visitor that evaluates the following types of JsqlParser expressions: AndExpression, Column,
- * LongValue, EqualsTo, NotEqualsTo, GreaterThan, GreaterThanEquals, MinorThan and MinorThanEquals.
- */
+/** A visitor that evaluates the following types of JsqlParser expressions: AndExpression, Column,
+ * LongValue, EqualsTo, NotEqualsTo, GreaterThan, GreaterThanEquals, MinorThan and
+ * MinorThanEquals. */
 public class ExpressionParseVisitor extends ExpressionVisitorBase {
 
     /** The most recent result of any numerical evaluation. */
@@ -27,19 +27,15 @@ public class ExpressionParseVisitor extends ExpressionVisitorBase {
     /** The current Tuple for which to evaluate the expression */
     public Tuple currentTuple;
 
-    /**
-     * @param exp The expression which the visitor evaluates
-     * @return the boolean result of evaluating exp
-     */
+    /** @param exp The expression which the visitor evaluates
+     * @return the boolean result of evaluating exp */
     private boolean evaluateBoolean(Expression exp) {
         exp.accept(this);
         return booleanResult;
     }
 
-    /**
-     * @param exp The expression which the visitor evaluates
-     * @return the long result of evaluating exp
-     */
+    /** @param exp The expression which the visitor evaluates
+     * @return the long result of evaluating exp */
     private long evaluateLong(Expression exp) {
         exp.accept(this);
         return longResult;
@@ -110,8 +106,8 @@ public class ExpressionParseVisitor extends ExpressionVisitorBase {
     /** evaluates a column reference by looking up the corresponding column in the current Tuple */
     @Override
     public void visit(Column col) {
-        String tableName = col.getTable().getName();
-        if (tableName == null) tableName = col.getTable().getName();
+        Table t = col.getTable();
+        String tableName = t.getAlias() != null ? t.getAlias().getName() : t.getName();
         longResult = currentTuple.get(tableName, col.getColumnName());
     }
 }

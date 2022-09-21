@@ -8,6 +8,7 @@ import com.dbms.utils.Helpers;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -16,24 +17,29 @@ import org.junit.jupiter.api.Test;
 class ProjectOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("samples/input", null);
+        Catalog.init("samples2/input", null);
     }
 
     ProjectOperator getOperator() throws FileNotFoundException {
         List<SelectItem> items = Helpers.strSelectItemsToSelectItems("Boats.F", "Boats.D");
+        Expression exp = Helpers.strExpToExp("Boats.D = 32 AND Boats.E != 100");
         ScanOperator scanOp = new ScanOperator("Boats");
-        return new ProjectOperator(scanOp, items);
+        SelectOperator selectOP = new SelectOperator(scanOp, exp);
+        return new ProjectOperator(selectOP, items);
     }
 
     @Test
     void testGetNextTuple() throws IOException {
         ProjectOperator projectOp = getOperator();
 
-        assertEquals("3,101", projectOp.getNextTuple().toString());
-        assertEquals("4,102", projectOp.getNextTuple().toString());
-        assertEquals("2,104", projectOp.getNextTuple().toString());
-        assertEquals("1,103", projectOp.getNextTuple().toString());
-        assertEquals("8,107", projectOp.getNextTuple().toString());
+        assertEquals("191,32", projectOp.getNextTuple().toString());
+        assertEquals("178,32", projectOp.getNextTuple().toString());
+        assertEquals("66,32", projectOp.getNextTuple().toString());
+        assertEquals("84,32", projectOp.getNextTuple().toString());
+        assertEquals("129,32", projectOp.getNextTuple().toString());
+        assertEquals("161,32", projectOp.getNextTuple().toString());
+        assertEquals("122,32", projectOp.getNextTuple().toString());
+        assertEquals("138,32", projectOp.getNextTuple().toString());
         assertNull(projectOp.getNextTuple());
     }
 
@@ -41,8 +47,8 @@ class ProjectOperatorTest {
     void testReset() throws IOException {
         ProjectOperator projectOp = getOperator();
 
-        assertEquals("3,101", projectOp.getNextTuple().toString());
+        assertEquals("191,32", projectOp.getNextTuple().toString());
         projectOp.reset();
-        assertEquals("3,101", projectOp.getNextTuple().toString());
+        assertEquals("191,32", projectOp.getNextTuple().toString());
     }
 }

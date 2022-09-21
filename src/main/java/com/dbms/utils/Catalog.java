@@ -2,7 +2,9 @@ package com.dbms.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,11 +16,9 @@ import java.util.StringTokenizer;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
 
-/**
- * A singleton responsible for storing the information of the input queries file, schema file, and
+/** A singleton responsible for storing the information of the input queries file, schema file, and
  * DB files. Also creates and maintains an alias map so that all parts of the DBMS can easily
- * retrieve the full table name for a given alias.
- */
+ * retrieve the full table name for a given alias. */
 public class Catalog {
 
     /** path to input directory */
@@ -38,37 +38,29 @@ public class Catalog {
 
     private Catalog() {}
 
-    /**
-     * @return singleton instance
-     */
+    /** @return singleton instance */
     public static Catalog getInstance() {
         return instance;
     }
 
-    /**
-     * @param segments file path to join
-     * @return segments joined with File.seperator
-     */
+    /** @param segments file path to join
+     * @return segments joined with File.seperator */
     private static String join(String... segments) {
         return String.join(File.separator, segments);
     }
 
-    /**
-     * @param path path to file
+    /** @param path path to file
      * @return BufferedReader for the file at path
-     * @throws FileNotFoundException
-     */
+     * @throws FileNotFoundException */
     private static BufferedReader readerFromPath(String... path) throws FileNotFoundException {
         return new BufferedReader(new FileReader(join(path)));
     }
 
-    /**
-     * initializes the input and output paths and reads the corresponding schema file
+    /** initializes the input and output paths and reads the corresponding schema file
      *
-     * @param input path to input directory
+     * @param input  path to input directory
      * @param output path to output directory
-     * @throws IOException
-     */
+     * @throws IOException */
     public static void init(String input, String output) throws IOException {
         Catalog.input = input;
         Catalog.output = output;
@@ -86,34 +78,40 @@ public class Catalog {
         }
     }
 
-    /**
-     * @param name (unaliased) name of the table to lookup
+    /** @param name (unaliased) name of the table to lookup
      * @return BufferedReader for the table
-     * @throws FileNotFoundException
-     */
+     * @throws FileNotFoundException */
     public BufferedReader getTable(String name) throws FileNotFoundException {
         return readerFromPath(input, "db", "data", name);
     }
 
-    /**
-     * @param name (unaliased) name of the table to extract columns
-     * @return list of column names
-     */
+    /** @param name (unaliased) name of the table to lookup
+     * @return FileInputStream for the table
+     * @throws FileNotFoundException */
+    public FileInputStream getTableStream(String name) throws FileNotFoundException {
+        return new FileInputStream(join(input, "db", "data", name));
+    }
+
+    /** @param i query number
+     * @return FileOutputStream for the output
+     * @throws FileNotFoundException */
+    public FileOutputStream getOutputStream(int i) throws FileNotFoundException {
+        return new FileOutputStream(join(output, "query" + i));
+    }
+
+    /** @param name (unaliased) name of the table to extract columns
+     * @return list of column names */
     public List<String> getTableColumns(String name) {
         return schema.get(name);
     }
 
-    /**
-     * @param fromItem table with one alias
-     */
+    /** @param fromItem table with one alias */
     public static void populateAliasMap(FromItem fromItem) {
         Table table = (Table) fromItem;
         aliasMap.put(table.getAlias().getName(), table.getName());
     }
 
-    /**
-     * @param fromItems tables with list of aliases
-     */
+    /** @param fromItems tables with list of aliases */
     public static void populateAliasMap(List<FromItem> fromItems) {
         for (FromItem fromItem : fromItems) {
             Table table = (Table) fromItem;
@@ -121,28 +119,23 @@ public class Catalog {
         }
     }
 
-    /**
-     * @param name table name (aliased)
-     * @return the actual table name corresponding to the input
-     */
+    /** @param name table name (aliased)
+     * @return the actual table name corresponding to the input */
     public static String getRealTableName(String name) {
         if (aliasMap.containsKey(name)) return aliasMap.get(name);
         return name;
     }
 
-    /**
-     * @return BufferedReader for the query file corresponding to the Catalog input. Each line will be the query as a string.
-     * @throws FileNotFoundException
-     */
+    /** @return BufferedReader for the query file corresponding to the Catalog input. Each line will
+     *         be the query as a string.
+     * @throws FileNotFoundException */
     public BufferedReader getQueriesFile() throws FileNotFoundException {
         return new BufferedReader(new FileReader(String.join(File.separator, input, "queries.sql")));
     }
 
-    /**
-     * @param i query number
+    /** @param i query number
      * @return FileWriter for dumping the query results to write file in the output path
-     * @throws IOException
-     */
+     * @throws IOException */
     public FileWriter getOutputWriter(int i) throws IOException {
         File file = new File(join(output, "query" + i));
         file.getParentFile().mkdirs();

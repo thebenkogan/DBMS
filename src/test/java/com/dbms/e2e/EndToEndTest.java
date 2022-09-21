@@ -13,29 +13,25 @@ import org.junit.jupiter.api.Test;
 
 /** Runs end-to-end tests. */
 class EndToEndTest {
-    private static final String inputPath = "samples/input";
-    private static final String outputPath = "samples/e2e_output";
-    private static final String expectedOutputPath = "samples/expected_output";
+    private static final String inputPath = "samples2/input";
+    private static final String outputPath = "samples2/e2e_output";
+    private static final String expectedOutputPath = "samples2/expected";
 
-    /**
-     * Initializes catalog, runs the input queries file, and asserts interpreter output with expected
-     * output.
+    /** Initializes catalog, runs the input queries file, and asserts interpreter output with
+     * expected output.
      *
      * @throws IOException
-     * @throws ParseException
-     */
+     * @throws ParseException */
     @Test
     void endToEndTest() throws IOException, ParseException {
         Catalog.init(inputPath, outputPath);
         Interpreter.run();
 
-        File[] outputFiles = (new File(outputPath)).listFiles();
-        File[] expectedFiles = (new File(expectedOutputPath)).listFiles();
+        File[] outputFiles = new File(outputPath).listFiles();
+        File[] expectedFiles = new File(expectedOutputPath).listFiles();
         for (int i = 0; i < outputFiles.length; i++) {
-            String outputText =
-                    new String(Files.readAllBytes(Paths.get(outputFiles[i].getPath()))).replaceAll("\\n|\\r", "");
-            String expectedText =
-                    new String(Files.readAllBytes(Paths.get(expectedFiles[i].getPath()))).replaceAll("\\n|\\r", "");
+            String outputText = new String(Files.readAllBytes(Paths.get(outputFiles[i].getPath())));
+            String expectedText = new String(Files.readAllBytes(Paths.get(expectedFiles[i].getPath())));
             assertEquals(outputText, expectedText);
         }
     }

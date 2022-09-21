@@ -1,7 +1,7 @@
 package com.dbms.operators;
 
 import com.dbms.utils.Tuple;
-import java.io.FileWriter;
+import com.dbms.utils.TupleWriter;
 import java.io.IOException;
 
 public abstract class Operator {
@@ -10,15 +10,14 @@ public abstract class Operator {
 
     public abstract void reset();
 
-    /**
-     * @param writer the FileWriter to use to dump all Tuples of this operator to an output file
-     * @throws IOException
-     */
-    public void dump(FileWriter writer) throws IOException {
+    /** @param writer the FileWriter to use to dump all Tuples of this operator to an output file
+     * @throws IOException */
+    public void dump(int i) throws IOException {
+        TupleWriter tw = new TupleWriter(i);
         Tuple next;
         while ((next = getNextTuple()) != null) {
-            writer.write(next.toString() + "\r\n");
+            tw.writeTuple(next);
         }
-        writer.close();
+        tw.close();
     }
 }
