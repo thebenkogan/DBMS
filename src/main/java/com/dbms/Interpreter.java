@@ -1,7 +1,8 @@
 package com.dbms;
 
 import com.dbms.utils.Catalog;
-import com.dbms.utils.QueryPlanBuilder;
+import com.dbms.utils.LogicalPlanBuilder;
+import com.dbms.visitors.PhysicalPlanBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
@@ -24,8 +25,12 @@ public class Interpreter {
         while ((currentQuery = fileReader.readLine()) != null) {
             try {
                 statement = CCJSqlParserUtil.parse(currentQuery);
-                QueryPlanBuilder queryPlan = new QueryPlanBuilder(statement);
-                queryPlan.operator.dump(i);
+                LogicalPlanBuilder logicalPlan = new LogicalPlanBuilder(statement);
+                /** convert logical plan to physical plan by using PhysicalPlanBuilder visitor on
+                 * root logical node */
+                PhysicalPlanBuilder physicalPlanBuilder = new PhysicalPlanBuilder();
+                logicalPlan.logicalOperator.accept(physicalPlanBuilder);
+                physicalPlanBuilder.physOp.dump(i);
             } catch (Exception e) {
                 System.out.println("Failure: " + statement);
                 e.printStackTrace();

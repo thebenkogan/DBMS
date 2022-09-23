@@ -1,4 +1,4 @@
-package com.dbms.operators;
+package com.dbms.operators.physical;
 
 import com.dbms.utils.Tuple;
 import com.dbms.visitors.ExpressionParseVisitor;
@@ -11,10 +11,10 @@ import net.sf.jsqlparser.expression.Expression;
  * condition. We then reset the right and get the next left Tuple until there are no more left
  * Tuples.
  */
-public class JoinOperator extends Operator {
+public class JoinOperator extends PhysicalOperator {
 
-    private Operator left;
-    private Operator right;
+    private PhysicalOperator left;
+    private PhysicalOperator right;
     private Expression joinCondition;
     private ExpressionParseVisitor visitor = new ExpressionParseVisitor();
     private Tuple leftTuple;
@@ -24,7 +24,7 @@ public class JoinOperator extends Operator {
      * @param right right child operator
      * @param exp join condition, null if none
      */
-    public JoinOperator(Operator left, Operator right, Expression exp) {
+    public JoinOperator(PhysicalOperator left, PhysicalOperator right, Expression exp) {
         this.left = left;
         this.right = right;
         joinCondition = exp;

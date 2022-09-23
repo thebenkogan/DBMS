@@ -1,4 +1,4 @@
-package com.dbms.operators;
+package com.dbms.operators.physical;
 
 import com.dbms.utils.Tuple;
 import java.util.ArrayList;
@@ -13,9 +13,9 @@ import net.sf.jsqlparser.statement.select.OrderByElement;
  * An operator that reads all of its child Tuples, stores and sorts them in ascending order, and
  * returns them one-by-one as requested.
  */
-public class SortOperator extends Operator {
+public class SortOperator extends PhysicalOperator {
 
-    private Operator child;
+    private PhysicalOperator child;
 
     /** internal buffer that holds all of child's output in ascending order */
     private ArrayList<Tuple> table = new ArrayList<>();
@@ -29,7 +29,7 @@ public class SortOperator extends Operator {
      * @param child child operator
      * @param orderBys list of orderBys, null if none
      */
-    public SortOperator(Operator child, List<OrderByElement> orderBys) {
+    public SortOperator(PhysicalOperator child, List<OrderByElement> orderBys) {
         this.child = child;
         populateTable();
         Collections.sort(table, new TupleComparator(getTableColumnNames(orderBys)));

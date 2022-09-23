@@ -3,6 +3,11 @@ package com.dbms.operators;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.dbms.operators.physical.DuplicateEliminationOperator;
+import com.dbms.operators.physical.ProjectOperator;
+import com.dbms.operators.physical.ScanOperator;
+import com.dbms.operators.physical.SelectOperator;
+import com.dbms.operators.physical.SortOperator;
 import com.dbms.utils.Catalog;
 import com.dbms.utils.Helpers;
 import java.io.FileNotFoundException;

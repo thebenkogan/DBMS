@@ -1,18 +1,14 @@
 package com.dbms.utils;
 
-import com.dbms.operators.DuplicateEliminationOperator;
-import com.dbms.operators.JoinOperator;
-import com.dbms.operators.Operator;
-import com.dbms.operators.ProjectOperator;
-import com.dbms.operators.ScanOperator;
-import com.dbms.operators.SelectOperator;
-import com.dbms.operators.SortOperator;
+import com.dbms.operators.logical.LogicalDuplicateEliminationOperator;
+import com.dbms.operators.logical.LogicalJoinOperator;
+import com.dbms.operators.logical.LogicalOperator;
+import com.dbms.operators.logical.LogicalProjectOperator;
+import com.dbms.operators.logical.LogicalScanOperator;
+import com.dbms.operators.logical.LogicalSelectOperator;
+import com.dbms.operators.logical.LogicalSortOperator;
 import com.dbms.visitors.JoinVisitor;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
+
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.AllColumns;
@@ -24,39 +20,41 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
-/** Builds a query plan from a Statement and stores the root operator. */
-public class QueryPlanBuilder {
-    public Operator operator;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-    /**
-     * @param tables table names (aliased), removes first
-     * @param jv join visitor
+/** Builds a query plan from a Statement and stores the root operator. */
+public class LogicalPlanBuilder {
+    public LogicalOperator logicalOperator;
+
+    /** @param tables table names (aliased), removes first
+     * @param jv     join visitor
      * @return scan/select operator from first table name in tables
-     * @throws FileNotFoundException
-     */
-    private Operator getNextOperator(List<String> tables, JoinVisitor jv) throws FileNotFoundException {
+     * @throws FileNotFoundException */
+    private LogicalOperator getNextOperator(List<String> tables, JoinVisitor jv) throws FileNotFoundException {
         String tableName = tables.remove(0);
         Expression exp = jv.getExpression(tableName);
 
-        Operator op = new ScanOperator(tableName);
-        if (exp != null) op = new SelectOperator(op, exp);
+        LogicalOperator op = new LogicalScanOperator(tableName);
+        if (exp != null) op = new LogicalSelectOperator(op, exp);
         return op;
     }
 
-    /**
-     * @param tables tables to place in tree. If aliases exist, then tables consists solely of
-     *     aliases. Otherwise, tables contains actual table names; tables.length > 1
-     * @throws FileNotFoundException
-     */
-    private JoinOperator createLeftDeepTree(List<String> tables, JoinVisitor jv) throws FileNotFoundException {
+    /** @param tables tables to place in tree. If aliases exist, then tables consists solely of
+     *               aliases. Otherwise, tables contains actual table names; tables.length > 1
+     * @throws FileNotFoundException */
+    private LogicalJoinOperator createLeftDeepTree(List<String> tables, JoinVisitor jv) throws FileNotFoundException {
 
         String leftName = tables.get(0);
-        Operator leftOp = getNextOperator(tables, jv);
+        LogicalOperator leftOp = getNextOperator(tables, jv);
 
         String rightName = tables.get(0);
-        Operator rightOp = getNextOperator(tables, jv);
+        LogicalOperator rightOp = getNextOperator(tables, jv);
 
-        JoinOperator joinOp = new JoinOperator(leftOp, rightOp, jv.getExpression(leftName, rightName));
+        LogicalJoinOperator joinOp = new LogicalJoinOperator(leftOp, rightOp, jv.getExpression(leftName, rightName));
 
         List<String> seenNames = new ArrayList<>();
         seenNames.add(leftName);
@@ -64,9 +62,10 @@ public class QueryPlanBuilder {
 
         while (tables.size() > 0) {
             String nextName = tables.get(0);
-            Operator nextScan = getNextOperator(tables, jv);
+            LogicalOperator nextScan = getNextOperator(tables, jv);
 
-            JoinOperator nextOp = new JoinOperator(joinOp, nextScan, jv.getExpression(nextName, seenNames));
+            LogicalJoinOperator nextOp =
+                    new LogicalJoinOperator(joinOp, nextScan, jv.getExpression(nextName, seenNames));
             seenNames.add(nextName);
             joinOp = nextOp;
         }
@@ -74,12 +73,10 @@ public class QueryPlanBuilder {
         return joinOp;
     }
 
-    /**
-     * @param statement Statement for which to build a query plan and create a root operator
-     * @throws FileNotFoundException
-     */
+    /** @param statement Statement for which to build a query plan and create a root operator
+     * @throws FileNotFoundException */
     @SuppressWarnings("unchecked")
-    public QueryPlanBuilder(Statement statement) throws FileNotFoundException {
+    public LogicalPlanBuilder(Statement statement) throws FileNotFoundException {
         // extract relevant items from statement
         Select select = (Select) statement;
         PlainSelect body = (PlainSelect) select.getSelectBody();
@@ -101,7 +98,7 @@ public class QueryPlanBuilder {
             fromTable = mainFromItem.toString();
         }
 
-        Operator subRoot;
+        LogicalOperator subRoot;
         if (joins != null) {
             // store the join tables in the alias map if aliased
             if (usingAliases) {
@@ -121,13 +118,15 @@ public class QueryPlanBuilder {
             subRoot = createLeftDeepTree(joinNames, jv);
         } else {
             // if no joins, create a scan/select operator for the from table
-            Operator scanOp = new ScanOperator(fromTable);
-            subRoot = exp != null ? new SelectOperator(scanOp, exp) : scanOp;
+            LogicalOperator scanOp = new LogicalScanOperator(fromTable);
+            subRoot = exp != null ? new LogicalSelectOperator(scanOp, exp) : scanOp;
         }
 
         // add if necessary: projection, sorting, duplicate elimination
-        if (!isAllColumns) subRoot = new ProjectOperator(subRoot, selectItems);
-        subRoot = orderByElements != null || distinct != null ? new SortOperator(subRoot, orderByElements) : subRoot;
-        operator = distinct != null ? new DuplicateEliminationOperator(subRoot) : subRoot;
+        if (!isAllColumns) subRoot = new LogicalProjectOperator(subRoot, selectItems);
+        subRoot = orderByElements != null || distinct != null
+                ? new LogicalSortOperator(subRoot, orderByElements)
+                : subRoot;
+        logicalOperator = distinct != null ? new LogicalDuplicateEliminationOperator(subRoot) : subRoot;
     }
 }

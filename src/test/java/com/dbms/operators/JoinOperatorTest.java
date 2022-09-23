@@ -3,6 +3,8 @@ package com.dbms.operators;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.dbms.operators.physical.JoinOperator;
+import com.dbms.operators.physical.ScanOperator;
 import com.dbms.utils.Catalog;
 import com.dbms.utils.Helpers;
 import com.dbms.visitors.JoinVisitor;

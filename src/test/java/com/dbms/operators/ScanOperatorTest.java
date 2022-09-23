@@ -2,6 +2,7 @@ package com.dbms.operators;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.dbms.operators.physical.ScanOperator;
 import com.dbms.utils.Catalog;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeAll;

@@ -1,4 +1,4 @@
-package com.dbms.operators;
+package com.dbms.operators.physical;
 
 import com.dbms.utils.Catalog;
 import com.dbms.utils.Tuple;
@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.List;
 
 /** An operator that reads data from file and builds Tuples. */
-public class ScanOperator extends Operator {
+public class ScanOperator extends PhysicalOperator {
 
     /** name (aliased) of underlying table */
     private String name;

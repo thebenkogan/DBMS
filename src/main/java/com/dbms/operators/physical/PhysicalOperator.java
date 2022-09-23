@@ -1,10 +1,10 @@
-package com.dbms.operators;
+package com.dbms.operators.physical;
 
 import com.dbms.utils.Tuple;
 import com.dbms.utils.TupleWriter;
 import java.io.IOException;
 
-public abstract class Operator {
+public abstract class PhysicalOperator {
 
     public abstract Tuple getNextTuple();
 

@@ -1,13 +1,13 @@
-package com.dbms.operators;
+package com.dbms.operators.physical;
 
 import com.dbms.utils.Tuple;
 import com.dbms.visitors.ExpressionParseVisitor;
 import net.sf.jsqlparser.expression.Expression;
 
 /** An operator that returns only those child Tuples that satisfy a specified expression. */
-public class SelectOperator extends Operator {
+public class SelectOperator extends PhysicalOperator {
 
-    private Operator scanOperator;
+    private PhysicalOperator scanOperator;
     private ExpressionParseVisitor visitor = new ExpressionParseVisitor();
 
     /** select expression; Tuple is returned if this evaluates to true */
@@ -17,7 +17,7 @@ public class SelectOperator extends Operator {
      * @param scanOperator child operator of SelectOperator
      * @param expression the WHERE expression which we select for; is not null
      */
-    public SelectOperator(Operator scanOperator, Expression expression) {
+    public SelectOperator(PhysicalOperator scanOperator, Expression expression) {
         this.scanOperator = scanOperator;
         this.exp = expression;
     }
