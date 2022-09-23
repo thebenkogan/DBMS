@@ -33,9 +33,6 @@ hs_err_pid*
 /bin/
 *.json
 
-# Dependencies
-/dependencies
-
 # Testing Data
 /input
 /output
