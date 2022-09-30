@@ -29,7 +29,7 @@ public class Interpreter {
                 /** convert logical plan to physical plan by using PhysicalPlanBuilder visitor on
                  * root logical node */
                 PhysicalPlanBuilder physicalPlanBuilder = new PhysicalPlanBuilder();
-                logicalPlan.logicalOperator.accept(physicalPlanBuilder);
+                logicalPlan.root.accept(physicalPlanBuilder);
                 physicalPlanBuilder.physOp.dump(i);
             } catch (Exception e) {
                 System.out.println("Failure: " + statement);

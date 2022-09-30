@@ -105,18 +105,21 @@ public class Catalog {
         return schema.get(name);
     }
 
-    /** @param fromItem table with one alias */
-    public static void populateAliasMap(FromItem fromItem) {
-        Table table = (Table) fromItem;
-        aliasMap.put(table.getAlias().getName(), table.getName());
-    }
-
-    /** @param fromItems tables with list of aliases */
-    public static void populateAliasMap(List<FromItem> fromItems) {
+    /** If fromItems use aliases, this populates the aliasMap and returns the aliased names.
+     * Otherwise, this returns the real table names.
+     *
+     * @param fromItems tables that may or may not use aliases
+     * @return list of (aliased) table names in fromItems */
+    public static List<String> populateAliasMap(List<FromItem> fromItems) {
+        boolean usingAliases = fromItems.get(0).getAlias() != null;
+        LinkedList<String> tableNames = new LinkedList<>();
         for (FromItem fromItem : fromItems) {
             Table table = (Table) fromItem;
-            aliasMap.put(table.getAlias().getName(), table.getName());
+            String tableName = usingAliases ? table.getAlias().getName() : table.getName();
+            if (usingAliases) aliasMap.put(tableName, table.getName());
+            tableNames.add(tableName);
         }
+        return tableNames;
     }
 
     /** @param name table name (aliased)

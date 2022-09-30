@@ -8,7 +8,11 @@ import com.dbms.operators.logical.LogicalScanOperator;
 import com.dbms.operators.logical.LogicalSelectOperator;
 import com.dbms.operators.logical.LogicalSortOperator;
 import com.dbms.visitors.JoinVisitor;
-
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.AllColumns;
@@ -20,15 +24,18 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 /** Builds a query plan from a Statement and stores the root operator. */
 public class LogicalPlanBuilder {
-    public LogicalOperator logicalOperator;
+    public LogicalOperator root;
+
+    /** @param tableName (aliased) table name for the scan
+     * @param exp       select expression, null if not filtered
+     * @return scan operator if expression is null, otherwise a select operator */
+    private LogicalOperator createScanAndSelect(String tableName, Expression exp) {
+        LogicalOperator op = new LogicalScanOperator(tableName);
+        if (exp != null) op = new LogicalSelectOperator(op, exp);
+        return op;
+    }
 
     /** @param tables table names (aliased), removes first
      * @param jv     join visitor
@@ -37,10 +44,7 @@ public class LogicalPlanBuilder {
     private LogicalOperator getNextOperator(List<String> tables, JoinVisitor jv) throws FileNotFoundException {
         String tableName = tables.remove(0);
         Expression exp = jv.getExpression(tableName);
-
-        LogicalOperator op = new LogicalScanOperator(tableName);
-        if (exp != null) op = new LogicalSelectOperator(op, exp);
-        return op;
+        return createScanAndSelect(tableName, exp);
     }
 
     /** @param tables tables to place in tree. If aliases exist, then tables consists solely of
@@ -73,9 +77,21 @@ public class LogicalPlanBuilder {
         return joinOp;
     }
 
+    /** Populates Catalog alias map if tables use aliases.
+     *
+     * @param from  from table
+     * @param joins join tables, null if not a join
+     * @return list of (aliased) table names in the order of tables provided */
+    private List<String> extractNames(FromItem from, List<Join> joins) {
+        LinkedList<FromItem> tables = joins != null
+                ? joins.stream().map(j -> j.getRightItem()).collect(Collectors.toCollection(LinkedList::new))
+                : new LinkedList<>();
+        tables.addFirst(from);
+        return Catalog.populateAliasMap(tables);
+    }
+
     /** @param statement Statement for which to build a query plan and create a root operator
      * @throws FileNotFoundException */
-    @SuppressWarnings("unchecked")
     public LogicalPlanBuilder(Statement statement) throws FileNotFoundException {
         // extract relevant items from statement
         Select select = (Select) statement;
@@ -85,41 +101,19 @@ public class LogicalPlanBuilder {
         Expression exp = body.getWhere();
         FromItem mainFromItem = body.getFromItem();
         List<Join> joins = body.getJoins();
+        List<String> tableNames = extractNames(mainFromItem, joins);
         List<OrderByElement> orderByElements = body.getOrderByElements();
-        boolean usingAliases = mainFromItem.getAlias() != null;
         Distinct distinct = body.getDistinct();
-
-        // get aliased (or not) from table and store in alias map
-        String fromTable;
-        if (usingAliases) {
-            Catalog.populateAliasMap(mainFromItem);
-            fromTable = mainFromItem.getAlias().getName();
-        } else {
-            fromTable = mainFromItem.toString();
-        }
 
         LogicalOperator subRoot;
         if (joins != null) {
-            // store the join tables in the alias map if aliased
-            if (usingAliases) {
-                Catalog.populateAliasMap((LinkedList<FromItem>)
-                        joins.stream().map(j -> j.getRightItem()).collect(Collectors.toCollection(LinkedList::new)));
-            }
-
-            // get full list of (aliased) table names to join
-            LinkedList<String> joinNames = joins.stream()
-                    .map(j -> usingAliases ? j.getRightItem().getAlias().getName() : j.toString())
-                    .collect(Collectors.toCollection(LinkedList::new));
-            joinNames.addFirst(fromTable);
-
             // build left deep tree of expressions and operators
-            JoinVisitor jv = new JoinVisitor(joinNames);
+            JoinVisitor jv = new JoinVisitor(tableNames);
             Helpers.wrapExpressionWithAnd(exp).accept(jv);
-            subRoot = createLeftDeepTree(joinNames, jv);
+            subRoot = createLeftDeepTree(tableNames, jv);
         } else {
             // if no joins, create a scan/select operator for the from table
-            LogicalOperator scanOp = new LogicalScanOperator(fromTable);
-            subRoot = exp != null ? new LogicalSelectOperator(scanOp, exp) : scanOp;
+            subRoot = createScanAndSelect(tableNames.get(0), exp);
         }
 
         // add if necessary: projection, sorting, duplicate elimination
@@ -127,6 +121,6 @@ public class LogicalPlanBuilder {
         subRoot = orderByElements != null || distinct != null
                 ? new LogicalSortOperator(subRoot, orderByElements)
                 : subRoot;
-        logicalOperator = distinct != null ? new LogicalDuplicateEliminationOperator(subRoot) : subRoot;
+        root = distinct != null ? new LogicalDuplicateEliminationOperator(subRoot) : subRoot;
     }
 }
