@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 class SelectOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("samples2/input", null);
+        Catalog.init("samples2/input", null, null);
     }
 
     SelectOperator getOperator() throws FileNotFoundException {

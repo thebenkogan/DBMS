@@ -7,12 +7,13 @@ import com.dbms.operators.logical.LogicalScanOperator;
 import com.dbms.operators.logical.LogicalSelectOperator;
 import com.dbms.operators.logical.LogicalSortOperator;
 import com.dbms.operators.physical.DuplicateEliminationOperator;
+import com.dbms.operators.physical.InMemorySortOperator;
 import com.dbms.operators.physical.JoinOperator;
 import com.dbms.operators.physical.PhysicalOperator;
 import com.dbms.operators.physical.ProjectOperator;
 import com.dbms.operators.physical.ScanOperator;
 import com.dbms.operators.physical.SelectOperator;
-import com.dbms.operators.physical.SortOperator;
+import com.dbms.utils.Catalog;
 
 /** Builds a physical plan from a query plan */
 public class PhysicalPlanBuilder {
@@ -40,7 +41,15 @@ public class PhysicalPlanBuilder {
     /** Construct physical sort from logical sort */
     public void visit(LogicalSortOperator logicalSort) {
         logicalSort.child.accept(this);
-        physOp = new SortOperator(physOp, logicalSort.orderBys);
+        switch (Catalog.SM) {
+            case IM:
+                physOp = new InMemorySortOperator(physOp, logicalSort.orderBys);
+                break;
+
+            case EXT:
+                // TODO
+                break;
+        }
     }
 
     /** Construct physical duplicate elimination from logical duplicate elimination */
@@ -51,13 +60,23 @@ public class PhysicalPlanBuilder {
 
     /** Construct physical join from logical join */
     public void visit(LogicalJoinOperator logicalJoin) {
-        logicalJoin.left.accept(this);
-        PhysicalOperator localLeft = physOp;
-        logicalJoin.right.accept(this);
-        PhysicalOperator localRight = physOp;
+        switch (Catalog.JM) {
+            case TNLJ:
+                logicalJoin.left.accept(this);
+                PhysicalOperator localLeft = physOp;
+                logicalJoin.right.accept(this);
+                PhysicalOperator localRight = physOp;
 
-        physOp = new JoinOperator(localLeft, localRight, logicalJoin.exp);
+                physOp = new JoinOperator(localLeft, localRight, logicalJoin.exp);
+                break;
 
-        // todo: replace join operator with specific join operators
+            case BNLJ:
+                // TODO
+                break;
+
+            case SMJ:
+                // TODO
+                break;
+        }
     }
 }

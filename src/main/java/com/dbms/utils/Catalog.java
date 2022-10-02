@@ -27,11 +27,37 @@ public class Catalog {
     /** path to output directory */
     private static String output;
 
+    /** path to temp directory */
+    private static String temp;
+
     /** Map from (unaliased) table name to list of column names */
     private static Map<String, List<String>> schema = new HashMap<>();
 
     /** Map of aliases to real table names */
     private static Map<String, String> aliasMap = new HashMap<>();
+
+    public enum JoinMethod {
+        TNLJ,
+        BNLJ,
+        SMJ
+    }
+
+    public enum SortMethod {
+        IM,
+        EXT
+    }
+
+    /** Join method for query plan */
+    public static JoinMethod JM;
+
+    /** Sort method for query plan */
+    public static SortMethod SM;
+
+    /** Number of buffer pages for BNLJ */
+    public static int BNLJPages;
+
+    /** Number of buffer pages for external sort */
+    public static int EXTPages;
 
     /** single instance */
     private static Catalog instance = new Catalog();
@@ -61,9 +87,10 @@ public class Catalog {
      * @param input  path to input directory
      * @param output path to output directory
      * @throws IOException */
-    public static void init(String input, String output) throws IOException {
+    public static void init(String input, String output, String temp) throws IOException {
         Catalog.input = input;
         Catalog.output = output;
+        Catalog.temp = temp;
 
         BufferedReader schemaBr = readerFromPath(input, "db", "schema.txt");
         String line;
@@ -76,6 +103,14 @@ public class Catalog {
             }
             schema.put(tableName, columns);
         }
+
+        BufferedReader configBr = readerFromPath(input, "plan_builder_config.txt");
+        StringTokenizer joinNums = new StringTokenizer(configBr.readLine(), " ");
+        StringTokenizer sortNums = new StringTokenizer(configBr.readLine(), " ");
+        JM = JoinMethod.values()[Integer.parseInt(joinNums.nextToken())];
+        SM = SortMethod.values()[Integer.parseInt(sortNums.nextToken())];
+        if (JM == JoinMethod.BNLJ) BNLJPages = Integer.parseInt(joinNums.nextToken());
+        if (SM == SortMethod.EXT) EXTPages = Integer.parseInt(sortNums.nextToken());
     }
 
     /** @param name (unaliased) name of the table to lookup

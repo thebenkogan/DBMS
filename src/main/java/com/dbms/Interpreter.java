@@ -45,7 +45,7 @@ public class Interpreter {
      * @throws IOException
      * @throws ParseException */
     public static void main(String[] args) throws IOException, ParseException {
-        Catalog.init(args[0], args[1]);
+        Catalog.init(args[0], args[1], null);
         run();
     }
 }

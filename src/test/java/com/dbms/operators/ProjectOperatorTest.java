@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 class ProjectOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("samples2/input", null);
+        Catalog.init("samples2/input", null, null);
     }
 
     ProjectOperator getOperator() throws FileNotFoundException {

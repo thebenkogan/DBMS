@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 class JoinOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("samples2/input", null);
+        Catalog.init("samples2/input", null, null);
     }
 
     JoinOperator getOperator() throws FileNotFoundException {

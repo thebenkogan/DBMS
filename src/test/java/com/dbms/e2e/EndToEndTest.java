@@ -24,7 +24,7 @@ class EndToEndTest {
      * @throws ParseException */
     @Test
     void endToEndTest() throws IOException, ParseException {
-        Catalog.init(inputPath, outputPath);
+        Catalog.init(inputPath, outputPath, null);
         Interpreter.run();
 
         File[] outputFiles = new File(outputPath).listFiles();

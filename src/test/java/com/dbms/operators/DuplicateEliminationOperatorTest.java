@@ -4,10 +4,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.dbms.operators.physical.DuplicateEliminationOperator;
+import com.dbms.operators.physical.InMemorySortOperator;
 import com.dbms.operators.physical.ProjectOperator;
 import com.dbms.operators.physical.ScanOperator;
 import com.dbms.operators.physical.SelectOperator;
-import com.dbms.operators.physical.SortOperator;
 import com.dbms.utils.Catalog;
 import com.dbms.utils.Helpers;
 import java.io.FileNotFoundException;
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 class DuplicateEliminationOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("samples2/input", null);
+        Catalog.init("samples2/input", null, null);
     }
 
     DuplicateEliminationOperator getOperator() throws FileNotFoundException {
@@ -33,7 +33,7 @@ class DuplicateEliminationOperatorTest {
         SelectOperator selectOp = new SelectOperator(scanOp, exp);
         ProjectOperator projectOp = new ProjectOperator(selectOp, items);
         List<OrderByElement> orderBys = Helpers.strOrderBysToOrderBys("Reserves.H");
-        SortOperator sortOp = new SortOperator(projectOp, orderBys);
+        InMemorySortOperator sortOp = new InMemorySortOperator(projectOp, orderBys);
         return new DuplicateEliminationOperator(sortOp);
     }
 

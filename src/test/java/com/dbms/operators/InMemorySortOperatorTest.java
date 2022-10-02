@@ -3,9 +3,9 @@ package com.dbms.operators;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.dbms.operators.physical.InMemorySortOperator;
 import com.dbms.operators.physical.ScanOperator;
 import com.dbms.operators.physical.SelectOperator;
-import com.dbms.operators.physical.SortOperator;
 import com.dbms.utils.Catalog;
 import com.dbms.utils.Helpers;
 import java.io.FileNotFoundException;
@@ -17,23 +17,23 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for the SortOperator */
-class SortOperatorTest {
+class InMemorySortOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("samples2/input", null);
+        Catalog.init("samples2/input", null, null);
     }
 
-    SortOperator getOperator() throws FileNotFoundException {
+    InMemorySortOperator getOperator() throws FileNotFoundException {
         List<OrderByElement> orderByElements = Helpers.strOrderBysToOrderBys("Boats.E");
         Expression exp = Helpers.strExpToExp("Boats.D = 32 AND Boats.E != 100");
         ScanOperator scanOp = new ScanOperator("Boats");
         SelectOperator selectOp = new SelectOperator(scanOp, exp);
-        return new SortOperator(selectOp, orderByElements);
+        return new InMemorySortOperator(selectOp, orderByElements);
     }
 
     @Test
     void testGetNextTuple() throws IOException {
-        SortOperator sortOp = getOperator();
+        InMemorySortOperator sortOp = getOperator();
 
         assertEquals("32,20,161", sortOp.getNextTuple().toString());
         assertEquals("32,54,122", sortOp.getNextTuple().toString());
@@ -48,7 +48,7 @@ class SortOperatorTest {
 
     @Test
     void testReset() throws IOException {
-        SortOperator sortOp = getOperator();
+        InMemorySortOperator sortOp = getOperator();
 
         assertEquals("32,20,161", sortOp.getNextTuple().toString());
         sortOp.reset();
