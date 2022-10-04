@@ -32,7 +32,7 @@ public class JoinOperator extends PhysicalOperator {
     public void reset() {
         left.reset();
         right.reset();
-        left.getNextTuple();
+        leftTuple = left.getNextTuple();
     }
 
     /** @return the next merged tuple that satisfies the join condition, null if none left */
