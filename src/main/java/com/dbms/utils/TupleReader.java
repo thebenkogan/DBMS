@@ -20,6 +20,9 @@ public class TupleReader {
     /** Number of tuples on current page */
     private int numTuples;
 
+    /** Maximum number of tuples on a page for this relation */
+    private int maxTuples;
+
     /** Read buffer */
     private ByteBuffer buffer;
 
@@ -50,6 +53,19 @@ public class TupleReader {
         fin = Catalog.getInstance().getTableStream(tableName);
         fc = fin.getChannel();
         readNextPage();
+        maxTuples = numTuples;
+    }
+
+    /** @param index index of tuple to start reading from; requires the index is a valid index to a
+     *              tuple that exists in the relation
+     * @throws IOException */
+    public void reset(int index) throws IOException {
+        fin = Catalog.getInstance().getTableStream(tableName);
+        fc = fin.getChannel();
+        fc.position(index / maxTuples * PAGE_SIZE);
+        readNextPage();
+        tuplesRead = index % maxTuples;
+        bufferIndex += tuplesRead * numAttributes * 4;
     }
 
     /** Reads the next page of data in the file. First clears the buffer, then reads the next page
