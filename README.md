@@ -6,6 +6,11 @@
 
 The top level class of our code is [Interpreter.java](./src/main/java/com/dbms/Interpreter.java)
 
+### Operators
+
+The logical operators are [here](./src/main/java/com/dbms/operators/logical/), and the physical operators are [here](./src/main/java/com/dbms/operators/physical/). We convert from logical operators to physical operators using the [PhysicalPlanBuilder.java](./src/main/java/com/dbms/visitors/PhysicalPlanBuilder.java).
+
+
 ### Join Condition Extraction
 
 Explanation of how we extract join conditions from the WHERE clause:
