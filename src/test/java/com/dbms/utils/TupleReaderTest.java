@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class TupleReaderTest {
     @Test
     void testTupleReader() throws IOException {
-        Catalog.init("samples2/input", null);
+        Catalog.init("samples2/input", null, null);
         TupleReader tr = new TupleReader("Boats");
 
         assertEquals("[12, 143, 196]", tr.nextTuple().toString());
