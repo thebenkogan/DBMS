@@ -36,28 +36,8 @@ public class Catalog {
     /** Map of aliases to real table names */
     private static Map<String, String> aliasMap = new HashMap<>();
 
-    public enum JoinMethod {
-        TNLJ,
-        BNLJ,
-        SMJ
-    }
-
-    public enum SortMethod {
-        IM,
-        EXT
-    }
-
-    /** Join method for query plan */
-    public static JoinMethod JM;
-
-    /** Sort method for query plan */
-    public static SortMethod SM;
-
-    /** Number of buffer pages for BNLJ */
-    public static int BNLJPages;
-
-    /** Number of buffer pages for external sort */
-    public static int EXTPages;
+    /** The physical operator configuration */
+    public static Config CONFIG;
 
     /** single instance */
     private static Catalog instance = new Catalog();
@@ -104,13 +84,7 @@ public class Catalog {
             schema.put(tableName, columns);
         }
 
-        BufferedReader configBr = readerFromPath(input, "plan_builder_config.txt");
-        StringTokenizer joinNums = new StringTokenizer(configBr.readLine(), " ");
-        StringTokenizer sortNums = new StringTokenizer(configBr.readLine(), " ");
-        JM = JoinMethod.values()[Integer.parseInt(joinNums.nextToken())];
-        SM = SortMethod.values()[Integer.parseInt(sortNums.nextToken())];
-        if (JM == JoinMethod.BNLJ) BNLJPages = Integer.parseInt(joinNums.nextToken());
-        if (SM == SortMethod.EXT) EXTPages = Integer.parseInt(sortNums.nextToken());
+        CONFIG = new Config(readerFromPath(input, "plan_builder_config.txt"));
     }
 
     /** @param name (unaliased) name of the table to lookup
@@ -118,6 +92,12 @@ public class Catalog {
      * @throws FileNotFoundException */
     public BufferedReader getTable(String name) throws FileNotFoundException {
         return readerFromPath(input, "db", "data", name);
+    }
+
+    /** @param tableName (aliased) table name
+     * @return path to table file in input directory */
+    public static String pathToTable(String tableName) {
+        return join(input, "db", "data", tableName);
     }
 
     /** @param name (unaliased) name of the table to lookup

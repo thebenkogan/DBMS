@@ -7,13 +7,21 @@ import com.dbms.operators.logical.LogicalScanOperator;
 import com.dbms.operators.logical.LogicalSelectOperator;
 import com.dbms.operators.logical.LogicalSortOperator;
 import com.dbms.operators.physical.DuplicateEliminationOperator;
+import com.dbms.operators.physical.ExternalSortOperator;
 import com.dbms.operators.physical.InMemorySortOperator;
 import com.dbms.operators.physical.JoinOperator;
 import com.dbms.operators.physical.PhysicalOperator;
 import com.dbms.operators.physical.ProjectOperator;
 import com.dbms.operators.physical.ScanOperator;
 import com.dbms.operators.physical.SelectOperator;
+import com.dbms.operators.physical.SortMergeJoinOperator;
 import com.dbms.utils.Catalog;
+import com.dbms.utils.Helpers;
+import java.util.LinkedList;
+import java.util.List;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 
 /** Builds a physical plan from a query plan */
 public class PhysicalPlanBuilder {
@@ -41,13 +49,13 @@ public class PhysicalPlanBuilder {
     /** Construct physical sort from logical sort */
     public void visit(LogicalSortOperator logicalSort) {
         logicalSort.child.accept(this);
-        switch (Catalog.SM) {
-            case IM:
+        switch (Catalog.CONFIG.SORTTYPE) {
+            case InMemory:
                 physOp = new InMemorySortOperator(physOp, logicalSort.orderBys);
                 break;
 
-            case EXT:
-                // TODO
+            case External:
+                physOp = new ExternalSortOperator(physOp, logicalSort.orderBys, Catalog.CONFIG.EXTPages);
                 break;
         }
     }
@@ -60,23 +68,62 @@ public class PhysicalPlanBuilder {
 
     /** Construct physical join from logical join */
     public void visit(LogicalJoinOperator logicalJoin) {
-        switch (Catalog.JM) {
+        logicalJoin.left.accept(this);
+        PhysicalOperator localLeft = physOp;
+        logicalJoin.right.accept(this);
+        PhysicalOperator localRight = physOp;
+        switch (Catalog.CONFIG.JOINTYPE) {
             case TNLJ:
-                logicalJoin.left.accept(this);
-                PhysicalOperator localLeft = physOp;
-                logicalJoin.right.accept(this);
-                PhysicalOperator localRight = physOp;
-
                 physOp = new JoinOperator(localLeft, localRight, logicalJoin.exp);
                 break;
 
             case BNLJ:
-                // TODO
-                break;
+                throw new UnsupportedOperationException("BNLJ Unsupported");
 
             case SMJ:
-                // TODO
+                List<EqualsTo> equalityConditions = Helpers.getEqualityConditions(logicalJoin.exp);
+                physOp = createSortMergeJoinOperator(equalityConditions, logicalJoin, localLeft, localRight);
                 break;
         }
+    }
+
+    /** @param equalityConditions list of EqualTo expressions found in the EquiJoin condition
+     * @param joinOperator       is the logical join operator
+     * @param localLeft          is the local left physical operator
+     * @param localRight         is the local right physical operator
+     * @return initialized SortMergeJoin Operator with left and right sorted children */
+    private SortMergeJoinOperator createSortMergeJoinOperator(
+            List<EqualsTo> equalityConditions,
+            LogicalJoinOperator joinOperator,
+            PhysicalOperator localLeft,
+            PhysicalOperator localRight) {
+        List<OrderByElement> leftOrderByElements = new LinkedList<>();
+        List<OrderByElement> rightOrderByElements = new LinkedList<>();
+        for (EqualsTo condition : equalityConditions) {
+            Column leftCol = (Column) condition.getLeftExpression();
+            Column rightCol = (Column) condition.getRightExpression();
+            boolean leftIsInner = Helpers.getProperTableName(leftCol.getTable()).equals(joinOperator.innerTableName);
+
+            OrderByElement left = new OrderByElement();
+            left.setExpression(leftIsInner ? rightCol : leftCol);
+            OrderByElement right = new OrderByElement();
+            right.setExpression(leftIsInner ? leftCol : rightCol);
+
+            leftOrderByElements.add(left);
+            rightOrderByElements.add(right);
+        }
+
+        switch (Catalog.CONFIG.SORTTYPE) {
+            case InMemory:
+                return new SortMergeJoinOperator(
+                        new InMemorySortOperator(localLeft, leftOrderByElements),
+                        new InMemorySortOperator(localRight, rightOrderByElements));
+            case External:
+                return new SortMergeJoinOperator(
+                        new ExternalSortOperator(localLeft, leftOrderByElements, Catalog.CONFIG.EXTPages),
+                        new ExternalSortOperator(localRight, rightOrderByElements, Catalog.CONFIG.EXTPages));
+        }
+
+        return null;
     }
 }

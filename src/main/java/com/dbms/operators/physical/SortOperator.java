@@ -8,6 +8,8 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
 public abstract class SortOperator extends PhysicalOperator {
+    List<OrderByElement> orderBys;
+
     @Override
     public abstract Tuple getNextTuple();
 

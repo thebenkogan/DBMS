@@ -14,7 +14,7 @@ The logical operators are [here](./src/main/java/com/dbms/operators/logical/), a
 ### Join Condition Extraction
 
 Explanation of how we extract join conditions from the WHERE clause:
-1. In the constructor for [QueryPlanBuilder](./src/main/java/com/dbms/utils/QueryPlanBuilder.java), we extract the from table and joins from the query.
+1. In the constructor for [LogicalPlanBuilder](./src/main/java/com/dbms/utils/LogicalPlanBuilder.java), we extract the from table and joins from the query.
 
 2. We create a map in [JoinVisitor](./src/main/java/com/dbms/visitors/JoinVisitor.java) called "expressions" whose set of keys are
     - the names of the JoinItems, plus

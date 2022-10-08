@@ -23,6 +23,7 @@ public class InMemorySortOperator extends SortOperator {
      * @param child    child operator
      * @param orderBys list of orderBys, null if none */
     public InMemorySortOperator(PhysicalOperator child, List<OrderByElement> orderBys) {
+        this.orderBys = orderBys;
         this.child = child;
         Tuple rep = child.getNextTuple();
         child.reset();
@@ -53,7 +54,6 @@ public class InMemorySortOperator extends SortOperator {
 
     @Override
     public void reset(int index) {
-        // TODO Auto-generated method stub
-
+        this.index = index;
     }
 }

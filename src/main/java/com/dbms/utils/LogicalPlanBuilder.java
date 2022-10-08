@@ -58,7 +58,8 @@ public class LogicalPlanBuilder {
         String rightName = tables.get(0);
         LogicalOperator rightOp = getNextOperator(tables, jv);
 
-        LogicalJoinOperator joinOp = new LogicalJoinOperator(leftOp, rightOp, jv.getExpression(leftName, rightName));
+        LogicalJoinOperator joinOp =
+                new LogicalJoinOperator(leftOp, rightOp, rightName, jv.getExpression(leftName, rightName));
 
         List<String> seenNames = new ArrayList<>();
         seenNames.add(leftName);
@@ -69,7 +70,7 @@ public class LogicalPlanBuilder {
             LogicalOperator nextScan = getNextOperator(tables, jv);
 
             LogicalJoinOperator nextOp =
-                    new LogicalJoinOperator(joinOp, nextScan, jv.getExpression(nextName, seenNames));
+                    new LogicalJoinOperator(joinOp, nextScan, nextName, jv.getExpression(nextName, seenNames));
             seenNames.add(nextName);
             joinOp = nextOp;
         }

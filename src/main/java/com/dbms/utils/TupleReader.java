@@ -11,8 +11,8 @@ public class TupleReader {
     /** Bytes per page */
     private static final int PAGE_SIZE = 4096;
 
-    /** Name of underlying table (unaliased) */
-    private String tableName;
+    /** Path to file */
+    private String path;
 
     /** Number of attribute per tuple in current page */
     private int numAttributes;
@@ -40,8 +40,8 @@ public class TupleReader {
 
     /** @param tableName (unaliased) table name
      * @throws IOException */
-    public TupleReader(String tableName) throws IOException {
-        this.tableName = tableName;
+    public TupleReader(String path) throws IOException {
+        this.path = path;
         buffer = ByteBuffer.allocate(PAGE_SIZE);
         reset();
     }
@@ -50,7 +50,7 @@ public class TupleReader {
      *
      * @throws IOException */
     public void reset() throws IOException {
-        fin = Catalog.getInstance().getTableStream(tableName);
+        fin = new FileInputStream(path);
         fc = fin.getChannel();
         readNextPage();
         maxTuples = numTuples;
@@ -60,7 +60,7 @@ public class TupleReader {
      *              tuple that exists in the relation
      * @throws IOException */
     public void reset(int index) throws IOException {
-        fin = Catalog.getInstance().getTableStream(tableName);
+        fin = new FileInputStream(path);
         fc = fin.getChannel();
         fc.position(index / maxTuples * PAGE_SIZE);
         readNextPage();

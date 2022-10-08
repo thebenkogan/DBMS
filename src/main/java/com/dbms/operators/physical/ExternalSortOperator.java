@@ -30,6 +30,7 @@ public class ExternalSortOperator extends SortOperator {
      * @param child    child operator
      * @param orderBys list of orderBys, null if none */
     public ExternalSortOperator(PhysicalOperator child, List<OrderByElement> orderBys, int pages) {
+        this.orderBys = orderBys;
         this.child = child;
         Tuple rep = child.getNextTuple();
         child.reset();

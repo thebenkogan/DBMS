@@ -1,5 +1,6 @@
 package com.dbms.operators.physical;
 
+import com.dbms.utils.Helpers;
 import com.dbms.utils.Tuple;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,10 +32,7 @@ public class ProjectOperator extends PhysicalOperator {
         tableNames = new LinkedList<>();
         for (SelectItem item : selectItems) {
             Column col = ((Column) ((SelectExpressionItem) item).getExpression());
-            tableNames.add(
-                    col.getTable().getAlias() != null
-                            ? col.getTable().getAlias().getName()
-                            : col.getTable().getName());
+            tableNames.add(Helpers.getProperTableName(col.getTable()));
         }
     }
 

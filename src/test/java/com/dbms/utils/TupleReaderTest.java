@@ -17,10 +17,10 @@ class TupleReaderTest {
     @BeforeAll
     public static void setup() throws IOException {
         Catalog.init("samples2/input", null, null);
-        tr = new TupleReader("Boats");
+        tr = new TupleReader(Catalog.pathToTable("Boats"));
     }
 
-    @ParameterizedTest(name = "Next Tuple Test {index}: expected {0}; actual {1} ")
+    @ParameterizedTest(name = "Test {index}: expected {0}; actual {1} ")
     @MethodSource("argumentProvider")
     void testGetNextTuple(String expected, String actual) throws IOException {
         if (expected.equals("null") && actual == null) {

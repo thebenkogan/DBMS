@@ -20,7 +20,7 @@ public class ScanOperator extends PhysicalOperator {
     public ScanOperator(String tableName) {
         try {
             name = tableName;
-            reader = new TupleReader(Catalog.getRealTableName(tableName));
+            reader = new TupleReader(Catalog.pathToTable(Catalog.getRealTableName(tableName)));
         } catch (IOException e) {
             e.printStackTrace();
         }
