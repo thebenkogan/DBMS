@@ -7,6 +7,8 @@ import com.dbms.utils.Catalog;
 import com.dbms.utils.TupleReader;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -25,7 +27,7 @@ class EndToEndTest {
     @BeforeAll
     public static void setup() throws IOException {
         QueryTestSetBuilder tnlj =
-                new QueryTestSetBuilder("samples2/input", "samples2/e2e_output", null, "samples2/expected");
+                new QueryTestSetBuilder("samples2/input", "samples2/e2e_output", null, "samples2/expected", "TNLJ");
 
         // QueryTestSetBuilder bnlj = new QueryTestSetBuilder(
         // "samples2/smj/input",
@@ -33,8 +35,8 @@ class EndToEndTest {
         // null,
         // "samples2/smj/expected");
 
-        QueryTestSetBuilder smj =
-                new QueryTestSetBuilder("samples2/smj/input", "samples2/smj/e2e_output", null, "samples2/smj/expected");
+        QueryTestSetBuilder smj = new QueryTestSetBuilder(
+                "samples2/smj/input", "samples2/smj/e2e_output", null, "samples2/smj/expected", "SMJ");
         queries = tnlj.queries();
 
         // queries.addAll(bnlj.queries());
@@ -46,9 +48,9 @@ class EndToEndTest {
      *
      * @throws IOException
      * @throws ParseException */
-    @ParameterizedTest(name = "query {index}")
+    @ParameterizedTest(name = "{2} query {3}")
     @MethodSource("argumentProvider")
-    void test(String actual, String expected) throws IOException, ParseException {
+    void test(String actual, String expected, String name, int number) throws IOException, ParseException {
         assertEquals(actual, expected);
     }
 
@@ -73,7 +75,11 @@ class QueryTestSetBuilder {
     }
 
     QueryTestSetBuilder(
-            final String inputPath, final String outputPath, final String tempPath, final String expectedOutputPath)
+            final String inputPath,
+            final String outputPath,
+            final String tempPath,
+            final String expectedOutputPath,
+            final String name)
             throws IOException {
         Catalog.init(inputPath, outputPath, tempPath);
         Interpreter.run();
@@ -81,9 +87,18 @@ class QueryTestSetBuilder {
         File[] outputFiles = new File(outputPath).listFiles();
         File[] expectedFiles = new File(expectedOutputPath).listFiles();
         for (int i = 0; i < outputFiles.length; i++) {
-            String outputText = sortOutput(outputFiles[i].getPath());
-            String expectedText = sortOutput(expectedFiles[i].getPath());
-            arguments.add(Arguments.of(outputText, expectedText));
+            String outputFilePath = outputFiles[i].getPath();
+            String expectedFilePath = expectedFiles[i].getPath();
+            String outputText = new String(Files.readAllBytes(Paths.get(outputFilePath)));
+            String expectedText = new String(Files.readAllBytes(Paths.get(expectedFilePath)));
+            arguments.add(
+                    (outputText.equals(expectedText)
+                            ? Arguments.of(outputText, expectedText, name, i + 1)
+                            : Arguments.of(
+                                    sortOutput(outputFilePath),
+                                    sortOutput(expectedFilePath),
+                                    name + " (Sorted)",
+                                    i + 1)));
         }
     }
 
