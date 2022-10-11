@@ -1,6 +1,7 @@
 package com.dbms.operators.logical;
 
 import com.dbms.visitors.PhysicalPlanBuilder;
+import java.io.IOException;
 import net.sf.jsqlparser.expression.Expression;
 
 /** The logical representation of the join operator, which contains the expression, left child
@@ -12,10 +13,10 @@ public class LogicalJoinOperator extends LogicalOperator {
     public Expression exp;
     public String innerTableName;
 
-    /** @param left left child operator
-     * @param right right child operator
+    /** @param left       left child operator
+     * @param right          right child operator
      * @param innerTableName aliased inner table name
-     * @param exp   join condition, null if none */
+     * @param exp            join condition, null if none */
     public LogicalJoinOperator(LogicalOperator left, LogicalOperator right, String innerTableName, Expression exp) {
         this.left = left;
         this.right = right;
@@ -26,6 +27,10 @@ public class LogicalJoinOperator extends LogicalOperator {
     /** @param physicalPlan visitor which converts logical to physical operator */
     @Override
     public void accept(PhysicalPlanBuilder physicalPlan) {
-        physicalPlan.visit(this);
+        try {
+            physicalPlan.visit(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

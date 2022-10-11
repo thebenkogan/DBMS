@@ -31,6 +31,7 @@ public class Interpreter {
                 PhysicalPlanBuilder physicalPlanBuilder = new PhysicalPlanBuilder();
                 logicalPlan.root.accept(physicalPlanBuilder);
                 physicalPlanBuilder.physOp.dump(i);
+                Catalog.cleanTempDir();
             } catch (Exception e) {
                 System.out.println("Failure: " + statement);
                 e.printStackTrace();

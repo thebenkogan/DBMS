@@ -26,8 +26,8 @@ class EndToEndTest {
 
     @BeforeAll
     public static void setup() throws IOException {
-        QueryTestSetBuilder tnlj =
-                new QueryTestSetBuilder("samples2/input", "samples2/e2e_output", null, "samples2/expected", "TNLJ");
+        QueryTestSetBuilder tnlj = new QueryTestSetBuilder(
+                "samples2/input", "samples2/e2e_output", "samples2/temp", "samples2/expected", "TNLJ");
 
         // QueryTestSetBuilder bnlj = new QueryTestSetBuilder(
         // "samples2/smj/input",
@@ -36,7 +36,7 @@ class EndToEndTest {
         // "samples2/smj/expected");
 
         QueryTestSetBuilder smj = new QueryTestSetBuilder(
-                "samples2/smj/input", "samples2/smj/e2e_output", null, "samples2/smj/expected", "SMJ");
+                "samples2/smj/input", "samples2/smj/e2e_output", "samples2/smj/temp", "samples2/smj/expected", "SMJ");
         queries = tnlj.queries();
 
         // queries.addAll(bnlj.queries());
@@ -92,13 +92,13 @@ class QueryTestSetBuilder {
             String outputText = new String(Files.readAllBytes(Paths.get(outputFilePath)));
             String expectedText = new String(Files.readAllBytes(Paths.get(expectedFilePath)));
             arguments.add(
-                    (outputText.equals(expectedText)
+                    outputText.equals(expectedText)
                             ? Arguments.of(outputText, expectedText, name, i + 1)
                             : Arguments.of(
                                     sortOutput(outputFilePath),
                                     sortOutput(expectedFilePath),
                                     name + " (Sorted)",
-                                    i + 1)));
+                                    i + 1));
         }
     }
 

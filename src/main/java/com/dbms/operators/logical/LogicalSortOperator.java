@@ -1,6 +1,7 @@
 package com.dbms.operators.logical;
 
 import com.dbms.visitors.PhysicalPlanBuilder;
+import java.io.IOException;
 import java.util.List;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
@@ -24,6 +25,10 @@ public class LogicalSortOperator extends LogicalOperator {
     /** @param physicalPlan visitor which converts logical to physical operator */
     @Override
     public void accept(PhysicalPlanBuilder physicalPlan) {
-        physicalPlan.visit(this);
+        try {
+            physicalPlan.visit(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

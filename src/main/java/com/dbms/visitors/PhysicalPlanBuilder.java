@@ -17,6 +17,7 @@ import com.dbms.operators.physical.SelectOperator;
 import com.dbms.operators.physical.SortMergeJoinOperator;
 import com.dbms.utils.Catalog;
 import com.dbms.utils.Helpers;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
@@ -46,8 +47,10 @@ public class PhysicalPlanBuilder {
         physOp = new ProjectOperator(physOp, logicalProject.selectItems);
     }
 
-    /** Construct physical sort from logical sort */
-    public void visit(LogicalSortOperator logicalSort) {
+    /** Construct physical sort from logical sort
+     *
+     * @throws IOException */
+    public void visit(LogicalSortOperator logicalSort) throws IOException {
         logicalSort.child.accept(this);
         switch (Catalog.CONFIG.SORTTYPE) {
             case InMemory:
@@ -66,8 +69,10 @@ public class PhysicalPlanBuilder {
         physOp = new DuplicateEliminationOperator(physOp);
     }
 
-    /** Construct physical join from logical join */
-    public void visit(LogicalJoinOperator logicalJoin) {
+    /** Construct physical join from logical join
+     *
+     * @throws IOException */
+    public void visit(LogicalJoinOperator logicalJoin) throws IOException {
         logicalJoin.left.accept(this);
         PhysicalOperator localLeft = physOp;
         logicalJoin.right.accept(this);
@@ -91,12 +96,14 @@ public class PhysicalPlanBuilder {
      * @param joinOperator       is the logical join operator
      * @param localLeft          is the local left physical operator
      * @param localRight         is the local right physical operator
-     * @return initialized SortMergeJoin Operator with left and right sorted children */
+     * @return initialized SortMergeJoin Operator with left and right sorted children
+     * @throws IOException */
     private SortMergeJoinOperator createSortMergeJoinOperator(
             List<EqualsTo> equalityConditions,
             LogicalJoinOperator joinOperator,
             PhysicalOperator localLeft,
-            PhysicalOperator localRight) {
+            PhysicalOperator localRight)
+            throws IOException {
         List<OrderByElement> leftOrderByElements = new LinkedList<>();
         List<OrderByElement> rightOrderByElements = new LinkedList<>();
         for (EqualsTo condition : equalityConditions) {

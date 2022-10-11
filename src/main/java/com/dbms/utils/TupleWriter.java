@@ -29,9 +29,9 @@ public class TupleWriter {
 
     /** @param tableName (unaliased) table name
      * @throws IOException */
-    public TupleWriter(int queryNumber) throws IOException {
+    public TupleWriter(String path) throws IOException {
         buffer = ByteBuffer.allocate(PAGE_SIZE);
-        fout = Catalog.getInstance().getOutputStream(queryNumber);
+        fout = new FileOutputStream(path);
         fc = fout.getChannel();
         bufferIndex = 8;
     }

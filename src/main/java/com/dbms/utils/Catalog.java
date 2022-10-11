@@ -6,8 +6,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -110,8 +115,20 @@ public class Catalog {
     /** @param i query number
      * @return FileOutputStream for the output
      * @throws FileNotFoundException */
-    public FileOutputStream getOutputStream(int i) throws FileNotFoundException {
-        return new FileOutputStream(join(output, "query" + i));
+    public FileOutputStream getOutputStream(String path) throws FileNotFoundException {
+        return new FileOutputStream(path);
+    }
+
+    /** @param path path to temp file within temp directory
+     * @return updated path with temp directory prepended */
+    public static String pathToTempFile(String path) {
+        return join(temp, path);
+    }
+
+    /** @param i query number
+     * @return path to output file */
+    public static String pathToOutputFile(int i) {
+        return join(output, "query" + i);
     }
 
     /** @param name (unaliased) name of the table to extract columns
@@ -151,12 +168,30 @@ public class Catalog {
         return new BufferedReader(new FileReader(String.join(File.separator, input, "queries.sql")));
     }
 
-    /** @param i query number
-     * @return FileWriter for dumping the query results to write file in the output path
-     * @throws IOException */
-    public FileWriter getOutputWriter(int i) throws IOException {
-        File file = new File(join(output, "query" + i));
-        file.getParentFile().mkdirs();
-        return new FileWriter(file);
+    public static void createTempSubDir(String id) throws IOException {
+        new File(join(temp, id)).mkdir();
+    }
+
+    public static void cleanTempDir() throws IOException {
+        Files.walkFileTree(Paths.get(temp), new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                try {
+                    Files.delete(file);
+                } catch (Exception e) {
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                try {
+                    Files.delete(dir);
+                } catch (Exception e) {
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
+        new File(temp).mkdir();
     }
 }

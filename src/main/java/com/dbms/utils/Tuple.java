@@ -2,6 +2,7 @@ package com.dbms.utils;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +32,16 @@ public class Tuple {
         row = new LinkedHashMap<>();
         for (int i = 0; i < data.size(); i++) {
             row.put(key(tableName, columns.get(i)), data.get(i));
+        }
+    }
+
+    /** @param tableColumnNames row keys; assumes is in the same order as the input data
+     * @param data             associated data */
+    public Tuple(Set<String> tableColumnNames, List<Integer> data) {
+        row = new LinkedHashMap<>();
+        Iterator<String> names = tableColumnNames.iterator();
+        for (int i = 0; i < data.size(); i++) {
+            row.put(names.next(), data.get(i));
         }
     }
 

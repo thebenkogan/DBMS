@@ -14,7 +14,7 @@ public class TupleReader {
     /** Path to file */
     private String path;
 
-    /** flag telling whether the buffer can be used*/
+    /** flag telling whether the buffer can be used */
     private boolean memUsable;
 
     /** Number of attribute per tuple in current page */
@@ -55,9 +55,9 @@ public class TupleReader {
     public void reset() throws IOException {
         fin = new FileInputStream(path);
         fc = fin.getChannel();
-        memUsable = true;
         readNextPage();
         maxTuples = numTuples;
+        memUsable = true;
     }
 
     /** @param index index of tuple to start reading from; requires the index is a valid index to a
@@ -67,10 +67,10 @@ public class TupleReader {
         fin = new FileInputStream(path);
         fc = fin.getChannel();
         fc.position(index / maxTuples * PAGE_SIZE);
-        memUsable = true;
         readNextPage();
         tuplesRead = index % maxTuples;
         bufferIndex += tuplesRead * numAttributes * 4;
+        memUsable = true;
     }
 
     /** Reads the next page of data in the file. First clears the buffer, then reads the next page
@@ -98,14 +98,14 @@ public class TupleReader {
         buffer.clear();
         buffer.put(new byte[PAGE_SIZE]); // hack to reset with zeros
         buffer.clear();
-        memUsable = true;
     }
 
-    /** @return Integer list of data in the tuple, null if no tuples left or if file channel is closed
+    /** @return Integer list of data in the tuple, null if no tuples left or if file channel is
+     *         closed
      * @throws IOException */
     public List<Integer> nextTuple() throws IOException {
         if (tuplesRead == numTuples) {
-            if (!readNextPage() || !memUsable) return null;
+            if (!memUsable || !readNextPage()) return null;
         }
         List<Integer> data = new ArrayList<>(numAttributes);
         for (int i = 0; i < numAttributes; i++) {

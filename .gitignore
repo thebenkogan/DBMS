@@ -38,6 +38,9 @@ hs_err_pid*
 /output
 /samples2/temp
 
+# Temp directory files
+samples2/temp/*
+
 # Gradle
 .gradle
 build
