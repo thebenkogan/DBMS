@@ -14,6 +14,9 @@ public class TupleReader {
     /** Path to file */
     private String path;
 
+    /** flag telling whether the buffer can be used*/
+    private boolean memUsable;
+
     /** Number of attribute per tuple in current page */
     private int numAttributes;
 
@@ -52,6 +55,7 @@ public class TupleReader {
     public void reset() throws IOException {
         fin = new FileInputStream(path);
         fc = fin.getChannel();
+        memUsable = true;
         readNextPage();
         maxTuples = numTuples;
     }
@@ -63,6 +67,7 @@ public class TupleReader {
         fin = new FileInputStream(path);
         fc = fin.getChannel();
         fc.position(index / maxTuples * PAGE_SIZE);
+        memUsable = true;
         readNextPage();
         tuplesRead = index % maxTuples;
         bufferIndex += tuplesRead * numAttributes * 4;
@@ -77,7 +82,10 @@ public class TupleReader {
     private boolean readNextPage() throws IOException {
         clearBuffer();
         int bytesRead = fc.read(buffer);
-        if (bytesRead == -1) return false;
+        if (bytesRead == -1) {
+            close();
+            return false;
+        }
         numAttributes = buffer.getInt(0);
         numTuples = buffer.getInt(4);
         bufferIndex = 8;
@@ -90,13 +98,14 @@ public class TupleReader {
         buffer.clear();
         buffer.put(new byte[PAGE_SIZE]); // hack to reset with zeros
         buffer.clear();
+        memUsable = true;
     }
 
-    /** @return Integer list of data in the tuple, null if no tuples left
+    /** @return Integer list of data in the tuple, null if no tuples left or if file channel is closed
      * @throws IOException */
     public List<Integer> nextTuple() throws IOException {
         if (tuplesRead == numTuples) {
-            if (!readNextPage()) return null;
+            if (!readNextPage() || !memUsable) return null;
         }
         List<Integer> data = new ArrayList<>(numAttributes);
         for (int i = 0; i < numAttributes; i++) {
@@ -113,5 +122,6 @@ public class TupleReader {
     public void close() throws IOException {
         fin.close();
         fc.close();
+        memUsable = false;
     }
 }

@@ -36,6 +36,7 @@ hs_err_pid*
 # Testing Data
 /input
 /output
+/samples2/temp
 
 # Gradle
 .gradle
