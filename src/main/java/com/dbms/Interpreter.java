@@ -18,7 +18,7 @@ public class Interpreter {
      *
      * @throws IOException */
     public static void run() throws IOException {
-        BufferedReader fileReader = Catalog.getInstance().getQueriesFile();
+        BufferedReader fileReader = Catalog.getQueriesFile();
         int i = 1;
         String currentQuery;
         Statement statement = null;
@@ -46,7 +46,7 @@ public class Interpreter {
      * @throws IOException
      * @throws ParseException */
     public static void main(String[] args) throws IOException, ParseException {
-        Catalog.init(args[0], args[1], null);
+        Catalog.init(args[0], args[1], args[2]);
         run();
     }
 }

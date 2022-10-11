@@ -32,7 +32,7 @@ public class ScanOperator extends PhysicalOperator {
         try {
             List<Integer> next = reader.nextTuple();
             if (next == null) return null;
-            return new Tuple(name, Catalog.getInstance().getTableColumns(Catalog.getRealTableName(name)), next);
+            return new Tuple(name, Catalog.getTableColumns(Catalog.getRealTableName(name)), next);
         } catch (IOException e) {
             e.printStackTrace();
         }

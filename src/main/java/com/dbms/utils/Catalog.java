@@ -2,9 +2,7 @@ package com.dbms.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -43,16 +41,6 @@ public class Catalog {
 
     /** The physical operator configuration */
     public static Config CONFIG;
-
-    /** single instance */
-    private static Catalog instance = new Catalog();
-
-    private Catalog() {}
-
-    /** @return singleton instance */
-    public static Catalog getInstance() {
-        return instance;
-    }
 
     /** @param segments file path to join
      * @return segments joined with File.seperator */
@@ -105,20 +93,6 @@ public class Catalog {
         return join(input, "db", "data", tableName);
     }
 
-    /** @param name (unaliased) name of the table to lookup
-     * @return FileInputStream for the table
-     * @throws FileNotFoundException */
-    public FileInputStream getTableStream(String name) throws FileNotFoundException {
-        return new FileInputStream(join(input, "db", "data", name));
-    }
-
-    /** @param i query number
-     * @return FileOutputStream for the output
-     * @throws FileNotFoundException */
-    public FileOutputStream getOutputStream(String path) throws FileNotFoundException {
-        return new FileOutputStream(path);
-    }
-
     /** @param path path to temp file within temp directory
      * @return updated path with temp directory prepended */
     public static String pathToTempFile(String path) {
@@ -133,7 +107,7 @@ public class Catalog {
 
     /** @param name (unaliased) name of the table to extract columns
      * @return list of column names */
-    public List<String> getTableColumns(String name) {
+    public static List<String> getTableColumns(String name) {
         return schema.get(name);
     }
 
@@ -164,7 +138,7 @@ public class Catalog {
     /** @return BufferedReader for the query file corresponding to the Catalog input. Each line will
      *         be the query as a string.
      * @throws FileNotFoundException */
-    public BufferedReader getQueriesFile() throws FileNotFoundException {
+    public static BufferedReader getQueriesFile() throws FileNotFoundException {
         return new BufferedReader(new FileReader(String.join(File.separator, input, "queries.sql")));
     }
 
