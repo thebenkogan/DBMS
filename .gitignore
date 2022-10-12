@@ -34,12 +34,9 @@ hs_err_pid*
 *.json
 
 # Testing Data
-/input
+/benchmarking
 /output
-/samples2/temp
-
-# Temp directory files
-samples2/temp/*
+/temp
 
 # Gradle
 .gradle

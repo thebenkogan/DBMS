@@ -26,8 +26,8 @@ class EndToEndTest {
 
     @BeforeAll
     public static void setup() throws IOException {
-        QueryTestSetBuilder tnlj = new QueryTestSetBuilder(
-                "samples2/input", "samples2/e2e_output", "samples2/temp", "samples2/expected", "TNLJ");
+        QueryTestSetBuilder tnlj =
+                new QueryTestSetBuilder("input/tnlj", "output/tnlj", "temp", "expected/tnlj/binary", "TNLJ");
 
         // QueryTestSetBuilder bnlj = new QueryTestSetBuilder(
         // "samples2/smj/input",
@@ -35,8 +35,8 @@ class EndToEndTest {
         // null,
         // "samples2/smj/expected");
 
-        QueryTestSetBuilder smj = new QueryTestSetBuilder(
-                "samples2/smj/input", "samples2/smj/e2e_output", "samples2/smj/temp", "samples2/smj/expected", "SMJ");
+        QueryTestSetBuilder smj =
+                new QueryTestSetBuilder("input/smj", "output/smj", "temp", "expected/smj/binary", "SMJ");
         queries = tnlj.queries();
 
         // queries.addAll(bnlj.queries());

@@ -27,7 +27,7 @@ class JoinOperatorTest {
 
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("samples2/input", null, null);
+        Catalog.init("input/general", null, null);
         scanOp1 = new ScanOperator("Sailors");
         scanOp2 = new ScanOperator("Reserves");
         jv = new JoinVisitor(Arrays.asList(new String[] {"Sailors", "Reserves"}));

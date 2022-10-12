@@ -28,7 +28,7 @@ class InMemorySortOperatorTest {
 
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("samples2/input", null, null);
+        Catalog.init("input/general", null, null);
         orderByElements = Helpers.strOrderBysToOrderBys("Boats.E");
         exp = Helpers.strExpToExp("Boats.D = 32 AND Boats.E != 100");
         scanOp = new ScanOperator("Boats");

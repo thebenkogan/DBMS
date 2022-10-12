@@ -35,7 +35,7 @@ class DuplicateEliminationOperatorTest {
 
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("samples2/input", null, null);
+        Catalog.init("input/general", null, null);
         items = Helpers.strSelectItemsToSelectItems("Reserves.H");
         scanOp = new ScanOperator("Reserves");
         exp = Helpers.strExpToExp("Reserves.H > 185");
