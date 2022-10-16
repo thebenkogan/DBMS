@@ -5,11 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.dbms.operators.physical.JoinOperator;
 import com.dbms.operators.physical.ScanOperator;
+import com.dbms.operators.physical.SelectOperator;
 import com.dbms.utils.Catalog;
 import com.dbms.utils.Helpers;
-import com.dbms.visitors.JoinVisitor;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.stream.Stream;
 import net.sf.jsqlparser.expression.Expression;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,21 +18,19 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 /** Unit tests for the JoinOperator */
 class JoinOperatorTest {
-    private static ScanOperator scanOp1;
-    private static ScanOperator scanOp2;
-    private static JoinVisitor jv;
-    private static Expression exp;
     private static JoinOperator joinOp;
 
     @BeforeAll
     public static void setup() throws IOException {
         Catalog.init("input/general", null, null);
-        scanOp1 = new ScanOperator("Sailors");
-        scanOp2 = new ScanOperator("Reserves");
-        jv = new JoinVisitor(Arrays.asList(new String[] {"Sailors", "Reserves"}));
-        exp = Helpers.strExpToExp("Sailors.A = Reserves.G AND Reserves.H = 23 AND Sailors.A = 106");
-        exp.accept(jv);
-        joinOp = new JoinOperator(scanOp1, scanOp2, exp);
+        ScanOperator scanOp1 = new ScanOperator("Sailors");
+        ScanOperator scanOp2 = new ScanOperator("Reserves");
+        Expression exp1 = Helpers.strExpToExp("Sailors.A = 106");
+        Expression exp2 = Helpers.strExpToExp("Reserves.H = 23");
+        SelectOperator selectOp1 = new SelectOperator(scanOp1, exp1);
+        SelectOperator selectOp2 = new SelectOperator(scanOp2, exp2);
+        Expression joinExp = Helpers.strExpToExp("Sailors.A = Reserves.G");
+        joinOp = new JoinOperator(selectOp1, selectOp2, joinExp);
     }
 
     @ParameterizedTest(name = "Next Tuple Test {index}: expected {0}; actual {1} ")

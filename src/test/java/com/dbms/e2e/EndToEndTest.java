@@ -29,17 +29,14 @@ class EndToEndTest {
         QueryTestSetBuilder tnlj =
                 new QueryTestSetBuilder("input/tnlj", "output/tnlj", "temp", "expected/tnlj/binary", "TNLJ");
 
-        // QueryTestSetBuilder bnlj = new QueryTestSetBuilder(
-        // "samples2/smj/input",
-        // "samples2/smj/e2e_output",
-        // null,
-        // "samples2/smj/expected");
+        QueryTestSetBuilder bnlj =
+                new QueryTestSetBuilder("input/bnlj", "output/bnlj", "temp", "expected/bnlj/binary", "BNLJ");
 
         QueryTestSetBuilder smj =
                 new QueryTestSetBuilder("input/smj", "output/smj", "temp", "expected/smj/binary", "SMJ");
         queries = tnlj.queries();
 
-        // queries.addAll(bnlj.queries());
+        queries.addAll(bnlj.queries());
         queries.addAll(smj.queries());
     }
 

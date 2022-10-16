@@ -6,6 +6,7 @@ import com.dbms.operators.logical.LogicalProjectOperator;
 import com.dbms.operators.logical.LogicalScanOperator;
 import com.dbms.operators.logical.LogicalSelectOperator;
 import com.dbms.operators.logical.LogicalSortOperator;
+import com.dbms.operators.physical.BlockNestedLoopJoinOperator;
 import com.dbms.operators.physical.DuplicateEliminationOperator;
 import com.dbms.operators.physical.ExternalSortOperator;
 import com.dbms.operators.physical.InMemorySortOperator;
@@ -83,8 +84,9 @@ public class PhysicalPlanBuilder {
                 break;
 
             case BNLJ:
-                throw new UnsupportedOperationException("BNLJ Unsupported");
-
+                physOp = new BlockNestedLoopJoinOperator(
+                        localLeft, localRight, logicalJoin.exp, Catalog.CONFIG.BNLJPages);
+                break;
             case SMJ:
                 List<EqualsTo> equalityConditions = Helpers.getEqualityConditions(logicalJoin.exp);
                 physOp = createSortMergeJoinOperator(equalityConditions, logicalJoin, localLeft, localRight);
