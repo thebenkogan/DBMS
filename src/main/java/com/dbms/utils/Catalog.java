@@ -55,12 +55,14 @@ public class Catalog {
         return new BufferedReader(new FileReader(join(path)));
     }
 
-    /** initializes the input and output paths and reads the corresponding schema file
-     *
+    /**
+     * initializes the input and output paths and reads the corresponding schema file
      * @param input  path to input directory
      * @param output path to output directory
-     * @throws IOException */
-    public static void init(String input, String output, String temp) throws IOException {
+     * @param temp
+     * @throws IOException
+     */
+    private static void initialize(String input, String output, String temp) throws IOException {
         Catalog.input = input;
         Catalog.output = output;
         Catalog.temp = temp;
@@ -76,8 +78,27 @@ public class Catalog {
             }
             schema.put(tableName, columns);
         }
+    }
 
+    /** initializes the input and output paths and reads the corresponding schema file
+     *
+     * @param input  path to input directory
+     * @param output path to output directory
+     * @throws IOException */
+    public static void init(String input, String output, String temp) throws IOException {
+        initialize(input, output, temp);
         CONFIG = new Config(readerFromPath(input, "plan_builder_config.txt"));
+    }
+
+    /** initializes the input and output paths with custom programmtic configuration and reads the corresponding schema file
+     *
+     * @param input  path to input directory
+     * @param output path to output directory
+     * @param config is the configuration to determine which join type to use
+     * @throws IOException */
+    public static void init(String input, String output, String temp, Config config) throws IOException {
+        initialize(input, output, temp);
+        CONFIG = config;
     }
 
     /** @param name (unaliased) name of the table to lookup

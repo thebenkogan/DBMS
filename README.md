@@ -26,3 +26,9 @@ and whose values are the list of Expressions referencing all tables in the key.
 4. In QueryPlanBuilder, we then create a left-deep tree based on the order of the from table and join tables. This left-deep tree is represented by a [JoinOperator](./src/main/java/com/dbms/operators/JoinOperator.java), whose children may also be JoinOperators.
     - We begin with the first two tables in the join. We obtain the expression corresponding to these 2 tables from the map "expressions" in JoinVisitor, and then create a JoinOperator using the names of these 2 JoinItems and that expression.
     - We then continue this process for the remaining joins; for each table, we create a new JoinOperator whose left child is the previous JoinOperator and whose right child is a scan/select operator, depending on the referenced expressions for the next join. The join condition for this join operator is the conjunction of all expressions referencing the next join and any previous join in the left subtree.
+
+### Acknowledgements
+
+Third-party services used to facilitate the project:
+
+* [Guava Stopwatch](https://guava.dev/releases/18.0/api/docs/com/google/common/base/Stopwatch.html) for Benchmarking purposes

@@ -27,7 +27,7 @@ public class TupleWriter {
     /** Channel to write the buffer to the output stream */
     private FileChannel fc;
 
-    /** @param tableName (unaliased) table name
+    /** @param path (unaliased) file path name
      * @throws IOException */
     public TupleWriter(String path) throws IOException {
         buffer = ByteBuffer.allocate(PAGE_SIZE);

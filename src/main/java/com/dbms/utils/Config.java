@@ -37,4 +37,18 @@ public class Config {
         if (SORTTYPE == Sort.External) EXTPages = Integer.parseInt(sortNums.nextToken());
         br.close();
     }
+
+    public Config(Join joinType, Sort sortType, int bnljPages, int extPages) {
+        JOINTYPE = joinType;
+        SORTTYPE = sortType;
+        BNLJPages = bnljPages;
+        EXTPages = extPages;
+    }
+
+    public Config(Join joinType, Sort sortType, int extPages) {
+        JOINTYPE = joinType;
+        SORTTYPE = sortType;
+        BNLJPages = -1;
+        EXTPages = extPages;
+    }
 }
