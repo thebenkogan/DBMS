@@ -1,9 +1,11 @@
 package com.dbms.analytics;
 
+import com.dbms.utils.ColumnName;
 import com.dbms.utils.Tuple;
 import com.dbms.utils.TupleWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -28,12 +30,20 @@ public class TupleGenerator {
                     int rng = (int) (Math.random() * 100);
                     rngList.add(j, rng);
                 }
-                Tuple t = new Tuple(columns, rngList);
+                Tuple t = new Tuple(mapStringNameToColumnName(tableName, columns), rngList);
                 tw.writeTuple(t);
             }
             tw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static Set<ColumnName> mapStringNameToColumnName(String tableName, Set<String> columns) {
+        Set<ColumnName> result = new HashSet<>();
+        for (String column : columns) {
+            result.add(ColumnName.bundle(tableName, column));
+        }
+        return result;
     }
 }

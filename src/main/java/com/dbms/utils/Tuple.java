@@ -11,17 +11,7 @@ import java.util.Set;
 public class Tuple {
     /** Maps (aliased) table.column key to value in row. Insertion order represents column
      * ordering. */
-    private LinkedHashMap<String, Integer> row;
-
-    /** string that separates the table name from the column name in the row map */
-    private static final String SEPARATOR = "/";
-
-    /** @param tableName table name
-     * @param columnName column name
-     * @return the key to look up the corresponding value in the row */
-    public static String key(String tableName, String columnName) {
-        return tableName + SEPARATOR + columnName;
-    }
+    private LinkedHashMap<ColumnName, Integer> row;
 
     /** Creates a new Tuple for the table with columns and data.
      *
@@ -31,15 +21,15 @@ public class Tuple {
     public Tuple(String tableName, List<String> columns, List<Integer> data) {
         row = new LinkedHashMap<>();
         for (int i = 0; i < data.size(); i++) {
-            row.put(key(tableName, columns.get(i)), data.get(i));
+            row.put(ColumnName.bundle(tableName, columns.get(i)), data.get(i));
         }
     }
 
-    /** @param tableColumnNames row keys; assumes is in the same order as the input data
+    /** @param schema row keys; assumes is in the same order as the input data
      * @param data             associated data */
-    public Tuple(Set<String> tableColumnNames, List<Integer> data) {
+    public Tuple(Set<ColumnName> schema, List<Integer> data) {
         row = new LinkedHashMap<>();
-        Iterator<String> names = tableColumnNames.iterator();
+        Iterator<ColumnName> names = schema.iterator();
         for (int i = 0; i < data.size(); i++) {
             row.put(names.next(), data.get(i));
         }
@@ -48,7 +38,7 @@ public class Tuple {
     /** Creates a new Tuple from a derived row of an old Tuple
      *
      * @param row row map */
-    private Tuple(LinkedHashMap<String, Integer> row) {
+    private Tuple(LinkedHashMap<ColumnName, Integer> row) {
         this.row = row;
     }
 
@@ -61,23 +51,11 @@ public class Tuple {
      * @param columnName name of table column
      * @return value in the column */
     public int get(String tableName, String columnName) {
-        return row.get(key(tableName, columnName));
-    }
-
-    /** @param name key separated with SEPARATOR
-     * @return table name (aliased) */
-    public static String getTableName(String name) {
-        return name.split(SEPARATOR)[0];
-    }
-
-    /** @param name key separated with SEPARATOR
-     * @return column name */
-    public static String getColumnName(String name) {
-        return name.split(SEPARATOR)[1];
+        return row.get(ColumnName.bundle(tableName, columnName));
     }
 
     /** @return set of table.column row keys */
-    public Set<String> getTableColumnNames() {
+    public Set<ColumnName> getSchema() {
         return row.keySet();
     }
 
@@ -93,12 +71,12 @@ public class Tuple {
     public void project(List<String> tableNames, List<String> columnNames) {
         Integer[] data = new Integer[columnNames.size()];
         for (int i = 0; i < columnNames.size(); i++) {
-            data[i] = row.get(key(tableNames.get(i), columnNames.get(i)));
+            data[i] = row.get(ColumnName.bundle(tableNames.get(i), columnNames.get(i)));
         }
 
         row.clear();
         for (int i = 0; i < data.length; i++) {
-            row.put(key(tableNames.get(i), columnNames.get(i)), data[i]);
+            row.put(ColumnName.bundle(tableNames.get(i), columnNames.get(i)), data[i]);
         }
     }
 
@@ -121,7 +99,7 @@ public class Tuple {
      * @param right right tuple
      * @return merged Tuple with order specified by the concatenation of left and right */
     public static Tuple mergeTuples(Tuple left, Tuple right) {
-        LinkedHashMap<String, Integer> row = new LinkedHashMap<>();
+        LinkedHashMap<ColumnName, Integer> row = new LinkedHashMap<>();
         left.row.forEach((key, value) -> row.put(key, value));
         right.row.forEach((key, value) -> row.put(key, value));
         return new Tuple(row);

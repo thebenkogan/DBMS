@@ -1,6 +1,7 @@
 package com.dbms.operators.physical;
 
 import com.dbms.utils.Catalog;
+import com.dbms.utils.ColumnName;
 import com.dbms.utils.Tuple;
 import com.dbms.utils.TupleReader;
 import com.dbms.utils.TupleWriter;
@@ -47,7 +48,7 @@ public class ExternalSortOperator extends SortOperator {
     private TupleComparator tc;
 
     /** Tuple specific table and column names for child tuples */
-    private Set<String> childSchema;
+    private Set<ColumnName> childSchema;
 
     /** The index of the current merge pass */
     private int mergePass;
@@ -71,7 +72,7 @@ public class ExternalSortOperator extends SortOperator {
         this.pages = pages;
         numAttributes = rep.size();
         tuplesPerRun = pages * 4096 / numAttributes * 4;
-        childSchema = rep.getTableColumnNames();
+        childSchema = rep.getSchema();
         tc = new TupleComparator(orderBys, rep);
         Catalog.createTempSubDir(id);
         initialPass();
