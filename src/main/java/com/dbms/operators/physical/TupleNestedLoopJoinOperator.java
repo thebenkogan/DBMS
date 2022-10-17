@@ -9,7 +9,7 @@ import net.sf.jsqlparser.expression.Expression;
  * the next left Tuple, then joins it with all Tuples from the right child that satisfy the join
  * condition. We then reset the right and get the next left Tuple until there are no more left
  * Tuples. */
-public class JoinOperator extends PhysicalOperator {
+public class TupleNestedLoopJoinOperator extends PhysicalOperator {
 
     private PhysicalOperator left;
     private PhysicalOperator right;
@@ -20,7 +20,7 @@ public class JoinOperator extends PhysicalOperator {
     /** @param left left child operator
      * @param right right child operator
      * @param exp   join condition, null if none */
-    public JoinOperator(PhysicalOperator left, PhysicalOperator right, Expression exp) {
+    public TupleNestedLoopJoinOperator(PhysicalOperator left, PhysicalOperator right, Expression exp) {
         this.left = left;
         this.right = right;
         joinCondition = exp;

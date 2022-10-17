@@ -3,9 +3,9 @@ package com.dbms.operators;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.dbms.operators.physical.JoinOperator;
 import com.dbms.operators.physical.ScanOperator;
 import com.dbms.operators.physical.SelectOperator;
+import com.dbms.operators.physical.TupleNestedLoopJoinOperator;
 import com.dbms.utils.Catalog;
 import com.dbms.utils.Helpers;
 import java.io.IOException;
@@ -17,8 +17,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 /** Unit tests for the JoinOperator */
-class JoinOperatorTest {
-    private static JoinOperator joinOp;
+class TupleNestedLoopJoinOperatorTest {
+    private static TupleNestedLoopJoinOperator joinOp;
 
     @BeforeAll
     public static void setup() throws IOException {
@@ -30,7 +30,7 @@ class JoinOperatorTest {
         SelectOperator selectOp1 = new SelectOperator(scanOp1, exp1);
         SelectOperator selectOp2 = new SelectOperator(scanOp2, exp2);
         Expression joinExp = Helpers.strExpToExp("Sailors.A = Reserves.G");
-        joinOp = new JoinOperator(selectOp1, selectOp2, joinExp);
+        joinOp = new TupleNestedLoopJoinOperator(selectOp1, selectOp2, joinExp);
     }
 
     @ParameterizedTest(name = "Next Tuple Test {index}: expected {0}; actual {1} ")
@@ -45,7 +45,7 @@ class JoinOperatorTest {
 
     @ParameterizedTest(name = "Reset Test {index}: expected {0}; actual {1} ")
     @MethodSource("resetProvider")
-    void testReset(String expected, JoinOperator actual) throws IOException {
+    void testReset(String expected, TupleNestedLoopJoinOperator actual) throws IOException {
         actual.reset();
         assertEquals(expected, actual.getNextTuple().toString());
     }

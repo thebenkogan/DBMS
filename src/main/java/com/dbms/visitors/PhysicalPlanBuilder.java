@@ -10,12 +10,12 @@ import com.dbms.operators.physical.BlockNestedLoopJoinOperator;
 import com.dbms.operators.physical.DuplicateEliminationOperator;
 import com.dbms.operators.physical.ExternalSortOperator;
 import com.dbms.operators.physical.InMemorySortOperator;
-import com.dbms.operators.physical.JoinOperator;
 import com.dbms.operators.physical.PhysicalOperator;
 import com.dbms.operators.physical.ProjectOperator;
 import com.dbms.operators.physical.ScanOperator;
 import com.dbms.operators.physical.SelectOperator;
 import com.dbms.operators.physical.SortMergeJoinOperator;
+import com.dbms.operators.physical.TupleNestedLoopJoinOperator;
 import com.dbms.utils.Catalog;
 import com.dbms.utils.Helpers;
 import java.io.IOException;
@@ -80,7 +80,7 @@ public class PhysicalPlanBuilder {
         PhysicalOperator localRight = physOp;
         switch (Catalog.CONFIG.JOINTYPE) {
             case TNLJ:
-                physOp = new JoinOperator(localLeft, localRight, logicalJoin.exp);
+                physOp = new TupleNestedLoopJoinOperator(localLeft, localRight, logicalJoin.exp);
                 break;
 
             case BNLJ:
