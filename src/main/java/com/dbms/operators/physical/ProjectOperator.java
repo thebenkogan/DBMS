@@ -1,10 +1,10 @@
 package com.dbms.operators.physical;
 
+import com.dbms.utils.ColumnName;
 import com.dbms.utils.Helpers;
 import com.dbms.utils.Tuple;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
@@ -15,14 +15,8 @@ public class ProjectOperator extends PhysicalOperator {
     /** {@code child} is the child operator for projection */
     private PhysicalOperator child;
 
-    /** Name of projected columns */
-    private List<String> columnNames;
-
-    /**
-     * name (aliased) of projected tables
-     * invariant: tableNames[i] must be the real table name of columnNames[i]
-     */
-    private List<String> tableNames;
+    /** {@code schema} is the list of aliased table names and column names */
+    private List<ColumnName> schema = new LinkedList<>();
 
     /**
      * @param child child operator to project
@@ -30,13 +24,10 @@ public class ProjectOperator extends PhysicalOperator {
      */
     public ProjectOperator(PhysicalOperator child, List<SelectItem> selectItems) {
         this.child = child;
-        columnNames = selectItems.stream()
-                .map(item -> ((Column) ((SelectExpressionItem) item).getExpression()).getColumnName())
-                .collect(Collectors.toList());
-        tableNames = new LinkedList<>();
         for (SelectItem item : selectItems) {
             Column col = ((Column) ((SelectExpressionItem) item).getExpression());
-            tableNames.add(Helpers.getProperTableName(col.getTable()));
+            String tableName = Helpers.getProperTableName(col.getTable());
+            schema.add(ColumnName.bundle(tableName, col.getColumnName()));
         }
     }
 
@@ -51,7 +42,7 @@ public class ProjectOperator extends PhysicalOperator {
     public Tuple getNextTuple() {
         Tuple nextTuple = child.getNextTuple();
         if (nextTuple == null) return null;
-        nextTuple.project(tableNames, columnNames);
+        nextTuple.project(schema);
         return nextTuple;
     }
 }

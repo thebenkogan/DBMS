@@ -74,18 +74,17 @@ public class Tuple {
 
     /**
      * Projects this tuple to those in columns.
-     * @param tableNames  projected (aliased) table names
-     * @param columnNames projected column names; must be a subset of the columns in this tuple.
+     * @param schema list of {@code ColumnName} objects containing aliased table names and column names
      */
-    public void project(List<String> tableNames, List<String> columnNames) {
-        Integer[] data = new Integer[columnNames.size()];
-        for (int i = 0; i < columnNames.size(); i++) {
-            data[i] = row.get(ColumnName.bundle(tableNames.get(i), columnNames.get(i)));
+    public void project(List<ColumnName> schema) {
+        Integer[] data = new Integer[schema.size()];
+        for (int i = 0; i < schema.size(); i++) {
+            data[i] = row.get(schema.get(i));
         }
 
         row.clear();
         for (int i = 0; i < data.length; i++) {
-            row.put(ColumnName.bundle(tableNames.get(i), columnNames.get(i)), data[i]);
+            row.put(schema.get(i), data[i]);
         }
     }
 
