@@ -7,7 +7,9 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Class for reading byte-code files containing relational data */
 public class TupleReader {
+
     /** Bytes per page */
     private static final int PAGE_SIZE = 4096;
 
@@ -41,17 +43,20 @@ public class TupleReader {
     /** Channel to read the stream into the buffer */
     private FileChannel fc;
 
-    /** @param tableName (unaliased) table name
-     * @throws IOException */
+    /**
+     * @param path (unaliased) table name (to represent file path)
+     * @throws IOException
+     */
     public TupleReader(String path) throws IOException {
         this.path = path;
         buffer = ByteBuffer.allocate(PAGE_SIZE);
         reset();
     }
 
-    /** Resets the reader to the first tuple in the file
-     *
-     * @throws IOException */
+    /**
+     * Resets the reader to the first tuple in the file
+     * @throws IOException
+     */
     public void reset() throws IOException {
         fin = new FileInputStream(path);
         fc = fin.getChannel();
@@ -60,9 +65,11 @@ public class TupleReader {
         memUsable = true;
     }
 
-    /** @param index index of tuple to start reading from; requires the index is a valid index to a
+    /**
+     * @param index index of tuple to start reading from; requires the index is a valid index to a
      *              tuple that exists in the relation
-     * @throws IOException */
+     * @throws IOException
+     */
     public void reset(int index) throws IOException {
         fin = new FileInputStream(path);
         fc = fin.getChannel();
@@ -73,12 +80,13 @@ public class TupleReader {
         memUsable = true;
     }
 
-    /** Reads the next page of data in the file. First clears the buffer, then reads the next page
+    /**
+     * Reads the next page of data in the file. First clears the buffer, then reads the next page
      * and the metadata values. Places bufferIndex at first integer to read in file and resets
      * tuplesRead.
-     *
      * @return true if new page read, false if no more pages to read
-     * @throws IOException */
+     * @throws IOException
+     */
     private boolean readNextPage() throws IOException {
         clearBuffer();
         int bytesRead = fc.read(buffer);
@@ -100,9 +108,11 @@ public class TupleReader {
         buffer.clear();
     }
 
-    /** @return Integer list of data in the tuple, null if no tuples left or if file channel is
+    /**
+     * @return Integer list of data in the tuple, null if no tuples left or if file channel is
      *         closed
-     * @throws IOException */
+     * @throws IOException
+     */
     public List<Integer> nextTuple() throws IOException {
         if (tuplesRead == numTuples) {
             if (!memUsable || !readNextPage()) return null;
@@ -116,9 +126,10 @@ public class TupleReader {
         return data;
     }
 
-    /** Closes the reader. Call reset to restart.
-     *
-     * @throws IOException */
+    /**
+     * Closes the reader. Call reset to restart.
+     * @throws IOException
+     */
     public void close() throws IOException {
         fin.close();
         fc.close();

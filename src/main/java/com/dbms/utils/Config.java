@@ -4,13 +4,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
+/** Type that represents the information provided by the configuration file*/
 public class Config {
+
+    /** The 3 types of join operations we support: tuple-nested loop join, block-nested loop join, and sort-merge join. */
     public static enum Join {
         TNLJ,
         BNLJ,
         SMJ
     }
 
+    /** The 2 types of sort operations we support: sorting in memory and sorting with external storage. */
     public static enum Sort {
         InMemory,
         External
@@ -27,8 +31,12 @@ public class Config {
     /** Number of buffer pages for external sort */
     public int EXTPages;
 
+    /**
+     * Creates a {@code Config} type based on the contents of the configuration file
+     * @param br is a {@code BufferedReader} containing the config file to read
+     * @throws IOException
+     */
     public Config(BufferedReader br) throws IOException {
-        // br = new BufferedReader(new FileReader(config));
         StringTokenizer joinNums = new StringTokenizer(br.readLine(), " ");
         StringTokenizer sortNums = new StringTokenizer(br.readLine(), " ");
         JOINTYPE = Join.values()[Integer.parseInt(joinNums.nextToken())];
@@ -38,6 +46,13 @@ public class Config {
         br.close();
     }
 
+    /**
+     * Constructor for programmatic configurations
+     * @param joinType the type of join to use
+     * @param sortType the type of sorting to use
+     * @param bnljPages the number of pages for BNLJ
+     * @param extPages the number pages for external sort
+     */
     public Config(Join joinType, Sort sortType, int bnljPages, int extPages) {
         JOINTYPE = joinType;
         SORTTYPE = sortType;
@@ -45,6 +60,12 @@ public class Config {
         EXTPages = extPages;
     }
 
+    /**
+     * Constructor for programmatic configurations
+     * @param joinType the type of join to use
+     * @param sortType the type of sorting to use
+     * @param extPages the number pages for external sort
+     */
     public Config(Join joinType, Sort sortType, int extPages) {
         JOINTYPE = joinType;
         SORTTYPE = sortType;

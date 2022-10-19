@@ -6,8 +6,10 @@ import net.sf.jsqlparser.expression.Expression;
 
 /** An operator that returns only those child Tuples that satisfy a specified expression. */
 public class SelectOperator extends PhysicalOperator {
-
+    /** {@code scanOperator} is the child {@code ScanOperator} of the {@code SelectOperator} */
     private PhysicalOperator scanOperator;
+
+    /** {@code visitor} helps convert the select conditions to programmatic types */
     private ExpressionParseVisitor visitor = new ExpressionParseVisitor();
 
     /** select expression; Tuple is returned if this evaluates to true */
@@ -28,9 +30,7 @@ public class SelectOperator extends PhysicalOperator {
         scanOperator.reset();
     }
 
-    /**
-     * @return the next tuple that passes the select expression
-     */
+    /** @return the next tuple that passes the select expression */
     @Override
     public Tuple getNextTuple() {
         Tuple nextTuple = scanOperator.getNextTuple();

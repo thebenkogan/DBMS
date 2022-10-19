@@ -33,11 +33,12 @@ public class Interpreter {
         }
     }
 
-    /** Executes all queries in the catalog queries file and writes the output to the catalog output
+    /**
+     * Executes all queries in the catalog queries file and writes the output to the catalog output
      * directory with ascending query number. If a query fails during the process, this prints the
      * failed query and error message to the console, then continues to the next query.
-     *
-     * @throws IOException */
+     * @throws IOException
+     */
     public static void run() throws IOException {
         BufferedReader fileReader = Catalog.getQueriesFile();
         int i = 1;
@@ -48,10 +49,11 @@ public class Interpreter {
         }
     }
 
-    /** Initializes the catalog with the provided input and output paths, then runs the interpreter.
-     *
+    /**
+     * Initializes the catalog with the provided input and output paths, then runs the interpreter.
      * @param args args[0] = input path, args[1] = output path, args[2] = temporary folder for external sort
-     * @throws IOException */
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException {
         Catalog.init(args[0], args[1], args[2]);
         run();

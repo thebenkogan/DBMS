@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/** Handles randomly generating binary data files for benchmarking. */
 public class TupleGenerator {
 
     /**
@@ -39,6 +40,12 @@ public class TupleGenerator {
         }
     }
 
+    /**
+     * Converts a {@code Set} of column names only to a {@code Set} of {@code ColumnName} type.
+     * @param tableName is the name of the data file
+     * @param columns is a set containing the name of the columns
+     * @return {@code Set} of {@code ColumnName} type for inputting into {@code Tuple} constructor
+     */
     private static Set<ColumnName> mapStringNameToColumnName(String tableName, Set<String> columns) {
         Set<ColumnName> result = new HashSet<>();
         for (String column : columns) {

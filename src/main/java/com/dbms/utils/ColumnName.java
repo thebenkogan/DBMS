@@ -2,6 +2,9 @@ package com.dbms.utils;
 
 import java.util.Objects;
 
+/**
+ * Class to represent a column name of a tuple, along with the aliased table name that the tuple belongs to
+ */
 public final class ColumnName {
     /**
      * {@code TABLE} is the aliased name of the table as a {@code String}.
@@ -33,9 +36,7 @@ public final class ColumnName {
         return new ColumnName(table, column);
     }
 
-    /**
-     * Two {@code Schema} objects are equal if they have identical table and column names.
-     */
+    /** Two {@code Schema} objects are equal if they have identical table and column names. */
     @Override
     public boolean equals(Object other) {
         if (other instanceof ColumnName) {
@@ -45,9 +46,7 @@ public final class ColumnName {
         return false;
     }
 
-    /**
-     * {@code Schema} types are hashed using their table and column {@code String} values.
-     */
+    /** {@code Schema} types are hashed using their table and column {@code String} values. */
     @Override
     public int hashCode() {
         return Objects.hash(TABLE, COLUMN);

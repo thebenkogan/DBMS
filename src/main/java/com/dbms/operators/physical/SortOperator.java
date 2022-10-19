@@ -8,22 +8,41 @@ import java.util.List;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
+/**
+ * Abstract operator for any sorting that needs to be done in a query
+ */
 public abstract class SortOperator extends PhysicalOperator {
+
+    /**
+     * {@code orderBys} is an ordered-list of columns to sort by
+     */
     List<OrderByElement> orderBys;
 
+    /**
+     * @return the next tuple in the sorted relation
+     */
     @Override
     public abstract Tuple getNextTuple();
 
+    /**
+     * resets the operator to the first tuple in the relation
+     */
     @Override
     public abstract void reset();
 
+    /**
+     * Resets the operator to a specific tuple
+     * @param index represents a specific tuple to reset back to
+     */
     public abstract void reset(int index);
 
-    /** @param orderBys list of columns to prioritize for sorting
+    /**
+     * @param orderBys list of columns to prioritize for sorting
      * @param rep      representative child tuple
-     * @return table (aliased) & column names in order of sorting; first the columns specified in
+     * @return aliased table & column names in order of sorting; first the columns specified in
      *         the ORDER BY statement, then the columns not previously mentioned as they appear in
-     *         the child Tuples */
+     *         the child Tuples
+     */
     private List<ColumnName> getTableColumnNames(List<OrderByElement> orderBys, Tuple rep) {
         List<ColumnName> tableColumnNames = new LinkedList<>();
         if (orderBys != null) {
@@ -42,12 +61,21 @@ public abstract class SortOperator extends PhysicalOperator {
         return tableColumnNames;
     }
 
-    /** A comparator that compares two Tuples by comparing their equality based on a specified
-     * column ordering. */
+    /**
+     * A comparator that compares two Tuples by comparing their equality based on a specified
+     * column ordering.
+     */
     public class TupleComparator implements Comparator<Tuple> {
+
+        /**
+         * {@code tableColumnNames} is an ordered list of {@code ColumnName} objects that contain the columns to sort by
+         */
         private List<ColumnName> tableColumnNames;
 
-        /** @param tableColumnNames (aliased) table.column names to sort by */
+        /**
+         * @param orderBys is the ordered list of columns to sort by
+         * @param rep is a representative child tuple
+         */
         public TupleComparator(List<OrderByElement> orderBys, Tuple rep) {
             tableColumnNames = getTableColumnNames(orderBys, rep);
         }

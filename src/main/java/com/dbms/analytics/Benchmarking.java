@@ -15,10 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author rober
- *
- */
+/** Main entry point of benchmarking experiments. */
 public class Benchmarking {
 
     /**

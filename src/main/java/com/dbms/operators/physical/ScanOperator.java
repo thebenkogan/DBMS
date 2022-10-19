@@ -15,8 +15,7 @@ public class ScanOperator extends PhysicalOperator {
     /** reader for the underlying table */
     private TupleReader reader;
 
-    /** @param tableName name (aliased) of underlying table
-     * @throws IOException */
+    /** @param tableName name (aliased) of underlying table */
     public ScanOperator(String tableName) {
         try {
             name = tableName;

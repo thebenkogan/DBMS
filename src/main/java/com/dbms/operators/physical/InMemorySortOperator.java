@@ -6,10 +6,13 @@ import java.util.Collections;
 import java.util.List;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
-/** An operator that reads all of its child Tuples, stores and sorts them in ascending order, and
- * returns them one-by-one as requested. */
+/**
+ * An operator that reads all of its child Tuples, stores and sorts them in ascending order, and
+ * returns them one-by-one as requested.
+ */
 public class InMemorySortOperator extends SortOperator {
 
+    /** {@code child} is the child operator for in-memory sort */
     private PhysicalOperator child;
 
     /** internal buffer that holds all of child's output in ascending order */
@@ -18,10 +21,11 @@ public class InMemorySortOperator extends SortOperator {
     /** index of the next tuple to return in table */
     private int index = 0;
 
-    /** Reads all Tuples from child into table, then sorts in the order specified by orderBys.
-     *
+    /**
+     * Reads all Tuples from child into table, then sorts in the order specified by orderBys.
      * @param child    child operator
-     * @param orderBys list of orderBys, null if none */
+     * @param orderBys list of orderBys, null if none
+     */
     public InMemorySortOperator(PhysicalOperator child, List<OrderByElement> orderBys) {
         this.orderBys = orderBys;
         this.child = child;
@@ -52,6 +56,7 @@ public class InMemorySortOperator extends SortOperator {
         index = 0;
     }
 
+    /** @param index is the position of the tuple in the list to reset back to */
     @Override
     public void reset(int index) {
         this.index = index;

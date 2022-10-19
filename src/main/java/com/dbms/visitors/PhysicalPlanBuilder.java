@@ -31,26 +31,37 @@ public class PhysicalPlanBuilder {
     /** Represents the current physical operator */
     public PhysicalOperator physOp;
 
-    /** Construct physical scan from logical scan */
+    /**
+     * Construct physical scan from logical scan
+     * @param logicalScan is the scan operator from the logical plan
+     */
     public void visit(LogicalScanOperator logicalScan) {
         physOp = new ScanOperator(logicalScan.tableName);
     }
 
-    /** Construct physical select from logical select */
+    /**
+     * Construct physical select from logical select
+     * @param logicalSelect is the select operator from the logical plan
+     */
     public void visit(LogicalSelectOperator logicalSelect) {
         logicalSelect.child.accept(this);
         physOp = new SelectOperator(physOp, logicalSelect.exp);
     }
 
-    /** Construct physical project from logical project */
+    /**
+     * Construct physical project from logical project
+     *  @param logicalProject is the project operator from the logical plan
+     */
     public void visit(LogicalProjectOperator logicalProject) {
         logicalProject.child.accept(this);
         physOp = new ProjectOperator(physOp, logicalProject.selectItems);
     }
 
-    /** Construct physical sort from logical sort
-     *
-     * @throws IOException */
+    /**
+     * Construct physical sort from logical sort
+     * @param logicalSort is the sort operator from the logical plan
+     * @throws IOException
+     */
     public void visit(LogicalSortOperator logicalSort) throws IOException {
         logicalSort.child.accept(this);
         switch (Catalog.CONFIG.SORTTYPE) {
@@ -64,15 +75,20 @@ public class PhysicalPlanBuilder {
         }
     }
 
-    /** Construct physical duplicate elimination from logical duplicate elimination */
+    /**
+     * Construct physical duplicate elimination from logical duplicate elimination
+     * @param logicalDupl is the duplicate elimination operator from the physical plan
+     */
     public void visit(LogicalDuplicateEliminationOperator logicalDupl) {
         logicalDupl.child.accept(this);
         physOp = new DuplicateEliminationOperator(physOp);
     }
 
-    /** Construct physical join from logical join
-     *
-     * @throws IOException */
+    /**
+     * Construct physical join from logical join
+     * @param logicalJoin is the join operator from the logical plan
+     * @throws IOException
+     */
     public void visit(LogicalJoinOperator logicalJoin) throws IOException {
         logicalJoin.left.accept(this);
         PhysicalOperator localLeft = physOp;
@@ -94,12 +110,14 @@ public class PhysicalPlanBuilder {
         }
     }
 
-    /** @param equalityConditions list of EqualTo expressions found in the EquiJoin condition
+    /**
+     * @param equalityConditions list of EqualTo expressions found in the EquiJoin condition
      * @param joinOperator       is the logical join operator
      * @param localLeft          is the local left physical operator
      * @param localRight         is the local right physical operator
      * @return initialized SortMergeJoin Operator with left and right sorted children
-     * @throws IOException */
+     * @throws IOException
+     */
     private SortMergeJoinOperator createSortMergeJoinOperator(
             List<EqualsTo> equalityConditions,
             LogicalJoinOperator joinOperator,

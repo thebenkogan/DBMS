@@ -12,13 +12,17 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 /** An operator that projects the Tuples from its child to a specified list of columns. */
 public class ProjectOperator extends PhysicalOperator {
 
+    /** {@code child} is the child operator for projection */
     private PhysicalOperator child;
 
     /** Name of projected columns */
     private List<String> columnNames;
-    /** name (aliased) of projected tables */
+
+    /**
+     * name (aliased) of projected tables
+     * invariant: tableNames[i] must be the real table name of columnNames[i]
+     */
     private List<String> tableNames;
-    // invariant: tableNames[i] must be the real table name of columnNames[i]
 
     /**
      * @param child child operator to project
@@ -42,9 +46,7 @@ public class ProjectOperator extends PhysicalOperator {
         child.reset();
     }
 
-    /**
-     * @return next projected Tuple
-     */
+    /** @return next projected Tuple */
     @Override
     public Tuple getNextTuple() {
         Tuple nextTuple = child.getNextTuple();

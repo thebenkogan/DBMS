@@ -13,9 +13,11 @@ import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 
-/** A visitor that evaluates the following types of JsqlParser expressions: AndExpression, Column,
+/**
+ * A visitor that evaluates the following types of JsqlParser expressions: AndExpression, Column,
  * LongValue, EqualsTo, NotEqualsTo, GreaterThan, GreaterThanEquals, MinorThan and
- * MinorThanEquals. */
+ * MinorThanEquals.
+ */
 public class ExpressionParseVisitor extends ExpressionVisitorBase {
 
     /** The most recent result of any numerical evaluation. */
@@ -27,15 +29,19 @@ public class ExpressionParseVisitor extends ExpressionVisitorBase {
     /** The current Tuple for which to evaluate the expression */
     public Tuple currentTuple;
 
-    /** @param exp The expression which the visitor evaluates
-     * @return the boolean result of evaluating exp */
+    /**
+     * @param exp The expression which the visitor evaluates
+     * @return the boolean result of evaluating exp
+     */
     private boolean evaluateBoolean(Expression exp) {
         exp.accept(this);
         return booleanResult;
     }
 
-    /** @param exp The expression which the visitor evaluates
-     * @return the long result of evaluating exp */
+    /**
+     * @param exp The expression which the visitor evaluates
+     * @return the long result of evaluating exp
+     */
     private long evaluateLong(Expression exp) {
         exp.accept(this);
         return longResult;
@@ -57,7 +63,7 @@ public class ExpressionParseVisitor extends ExpressionVisitorBase {
         booleanResult = leftLong == rightLong;
     }
 
-    /** evaluates A > B */
+    /**  Evaluates A strictly greater than B */
     @Override
     public void visit(GreaterThan exp) {
         long leftLong = evaluateLong(exp.getLeftExpression());
@@ -65,7 +71,7 @@ public class ExpressionParseVisitor extends ExpressionVisitorBase {
         booleanResult = leftLong > rightLong;
     }
 
-    /** evaluates A >= B */
+    /** Evaluates A greater than or equal to B */
     @Override
     public void visit(GreaterThanEquals exp) {
         long leftLong = evaluateLong(exp.getLeftExpression());
@@ -73,7 +79,7 @@ public class ExpressionParseVisitor extends ExpressionVisitorBase {
         booleanResult = leftLong >= rightLong;
     }
 
-    /** evaluates A < B */
+    /** Evaluates A strictly less than B */
     @Override
     public void visit(MinorThan exp) {
         long leftLong = evaluateLong(exp.getLeftExpression());
@@ -81,7 +87,7 @@ public class ExpressionParseVisitor extends ExpressionVisitorBase {
         booleanResult = leftLong < rightLong;
     }
 
-    /** evaluates A <= B */
+    /** Evaluates A less than or equal to B */
     @Override
     public void visit(MinorThanEquals exp) {
         long leftLong = evaluateLong(exp.getLeftExpression());
@@ -89,7 +95,7 @@ public class ExpressionParseVisitor extends ExpressionVisitorBase {
         booleanResult = leftLong <= rightLong;
     }
 
-    /** evaluates A != B */
+    /** Evaluates A not equal to B */
     @Override
     public void visit(NotEqualsTo exp) {
         long leftLong = evaluateLong(exp.getLeftExpression());
@@ -97,13 +103,13 @@ public class ExpressionParseVisitor extends ExpressionVisitorBase {
         booleanResult = leftLong != rightLong;
     }
 
-    /** evaluates a long value */
+    /** Evaluates a long value */
     @Override
     public void visit(LongValue longValue) {
         longResult = longValue.getValue();
     }
 
-    /** evaluates a column reference by looking up the corresponding column in the current Tuple */
+    /** Evaluates a column reference by looking up the corresponding column in the current Tuple */
     @Override
     public void visit(Column col) {
         longResult = currentTuple.get(Helpers.getProperTableName(col.getTable()), col.getColumnName());

@@ -42,7 +42,6 @@ public class JoinVisitor extends ExpressionVisitorBase {
 
     /**
      * Constructs a key from two table names to lookup their corresponding expressions.
-     *
      * @param name1 first name
      * @param name2 second name
      * @return expressions key
@@ -54,8 +53,7 @@ public class JoinVisitor extends ExpressionVisitorBase {
     }
 
     /**
-     * @param tableNames list of (aliased) table names for which to create combinations of running
-     *     expressions
+     * @param tableNames list of (aliased) table names for which to create combinations of running expressions
      */
     public JoinVisitor(List<String> tableNames) {
         for (int i = 0; i < tableNames.size(); i++) {
