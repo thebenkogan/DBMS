@@ -137,14 +137,14 @@ public class Benchmarking {
     }
 
     /**
-     * Runs benchmarking task for all 3 join types on randomly generated data
-     * @param args the command line argument for the number of trials. Each trial generates a new random data set and runs the 3 queries using each join type.
+     * Runs benchmarking task for all 3 join types on randomly generated data. Each trial generates a new random data set and runs the 3 queries using each join type. If no argument is provided, it runs 1 trial by default.
+     * @param args the command line argument for the number of trials.
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
         Catalog.init(INPUT, OUTPUT, TEMP, null);
         Stopwatch stopwatch = Stopwatch.createStarted();
-        final int TRIALS = Integer.parseInt(args[0]);
+        final int TRIALS = (args.length > 0) ? Integer.parseInt(args[0]) : 1;
         for (int j = 0; j < TRIALS; j++) {
             System.out.println("Generating new data...");
             generate();
