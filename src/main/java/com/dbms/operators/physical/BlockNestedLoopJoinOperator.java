@@ -6,11 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import net.sf.jsqlparser.expression.Expression;
 
-/**
- * An operator that joins two tables together using the block nested loop join algorithm. It loads
+/** An operator that joins two tables together using the block nested loop join algorithm. It loads
  * B buffer pages from the outer relation, then performs a nested loop join between all inner tuples
- * and the loaded outer tuples, joining them if satisfying a condition.
- */
+ * and the loaded outer tuples, joining them if satisfying a condition. */
 public class BlockNestedLoopJoinOperator extends PhysicalOperator {
 
     /** Table on the left of the condition */
@@ -31,10 +29,8 @@ public class BlockNestedLoopJoinOperator extends PhysicalOperator {
     /** visitor for evaluating tuples on join conditions */
     private ExpressionParseVisitor epv = new ExpressionParseVisitor();
 
-    /**
-     * Expression for the join. Note: "most real-world joins are equijoins, but your BNLJ algorithm
-     * should support all join conditions as specified in the Project 1 description"
-     */
+    /** Expression for the join. Note: "most real-world joins are equijoins, but your BNLJ algorithm
+     * should support all join conditions as specified in the Project 1 description" */
     private Expression joinCondition;
 
     /** Current inner tuple */
@@ -43,12 +39,10 @@ public class BlockNestedLoopJoinOperator extends PhysicalOperator {
     /** Id of current outer tuple (in block) that we are comparing to current inner tuple */
     private int outerTupleId = 0;
 
-    /**
-     * @param left left child operator
+    /** @param left left child operator
      * @param right right child operator
      * @param exp   join condition, null if none
-     * @param pages number of pages per block
-     */
+     * @param pages number of pages per block */
     public BlockNestedLoopJoinOperator(PhysicalOperator left, PhysicalOperator right, Expression exp, int pages) {
         this.left = left;
         this.right = right;
@@ -56,15 +50,14 @@ public class BlockNestedLoopJoinOperator extends PhysicalOperator {
         innerTuple = right.getNextTuple();
         Tuple repOuterTuple = left.getNextTuple();
         left.reset();
+        if (repOuterTuple == null) return;
         maxTuples = pages * 4096 / (4 * repOuterTuple.size());
         buffer = new ArrayList<>(maxTuples);
         readBlockIntoBuffer();
     }
 
-    /**
-     * Fill the buffer with tuples, ending when the buffer is full. Sets blockRemaining to true if
-     * tuples read into buffer, otherwise false.
-     */
+    /** Fill the buffer with tuples, ending when the buffer is full. Sets blockRemaining to true if
+     * tuples read into buffer, otherwise false. */
     private void readBlockIntoBuffer() {
         // reset buffer and associated variables
         buffer.clear();
@@ -114,6 +107,7 @@ public class BlockNestedLoopJoinOperator extends PhysicalOperator {
     /** Resets {@code left} and {@code right} operators to the first tuple in the relation */
     @Override
     public void reset() {
+        if (buffer == null) return;
         left.reset();
         right.reset();
         innerTuple = right.getNextTuple();

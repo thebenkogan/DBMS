@@ -18,8 +18,7 @@ import java.util.Set;
 import java.util.UUID;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
-/**
- * An operator that performs an external sort algorithm on the output of the child operator and
+/** An operator that performs an external sort algorithm on the output of the child operator and
  * opens a reader to the sorted scratch file.
  *
  * The algorithm first performs an initial pass over the data, creating sorted runs of B pages.
@@ -28,13 +27,10 @@ import net.sf.jsqlparser.statement.select.OrderByElement;
  *
  * For each merge pass: opens readers on B - 1 previous runs performs a merge sort between them by
  * buffering one tuple from each reader writes smallest of these tuples to an output file using the
- * remaining buffer
- */
+ * remaining buffer */
 public class ExternalSortOperator extends SortOperator {
 
-    /**
-     * {@code child} is the child operator for external sort
-     */
+    /** {@code child} is the child operator for external sort */
     private PhysicalOperator child;
 
     /** Unique identifier for this sort. Used to distinguish this sort in temp directory. */
@@ -68,14 +64,14 @@ public class ExternalSortOperator extends SortOperator {
      *
      * @param child    child operator
      * @param orderBys list of orderBys, null if none
-     * @param pages is the number of pages used for external sorting
-     * @throws IOException
-     */
+     * @param pages    is the number of pages used for external sorting
+     * @throws IOException */
     public ExternalSortOperator(PhysicalOperator child, List<OrderByElement> orderBys, int pages) throws IOException {
         this.orderBys = orderBys;
         this.child = child;
         Tuple rep = child.getNextTuple();
         child.reset();
+        if (rep == null) return;
         this.pages = pages;
         numAttributes = rep.size();
         tuplesPerRun = pages * 4096 / numAttributes * 4;
@@ -90,6 +86,7 @@ public class ExternalSortOperator extends SortOperator {
     @Override
     public Tuple getNextTuple() {
         try {
+            if (sortedReader == null) return null;
             List<Integer> nextVal = sortedReader.nextTuple();
             if (nextVal == null) return null;
             return new Tuple(childSchema, nextVal);
@@ -103,37 +100,32 @@ public class ExternalSortOperator extends SortOperator {
     @Override
     public void reset() {
         try {
-            sortedReader.reset();
+            if (sortedReader != null) sortedReader.reset();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * @param index is the block in memory to reset back to
-     */
+    /** @param index is the block in memory to reset back to */
     @Override
     public void reset(int index) {
         try {
-            sortedReader.reset(index);
+            if (sortedReader != null) sortedReader.reset(index);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * @param pass the index of the current pass
+    /** @param pass the index of the current pass
      * @param num  the index of the current run/merge in current pass
-     * @return path to unique temp subdirectory with specified filename
-     */
+     * @return path to unique temp subdirectory with specified filename */
     private String path(int pass, int num) {
         return Catalog.pathToTempFile(id + File.separator + pass + "_" + num);
     }
 
-    /**
-     * Executes all merge passes until single file remaining, and opens a reader on this file
-     * @throws IOException
-     */
+    /** Executes all merge passes until single file remaining, and opens a reader on this file
+     *
+     * @throws IOException */
     private void mergePasses() throws IOException {
         while (mergeLen > 1) {
             int count = 0;
@@ -147,11 +139,9 @@ public class ExternalSortOperator extends SortOperator {
         sortedReader = new TupleReader(path(mergePass - 1, 0));
     }
 
-    /**
-     * @param mergeNum the number of merge in the current pass
+    /** @param mergeNum the number of merge in the current pass
      * @param prevStart the number of merge in the previous pass from which to start the merge
-     * @throws IOException
-     */
+     * @throws IOException */
     private void executeMerge(int mergeNum, int prevStart) throws IOException {
         TupleWriter tw = new TupleWriter(path(mergePass, mergeNum));
         PriorityQueue<Map.Entry<TupleReader, Tuple>> queue = new PriorityQueue<>(Map.Entry.comparingByValue(tc));
@@ -175,10 +165,9 @@ public class ExternalSortOperator extends SortOperator {
         tw.close();
     }
 
-    /**
-     * Reads all of child tuples and creates sorted runs
-     * @throws IOException
-     */
+    /** Reads all of child tuples and creates sorted runs
+     *
+     * @throws IOException */
     private void initialPass() throws IOException {
         int run = 0;
         boolean isNextRun;
@@ -191,13 +180,13 @@ public class ExternalSortOperator extends SortOperator {
         mergeLen = run;
     }
 
-    /**
-     * Executes a run by getting up to the available number buffer pages amount of tuples from the
+    /** Executes a run by getting up to the available number buffer pages amount of tuples from the
      * child, sorting them, and writing to a run file
+     *
      * @param i run number
-     * @return true if there are more child tuples for a next run, null if this did not write anything
-     * @throws IOException
-     */
+     * @return true if there are more child tuples for a next run, null if this did not write
+     *         anything
+     * @throws IOException */
     private Boolean executeRun(int i) throws IOException {
         boolean tuplesRemaining = true;
         List<Tuple> runTuples = new LinkedList<>();
