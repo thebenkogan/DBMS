@@ -18,6 +18,7 @@ public class SelectOperator extends PhysicalOperator {
     /** @param scanOperator child operator of SelectOperator
      * @param expression   the WHERE expression which we select for; is not null */
     public SelectOperator(PhysicalOperator scanOperator, Expression expression) {
+        super(scanOperator.schema);
         this.scanOperator = scanOperator;
         exp = expression;
     }

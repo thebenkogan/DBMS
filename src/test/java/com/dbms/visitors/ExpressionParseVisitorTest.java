@@ -3,6 +3,7 @@ package com.dbms.visitors;
 import static org.junit.Assert.assertTrue;
 
 import com.dbms.utils.Helpers;
+import com.dbms.utils.Schema;
 import com.dbms.utils.Tuple;
 import java.io.IOException;
 import java.util.Arrays;
@@ -20,7 +21,8 @@ class ExpressionParseVisitorTest {
 
     @BeforeAll
     public static void setup() {
-        epv.currentTuple = new Tuple("t", Arrays.asList(new String[] {"A", "B"}), Arrays.asList(new Integer[] {3, 10}));
+        epv.currentTuple = new Tuple(
+                Schema.from("t", Arrays.asList(new String[] {"A", "B"})), Arrays.asList(new Integer[] {3, 10}));
     }
 
     @ParameterizedTest(name = "Expression Visitor Test {index}: expected {1}; actual {0} ")

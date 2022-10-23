@@ -2,7 +2,8 @@ package com.dbms.operators.physical;
 
 import com.dbms.utils.Tuple;
 
-/** An operator that assumes its child returns Tuples in sorted order and filters out any duplicates. */
+/** An operator that assumes its child returns Tuples in sorted order and filters out any
+ * duplicates. */
 public class DuplicateEliminationOperator extends PhysicalOperator {
     PhysicalOperator child;
 
@@ -11,6 +12,7 @@ public class DuplicateEliminationOperator extends PhysicalOperator {
 
     /** @param child child operator; must be a sort operator */
     public DuplicateEliminationOperator(PhysicalOperator child) {
+        super(child.schema);
         this.child = child;
     }
 

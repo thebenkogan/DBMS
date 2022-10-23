@@ -7,22 +7,20 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
-/**
- * A static class that provides helpful functions for converting string SQL segments to JsqlParser
- * segments, and other useful functions for expressions.
- */
+/** A static class that provides helpful functions for converting string SQL segments to JsqlParser
+ * segments, and other useful functions for expressions. */
 public class Helpers {
 
-    /**
-     * @param query The string representation of a query
-     * @return the query (PlainSelect) which the string represents
-     */
+    /** @param query The string representation of a query
+     * @return the query (PlainSelect) which the string represents */
     private static PlainSelect convertQuery(String query) {
         try {
             return (PlainSelect) ((Select) CCJSqlParserUtil.parse(query)).getSelectBody();
@@ -38,28 +36,22 @@ public class Helpers {
         return convertQuery("select * from t where " + exp).getWhere();
     }
 
-    /**
-     * @param orderBys A list of string representations of OrderByElements
-     * @return the list of OrderByElements corresponding to the input strings
-     */
+    /** @param orderBys A list of string representations of OrderByElements
+     * @return the list of OrderByElements corresponding to the input strings */
     public static List<OrderByElement> strOrderBysToOrderBys(String... orderBys) {
         return convertQuery("select * from t order by " + String.join(", ", orderBys))
                 .getOrderByElements();
     }
 
-    /**
-     * @param selectItems A list of string representations of SelectItems
-     * @return the list of SelectItems corresponding to the input strings
-     */
+    /** @param selectItems A list of string representations of SelectItems
+     * @return the list of SelectItems corresponding to the input strings */
     public static List<SelectItem> strSelectItemsToSelectItems(String... selectItems) {
         return convertQuery("select " + String.join(", ", selectItems) + " from t")
                 .getSelectItems();
     }
 
-    /**
-     * @param exp The expression to be added to an AndExpression
-     * @return the AndExpression whose rightExpression is exp and leftExpression is empty
-     */
+    /** @param exp The expression to be added to an AndExpression
+     * @return the AndExpression whose rightExpression is exp and leftExpression is empty */
     public static AndExpression wrapExpressionWithAnd(Expression exp) {
         if (exp instanceof AndExpression) return (AndExpression) exp;
         AndExpression andExp = new AndExpression(null, exp);
@@ -74,13 +66,22 @@ public class Helpers {
         return table.getAlias() != null ? table.getAlias().getName() : table.getName();
     }
 
-    /**
-     * Retrieves all the EqualTo conditions from a given expression. Precondition: all
+    public static List<ColumnName> getColumnNamesFromSelectItems(List<SelectItem> selectItems) {
+        List<ColumnName> names = new LinkedList<>();
+        for (SelectItem item : selectItems) {
+            Column col = (Column) ((SelectExpressionItem) item).getExpression();
+            String tableName = Helpers.getProperTableName(col.getTable());
+            names.add(ColumnName.bundle(tableName, col.getColumnName()));
+        }
+        return names;
+    }
+
+    /** Retrieves all the EqualTo conditions from a given expression. Precondition: all
      * sub-expressions are EqualTo expressions.
+     *
      * @param exp The Expression associated with the JoinOperator. Precondition: exp is an
      *            AndExpression
-     * @return a list of EqualsTo expressions in the EquiJoin
-     */
+     * @return a list of EqualsTo expressions in the EquiJoin */
     public static List<EqualsTo> getEqualityConditions(Expression exp) {
         AndExpression andExpression = wrapExpressionWithAnd(exp);
         List<EqualsTo> result = new LinkedList<>();

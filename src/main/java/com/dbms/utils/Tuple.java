@@ -9,29 +9,25 @@ import java.util.Set;
 
 /** The representation of a row in a table. */
 public class Tuple {
-    /**
-     * Maps (aliased) table.column key to value in row. Insertion order represents column
-     * ordering.
-     */
+    /** Maps (aliased) table.column key to value in row. Insertion order represents column
+     * ordering. */
     private LinkedHashMap<ColumnName, Integer> row;
 
-    /**
-     * Creates a new Tuple for the table with columns and data.
+    /** Creates a new Tuple for the table with columns and data.
+     *
      * @param tableName the name (alias) of the table associated with each column
      * @param columns   the name of each column in the table
-     * @param data      the row of data in the table; same size as columns
-     */
-    public Tuple(String tableName, List<String> columns, List<Integer> data) {
+     * @param data      the row of data in the table; same size as columns */
+    public Tuple(Schema s, List<Integer> data) {
         row = new LinkedHashMap<>();
+        List<ColumnName> columns = s.get();
         for (int i = 0; i < data.size(); i++) {
-            row.put(ColumnName.bundle(tableName, columns.get(i)), data.get(i));
+            row.put(columns.get(i), data.get(i));
         }
     }
 
-    /**
-     * @param schema row keys; assumes is in the same order as the input data
-     * @param data             associated data \
-     */
+    /** @param schema row keys; assumes is in the same order as the input data
+     * @param data   associated data \ */
     public Tuple(Set<ColumnName> schema, List<Integer> data) {
         row = new LinkedHashMap<>();
         Iterator<ColumnName> names = schema.iterator();
@@ -40,10 +36,9 @@ public class Tuple {
         }
     }
 
-    /**
-     * Creates a new Tuple from a derived row of an old Tuple
-     * @param row row map
-     */
+    /** Creates a new Tuple from a derived row of an old Tuple
+     *
+     * @param row row map */
     private Tuple(LinkedHashMap<ColumnName, Integer> row) {
         this.row = row;
     }
@@ -53,11 +48,9 @@ public class Tuple {
         return row.size();
     }
 
-    /**
-     * @param tableName name of table name
+    /** @param tableName name of table name
      * @param columnName name of table column
-     * @return value in the column
-     */
+     * @return value in the column */
     public int get(String tableName, String columnName) {
         return row.get(ColumnName.bundle(tableName, columnName));
     }
@@ -72,19 +65,20 @@ public class Tuple {
         return row.values();
     }
 
-    /**
-     * Projects this tuple to those in columns.
-     * @param schema list of {@code ColumnName} objects containing aliased table names and column names
-     */
-    public void project(List<ColumnName> schema) {
-        Integer[] data = new Integer[schema.size()];
-        for (int i = 0; i < schema.size(); i++) {
-            data[i] = row.get(schema.get(i));
+    /** Projects this tuple to those in columns.
+     *
+     * @param schema list of {@code ColumnName} objects containing aliased table names and column
+     *               names */
+    public void project(Schema s) {
+        List<ColumnName> columns = s.get();
+        Integer[] data = new Integer[s.size()];
+        for (int i = 0; i < columns.size(); i++) {
+            data[i] = row.get(columns.get(i));
         }
 
         row.clear();
         for (int i = 0; i < data.length; i++) {
-            row.put(schema.get(i), data[i]);
+            row.put(columns.get(i), data[i]);
         }
     }
 
@@ -94,10 +88,8 @@ public class Tuple {
         return row.values().toString().replaceAll("\\s|\\[|\\]", "");
     }
 
-    /**
-     * @param o other object to compare
-     * @return true if o is a Tuple with the same data and order as this Tuple
-     */
+    /** @param o other object to compare
+     * @return true if o is a Tuple with the same data and order as this Tuple */
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -105,11 +97,9 @@ public class Tuple {
         return Arrays.equals(row.values().toArray(), other.row.values().toArray());
     }
 
-    /**
-     * @param left left tuple
+    /** @param left left tuple
      * @param right right tuple
-     * @return merged Tuple with order specified by the concatenation of left and right
-     */
+     * @return merged Tuple with order specified by the concatenation of left and right */
     public static Tuple mergeTuples(Tuple left, Tuple right) {
         LinkedHashMap<ColumnName, Integer> row = new LinkedHashMap<>();
         left.row.forEach((key, value) -> row.put(key, value));

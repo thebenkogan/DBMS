@@ -1,7 +1,6 @@
 package com.dbms.operators.physical;
 
 import com.dbms.utils.Catalog;
-import com.dbms.utils.ColumnName;
 import com.dbms.utils.Tuple;
 import com.dbms.utils.TupleReader;
 import com.dbms.utils.TupleWriter;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
-import java.util.Set;
 import java.util.UUID;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
@@ -48,9 +46,6 @@ public class ExternalSortOperator extends SortOperator {
     /** Tuple comparator for child tuples */
     private TupleComparator tc;
 
-    /** Tuple specific table and column names for child tuples */
-    private Set<ColumnName> childSchema;
-
     /** The index of the current merge pass */
     private int mergePass;
 
@@ -67,16 +62,13 @@ public class ExternalSortOperator extends SortOperator {
      * @param pages    is the number of pages used for external sorting
      * @throws IOException */
     public ExternalSortOperator(PhysicalOperator child, List<OrderByElement> orderBys, int pages) throws IOException {
+        super(child.schema);
         this.orderBys = orderBys;
         this.child = child;
-        Tuple rep = child.getNextTuple();
-        child.reset();
-        if (rep == null) return;
         this.pages = pages;
-        numAttributes = rep.size();
+        numAttributes = schema.size();
         tuplesPerRun = pages * 4096 / numAttributes * 4;
-        childSchema = rep.getSchema();
-        tc = new TupleComparator(orderBys, rep);
+        tc = new TupleComparator(orderBys);
         Catalog.createTempSubDir(id);
         initialPass();
         mergePasses();
@@ -89,7 +81,7 @@ public class ExternalSortOperator extends SortOperator {
             if (sortedReader == null) return null;
             List<Integer> nextVal = sortedReader.nextTuple();
             if (nextVal == null) return null;
-            return new Tuple(childSchema, nextVal);
+            return new Tuple(schema, nextVal);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -136,7 +128,7 @@ public class ExternalSortOperator extends SortOperator {
             mergePass++;
             mergeLen = count;
         }
-        sortedReader = new TupleReader(path(mergePass - 1, 0));
+        sortedReader = mergeLen > 0 ? new TupleReader(path(mergePass - 1, 0)) : null;
     }
 
     /** @param mergeNum the number of merge in the current pass
@@ -148,7 +140,7 @@ public class ExternalSortOperator extends SortOperator {
         int stop = Math.min(prevStart + pages - 1, mergeLen);
         for (int j = prevStart; j < stop; j++) {
             TupleReader tr = new TupleReader(path(mergePass - 1, j));
-            Tuple tp = new Tuple(childSchema, tr.nextTuple());
+            Tuple tp = new Tuple(schema, tr.nextTuple());
             queue.offer(new AbstractMap.SimpleEntry<>(tr, tp));
         }
         while (queue.size() > 0) {
@@ -158,7 +150,7 @@ public class ExternalSortOperator extends SortOperator {
             tw.writeTuple(minTp);
             List<Integer> nextVal = minTr.nextTuple();
             if (nextVal != null) {
-                Tuple next = new Tuple(childSchema, nextVal);
+                Tuple next = new Tuple(schema, nextVal);
                 queue.offer(new AbstractMap.SimpleEntry<>(minTr, next));
             }
         }

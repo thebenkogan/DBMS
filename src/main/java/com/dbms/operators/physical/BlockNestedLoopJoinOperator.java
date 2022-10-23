@@ -1,5 +1,6 @@
 package com.dbms.operators.physical;
 
+import com.dbms.utils.Schema;
 import com.dbms.utils.Tuple;
 import com.dbms.visitors.ExpressionParseVisitor;
 import java.util.ArrayList;
@@ -44,14 +45,12 @@ public class BlockNestedLoopJoinOperator extends PhysicalOperator {
      * @param exp   join condition, null if none
      * @param pages number of pages per block */
     public BlockNestedLoopJoinOperator(PhysicalOperator left, PhysicalOperator right, Expression exp, int pages) {
+        super(Schema.join(left.schema, right.schema));
         this.left = left;
         this.right = right;
         joinCondition = exp;
         innerTuple = right.getNextTuple();
-        Tuple repOuterTuple = left.getNextTuple();
-        left.reset();
-        if (repOuterTuple == null) return;
-        maxTuples = pages * 4096 / (4 * repOuterTuple.size());
+        maxTuples = pages * 4096 / (4 * schema.size());
         buffer = new ArrayList<>(maxTuples);
         readBlockIntoBuffer();
     }
@@ -107,7 +106,6 @@ public class BlockNestedLoopJoinOperator extends PhysicalOperator {
     /** Resets {@code left} and {@code right} operators to the first tuple in the relation */
     @Override
     public void reset() {
-        if (buffer == null) return;
         left.reset();
         right.reset();
         innerTuple = right.getNextTuple();

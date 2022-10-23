@@ -1,16 +1,15 @@
 package com.dbms.operators.physical;
 
+import com.dbms.utils.Schema;
 import com.dbms.utils.Tuple;
 import com.dbms.visitors.ExpressionParseVisitor;
 import net.sf.jsqlparser.expression.Expression;
 
-/**
- * An operator that joins two children together using the Tuple nested loop join algorithm based on
+/** An operator that joins two children together using the Tuple nested loop join algorithm based on
  * a join condition. If the join condition is null, this is a cross product. This algorithm grabs
  * the next left Tuple, then joins it with all Tuples from the right child that satisfy the join
  * condition. We then reset the right and get the next left Tuple until there are no more left
- * Tuples.
- */
+ * Tuples. */
 public class TupleNestedLoopJoinOperator extends PhysicalOperator {
 
     /** {@code left} is the left element of a join condition */
@@ -28,12 +27,11 @@ public class TupleNestedLoopJoinOperator extends PhysicalOperator {
     /** {@code leftTuple} is the left tuple in the join relation */
     private Tuple leftTuple;
 
-    /**
-     * @param left left child operator
+    /** @param left left child operator
      * @param right right child operator
-     * @param exp   join condition, null if none
-     */
+     * @param exp   join condition, null if none */
     public TupleNestedLoopJoinOperator(PhysicalOperator left, PhysicalOperator right, Expression exp) {
+        super(Schema.join(left.schema, right.schema));
         this.left = left;
         this.right = right;
         joinCondition = exp;

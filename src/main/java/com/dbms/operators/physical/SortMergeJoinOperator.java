@@ -1,6 +1,7 @@
 package com.dbms.operators.physical;
 
 import com.dbms.utils.Helpers;
+import com.dbms.utils.Schema;
 import com.dbms.utils.Tuple;
 import net.sf.jsqlparser.schema.Column;
 
@@ -32,6 +33,7 @@ public class SortMergeJoinOperator extends PhysicalOperator {
      * @param left  outer sorted iterator of tuples
      * @param right inner sorted iterator of tuples */
     public SortMergeJoinOperator(SortOperator left, SortOperator right) {
+        super(Schema.join(left.schema, right.schema));
         this.left = left;
         this.right = right;
         leftTuple = left.getNextTuple();
