@@ -22,7 +22,7 @@ class SelectOperatorTest {
 
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("input/general", null, null);
+        Catalog.init("input/general/config.txt");
         exp = Helpers.strExpToExp("Boats.D = 32 AND Boats.E != 100");
         selectOp = new SelectOperator(new ScanOperator("Boats"), exp);
     }

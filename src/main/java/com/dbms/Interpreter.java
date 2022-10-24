@@ -51,11 +51,16 @@ public class Interpreter {
 
     /**
      * Initializes the catalog with the provided input and output paths, then runs the interpreter.
-     * @param args args[0] = input path, args[1] = output path, args[2] = temporary folder for external sort
+     * @param args args[0] path to interpreter configuration file
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
-        Catalog.init(args[0], args[1], args[2]);
-        run();
+        Catalog.init(args[0]);
+        if (Catalog.buildIndexes) {
+            // TODO build B+ tree indexes
+        }
+        if (Catalog.evaluateQueries) {
+            run();
+        }
     }
 }

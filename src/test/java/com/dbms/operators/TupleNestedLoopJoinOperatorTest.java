@@ -22,7 +22,7 @@ class TupleNestedLoopJoinOperatorTest {
 
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("input/general", null, null);
+        Catalog.init("input/general/config.txt");
         ScanOperator scanOp1 = new ScanOperator("Sailors");
         ScanOperator scanOp2 = new ScanOperator("Reserves");
         Expression exp1 = Helpers.strExpToExp("Sailors.A = 106");

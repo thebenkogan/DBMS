@@ -29,7 +29,7 @@ class ExternalSortOperatorTest {
 
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("input/general", null, "temp");
+        Catalog.init("input/general/config.txt");
         orderByElements = Helpers.strOrderBysToOrderBys("Boats.E");
         exp = Helpers.strExpToExp("Boats.D = 32 AND Boats.E != 100");
         scanOp = new ScanOperator("Boats");

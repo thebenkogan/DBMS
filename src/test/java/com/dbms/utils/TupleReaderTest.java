@@ -16,7 +16,7 @@ class TupleReaderTest {
 
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("input/general", null, null);
+        Catalog.init("input/general/config.txt");
         tr = new TupleReader(Catalog.pathToTable("Boats"));
     }
 

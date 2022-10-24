@@ -28,7 +28,7 @@ class ProjectOperatorTest {
 
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("input/general", null, null);
+        Catalog.init("input/general/config.txt");
         items = Helpers.strSelectItemsToSelectItems("Boats.F", "Boats.D");
         exp = Helpers.strExpToExp("Boats.D = 32 AND Boats.E != 100");
         scanOp = new ScanOperator("Boats");

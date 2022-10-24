@@ -35,6 +35,12 @@ public class Catalog {
     /** path to temp directory */
     private static String temp;
 
+    /** {@code buildIndexes} is whether or not to build the B+-tree for indexing */
+    public static boolean buildIndexes;
+
+    /** {@code evaluateQueries} is whether or not to evaluate the queries */
+    public static boolean evaluateQueries;
+
     /** Map from (unaliased) table name to list of column names */
     private static Map<String, List<String>> schema = new HashMap<>();
 
@@ -42,7 +48,7 @@ public class Catalog {
     private static Map<String, String> aliasMap = new HashMap<>();
 
     /** The physical operator configuration */
-    public static Config CONFIG;
+    public static PlanBuilderConfig CONFIG;
 
     /**
      * @param segments file path to join
@@ -62,7 +68,7 @@ public class Catalog {
     }
 
     /**
-     * initializes the input and output paths and reads the corresponding schema file
+     * Initializes the input and output paths and reads the corresponding schema file
      * @param input  path to input directory
      * @param output path to output directory
      * @param temp path for external sorting
@@ -84,18 +90,33 @@ public class Catalog {
             }
             schema.put(tableName, columns);
         }
+        schemaBr.close();
     }
 
     /**
-     * initializes the input and output paths and reads the corresponding schema file
-     * @param input  path to input directory
-     * @param output path to output directory
-     * @param temp path to temporary directory for external sorting
+     * Initializes the catalog with the information given in the file at {@code path}
+     * @param path file containing the configuration info
      * @throws IOException
      */
-    public static void init(String input, String output, String temp) throws IOException {
-        initialize(input, output, temp);
-        CONFIG = new Config(readerFromPath(input, "plan_builder_config.txt"));
+    private static void initialize(String path) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(path));
+        Catalog.input = br.readLine();
+        Catalog.output = br.readLine();
+        Catalog.temp = br.readLine();
+        Catalog.buildIndexes = Integer.parseInt(br.readLine()) == 1;
+        Catalog.evaluateQueries = Integer.parseInt(br.readLine()) == 1;
+        br.close();
+        initialize(Catalog.input, Catalog.output, Catalog.temp);
+    }
+
+    /**
+     * Initializes the catalog with the info from the file in {@code path}
+     * @param path file containing the configuration info
+     * @throws IOException
+     */
+    public static void init(String path) throws IOException {
+        initialize(path);
+        CONFIG = new PlanBuilderConfig(readerFromPath(input, "plan_builder_config.txt"));
     }
 
     /**
@@ -106,7 +127,7 @@ public class Catalog {
      * @param config is the configuration to determine which join type to use
      * @throws IOException
      */
-    public static void init(String input, String output, String temp, Config config) throws IOException {
+    public static void init(String input, String output, String temp, PlanBuilderConfig config) throws IOException {
         initialize(input, output, temp);
         CONFIG = config;
     }

@@ -2,9 +2,9 @@ package com.dbms.analytics;
 
 import com.dbms.Interpreter;
 import com.dbms.utils.Catalog;
-import com.dbms.utils.Config;
-import com.dbms.utils.Config.Join;
-import com.dbms.utils.Config.Sort;
+import com.dbms.utils.PlanBuilderConfig;
+import com.dbms.utils.PlanBuilderConfig.Join;
+import com.dbms.utils.PlanBuilderConfig.Sort;
 import com.google.common.base.Stopwatch;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -132,7 +132,7 @@ public class Benchmarking {
      * @throws IOException
      */
     private static void trial(Stopwatch stopwatch, int joinInt, boolean page5) throws IOException {
-        Catalog.CONFIG = new Config(Join.values()[joinInt], Sort.External, (page5) ? 5 : 1, EXTERNAL_PAGES);
+        Catalog.CONFIG = new PlanBuilderConfig(Join.values()[joinInt], Sort.External, (page5) ? 5 : 1, EXTERNAL_PAGES);
         experiment(stopwatch, LOG_FILEPATH + mapJoinCodeToFileName(joinInt, page5));
     }
 

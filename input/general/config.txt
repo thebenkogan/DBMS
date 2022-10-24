@@ -1,0 +1,5 @@
+./input/general
+./output/general
+./temp
+0
+1

@@ -1,0 +1,5 @@
+./input/bnlj
+./output/bnlj
+./temp
+0
+0

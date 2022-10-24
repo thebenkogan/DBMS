@@ -29,15 +29,14 @@ class EndToEndTest {
     @BeforeAll
     public static void setup() throws IOException {
         QueryTestSetBuilder tnlj =
-                new QueryTestSetBuilder("input/tnlj", "output/tnlj", "temp", "expected/tnlj/binary", "TNLJ");
+                new QueryTestSetBuilder("input/tnlj/config.txt", "output/tnlj", "expected/tnlj/binary", "TNLJ");
 
         QueryTestSetBuilder bnlj =
-                new QueryTestSetBuilder("input/bnlj", "output/bnlj", "temp", "expected/bnlj/binary", "BNLJ");
+                new QueryTestSetBuilder("input/bnlj/config.txt", "output/bnlj", "expected/bnlj/binary", "BNLJ");
 
         QueryTestSetBuilder smj =
-                new QueryTestSetBuilder("input/smj", "output/smj", "temp", "expected/smj/binary", "SMJ");
+                new QueryTestSetBuilder("input/smj/config.txt", "output/smj", "expected/smj/binary", "SMJ");
         queries = tnlj.queries();
-
         queries.addAll(bnlj.queries());
         queries.addAll(smj.queries());
     }
@@ -82,13 +81,9 @@ class QueryTestSetBuilder {
     }
 
     QueryTestSetBuilder(
-            final String inputPath,
-            final String outputPath,
-            final String tempPath,
-            final String expectedOutputPath,
-            final String name)
+            final String configPath, final String outputPath, final String expectedOutputPath, final String name)
             throws IOException {
-        Catalog.init(inputPath, outputPath, tempPath);
+        Catalog.init(configPath);
         Interpreter.run();
 
         File[] outputFiles = new File(outputPath).listFiles();

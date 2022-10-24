@@ -18,7 +18,7 @@ class ScanOperatorTest {
 
     @BeforeAll
     public static void setup() throws IOException {
-        Catalog.init("input/general", null, null);
+        Catalog.init("input/general/config.txt");
         scanOp = new ScanOperator("Boats");
     }
 

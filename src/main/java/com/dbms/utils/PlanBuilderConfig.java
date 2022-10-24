@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 
 /** Type that represents the information provided by the configuration file*/
-public class Config {
+public class PlanBuilderConfig {
 
     /** The 3 types of join operations we support: tuple-nested loop join, block-nested loop join, and sort-merge join. */
     public static enum Join {
@@ -36,7 +36,7 @@ public class Config {
      * @param br is a {@code BufferedReader} containing the config file to read
      * @throws IOException
      */
-    public Config(BufferedReader br) throws IOException {
+    public PlanBuilderConfig(BufferedReader br) throws IOException {
         StringTokenizer joinNums = new StringTokenizer(br.readLine(), " ");
         StringTokenizer sortNums = new StringTokenizer(br.readLine(), " ");
         JOINTYPE = Join.values()[Integer.parseInt(joinNums.nextToken())];
@@ -53,7 +53,7 @@ public class Config {
      * @param bnljPages the number of pages for BNLJ
      * @param extPages the number pages for external sort
      */
-    public Config(Join joinType, Sort sortType, int bnljPages, int extPages) {
+    public PlanBuilderConfig(Join joinType, Sort sortType, int bnljPages, int extPages) {
         JOINTYPE = joinType;
         SORTTYPE = sortType;
         BNLJPages = bnljPages;
@@ -66,7 +66,7 @@ public class Config {
      * @param sortType the type of sorting to use
      * @param extPages the number pages for external sort
      */
-    public Config(Join joinType, Sort sortType, int extPages) {
+    public PlanBuilderConfig(Join joinType, Sort sortType, int extPages) {
         JOINTYPE = joinType;
         SORTTYPE = sortType;
         BNLJPages = -1;
