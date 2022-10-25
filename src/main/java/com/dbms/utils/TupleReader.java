@@ -37,56 +37,61 @@ public class TupleReader {
     /** The number of tuples read for the current page */
     private int tuplesRead;
 
+    /** 0-based page index of the previously returned tuple */
+    public int pageId;
+
+    /** 0-based tuple index of the previously returned tuple */
+    public int tupleId;
+
     /** Input stream for the file */
     private FileInputStream fin;
 
     /** Channel to read the stream into the buffer */
     private FileChannel fc;
 
-    /**
-     * @param path (unaliased) table name (to represent file path)
-     * @throws IOException
-     */
+    /** @param path (unaliased) table name (to represent file path)
+     * @throws IOException */
     public TupleReader(String path) throws IOException {
         this.path = path;
         buffer = ByteBuffer.allocate(PAGE_SIZE);
         reset();
     }
 
-    /**
-     * Resets the reader to the first tuple in the file
-     * @throws IOException
-     */
+    /** Resets the reader to the first tuple in the file
+     *
+     * @throws IOException */
     public void reset() throws IOException {
         fin = new FileInputStream(path);
         fc = fin.getChannel();
+        pageId = -1;
+        tupleId = -1;
         readNextPage();
         maxTuples = numTuples;
         memUsable = true;
     }
 
-    /**
-     * @param index index of tuple to start reading from; requires the index is a valid index to a
+    /** @param index index of tuple to start reading from; requires the index is a valid index to a
      *              tuple that exists in the relation
-     * @throws IOException
-     */
+     * @throws IOException */
     public void reset(int index) throws IOException {
         fin = new FileInputStream(path);
         fc = fin.getChannel();
-        fc.position(index / maxTuples * PAGE_SIZE);
+        int pageIndex = index / maxTuples;
+        fc.position(pageIndex * PAGE_SIZE);
         readNextPage();
         tuplesRead = index % maxTuples;
         bufferIndex += tuplesRead * numAttributes * 4;
         memUsable = true;
+        tupleId = index - 1;
+        pageId = pageIndex;
     }
 
-    /**
-     * Reads the next page of data in the file. First clears the buffer, then reads the next page
+    /** Reads the next page of data in the file. First clears the buffer, then reads the next page
      * and the metadata values. Places bufferIndex at first integer to read in file and resets
      * tuplesRead.
+     *
      * @return true if new page read, false if no more pages to read
-     * @throws IOException
-     */
+     * @throws IOException */
     private boolean readNextPage() throws IOException {
         clearBuffer();
         int bytesRead = fc.read(buffer);
@@ -98,6 +103,8 @@ public class TupleReader {
         numTuples = buffer.getInt(4);
         bufferIndex = 8;
         tuplesRead = 0;
+        pageId++;
+        tupleId = -1;
         return true;
     }
 
@@ -108,11 +115,9 @@ public class TupleReader {
         buffer.clear();
     }
 
-    /**
-     * @return Integer list of data in the tuple, null if no tuples left or if file channel is
+    /** @return Integer list of data in the tuple, null if no tuples left or if file channel is
      *         closed
-     * @throws IOException
-     */
+     * @throws IOException */
     public List<Integer> nextTuple() throws IOException {
         if (tuplesRead == numTuples) {
             if (!memUsable || !readNextPage()) return null;
@@ -123,13 +128,13 @@ public class TupleReader {
             bufferIndex += 4;
         }
         tuplesRead++;
+        tupleId++;
         return data;
     }
 
-    /**
-     * Closes the reader. Call reset to restart.
-     * @throws IOException
-     */
+    /** Closes the reader. Call reset to restart. Do not call this if reader already returned null.
+     *
+     * @throws IOException */
     public void close() throws IOException {
         fin.close();
         fc.close();

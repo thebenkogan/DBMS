@@ -19,11 +19,9 @@ import java.util.StringTokenizer;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
 
-/**
- * A static class responsible for storing the information of the input queries file, schema file, and
- * DB files. Also creates and maintains an alias map so that all parts of the DBMS can easily
- * retrieve the full table name for a given alias.
- */
+/** A static class responsible for storing the information of the input queries file, schema file,
+ * and DB files. Also creates and maintains an alias map so that all parts of the DBMS can easily
+ * retrieve the full table name for a given alias. */
 public class Catalog {
 
     /** path to input directory */
@@ -50,30 +48,25 @@ public class Catalog {
     /** The physical operator configuration */
     public static PlanBuilderConfig CONFIG;
 
-    /**
-     * @param segments file path to join
-     * @return segments joined with File.seperator
-     */
+    /** @param segments file path to join
+     * @return segments joined with File.seperator */
     private static String join(String... segments) {
         return String.join(File.separator, segments);
     }
 
-    /**
-     * @param path path to file
+    /** @param path path to file
      * @return BufferedReader for the file at path
-     * @throws FileNotFoundException
-     */
+     * @throws FileNotFoundException */
     private static BufferedReader readerFromPath(String... path) throws FileNotFoundException {
         return new BufferedReader(new FileReader(join(path)));
     }
 
-    /**
-     * Initializes the input and output paths and reads the corresponding schema file
+    /** initializes the input and output paths and reads the corresponding schema file *
+     *
      * @param input  path to input directory
      * @param output path to output directory
-     * @param temp path for external sorting
-     * @throws IOException
-     */
+     * @param temp   path for external sorting
+     * @throws IOException */
     private static void initialize(String input, String output, String temp) throws IOException {
         Catalog.input = input;
         Catalog.output = output;
@@ -93,11 +86,21 @@ public class Catalog {
         schemaBr.close();
     }
 
-    /**
-     * Initializes the catalog with the information given in the file at {@code path}
+    /** initializes the input and output paths and reads the corresponding schema file
+     *
+     * @param input  path to input directory
+     * @param output path to output directory
+     * @param temp   path to temporary directory for external sorting
+     * @throws IOException */
+    public static void init(String input, String output, String temp) throws IOException {
+        initialize(input, output, temp);
+        CONFIG = new PlanBuilderConfig(readerFromPath(input, "plan_builder_config.txt"));
+    }
+
+    /** Initializes the catalog with the information given in the file at {@code path}
+     *
      * @param path file containing the configuration info
-     * @throws IOException
-     */
+     * @throws IOException */
     private static void initialize(String path) throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(path));
         Catalog.input = br.readLine();
@@ -109,50 +112,43 @@ public class Catalog {
         initialize(Catalog.input, Catalog.output, Catalog.temp);
     }
 
-    /**
-     * Initializes the catalog with the info from the file in {@code path}
+    /** Initializes the catalog with the info from the file in {@code path}
+     *
      * @param path file containing the configuration info
-     * @throws IOException
-     */
+     * @throws IOException */
     public static void init(String path) throws IOException {
         initialize(path);
         CONFIG = new PlanBuilderConfig(readerFromPath(input, "plan_builder_config.txt"));
     }
 
-    /**
-     * Initializes the input and output paths with custom programmtic configuration and reads the corresponding schema file
+    /** Initializes the input and output paths with custom programmtic configuration and reads the
+     * corresponding schema file
+     *
      * @param input  path to input directory
      * @param output path to output directory
-     * @param temp path to temporary directory for external sorting
+     * @param temp   path to temporary directory for external sorting
      * @param config is the configuration to determine which join type to use
-     * @throws IOException
-     */
+     * @throws IOException */
     public static void init(String input, String output, String temp, PlanBuilderConfig config) throws IOException {
         initialize(input, output, temp);
         CONFIG = config;
     }
 
-    /**
-     * @param name (unaliased) name of the table to lookup
+    /** @param name (unaliased) name of the table to lookup
      * @return BufferedReader for the table
-     * @throws FileNotFoundException
-     */
+     * @throws FileNotFoundException */
     public BufferedReader getTable(String name) throws FileNotFoundException {
         return readerFromPath(input, "db", "data", name);
     }
 
-    /**
-     * @param tableName (aliased) table name
-     * @return path to table file in input directory
-     */
+    /** @param tableName (unaliased) table name
+     * @return path to table file in input directory */
     public static String pathToTable(String tableName) {
         return join(input, "db", "data", tableName);
     }
 
-    /**
-     * @param path path to temp file within temp directory
-     * @return updated path with temp directory prepended
-     */
+    /** @param path path to temp file within temp directory
+     * @return updated path with temp directory prepended */
     public static String pathToTempFile(String path) {
         return join(temp, path);
     }
@@ -163,20 +159,24 @@ public class Catalog {
         return join(output, "query" + i);
     }
 
-    /**
-     * @param name (unaliased) name of the table to extract columns
-     * @return list of column names
-     */
+    /** @param name (unaliased) name of the table to extract columns
+     * @return list of column names */
     public static List<String> getTableColumns(String name) {
         return schema.get(name);
     }
 
-    /**
-     * If fromItems use aliases, this populates the aliasMap and returns the aliased names.
+    /** @param tableName (unaliased) name of table
+     * @param columnName name of column
+     * @return 0-based index of the column in the schema */
+    public static int getColumnIndex(String tableName, String columnName) {
+        return schema.get(tableName).indexOf(columnName);
+    }
+
+    /** If fromItems use aliases, this populates the aliasMap and returns the aliased names.
      * Otherwise, this returns the real table names.
+     *
      * @param fromItems tables that may or may not use aliases
-     * @return list of (aliased) table names in fromItems
-     */
+     * @return list of (aliased) table names in fromItems */
     public static List<String> populateAliasMap(List<FromItem> fromItems) {
         boolean usingAliases = fromItems.get(0).getAlias() != null;
         LinkedList<String> tableNames = new LinkedList<>();
@@ -189,37 +189,31 @@ public class Catalog {
         return tableNames;
     }
 
-    /**
-     * @param name table name (aliased)
-     * @return the actual table name corresponding to the input
-     */
+    /** @param name table name (aliased)
+     * @return the actual table name corresponding to the input */
     public static String getRealTableName(String name) {
         if (aliasMap.containsKey(name)) return aliasMap.get(name);
         return name;
     }
 
-    /**
-     * @return BufferedReader for the query file corresponding to the Catalog input. Each line will
+    /** @return BufferedReader for the query file corresponding to the Catalog input. Each line will
      *         be the query as a string.
-     * @throws FileNotFoundException
-     */
+     * @throws FileNotFoundException */
     public static BufferedReader getQueriesFile() throws FileNotFoundException {
         return new BufferedReader(new FileReader(String.join(File.separator, input, "queries.sql")));
     }
 
-    /**
-     * Creates a sub-directory in the given {@code temp} folder.
+    /** Creates a sub-directory in the given {@code temp} folder.
+     *
      * @param id is a UUID to name the new directory
-     * @throws IOException
-     */
+     * @throws IOException */
     public static void createTempSubDir(String id) throws IOException {
         new File(join(temp, id)).mkdir();
     }
 
-    /**
-     * Deletes everything in the temp directory when application is finished running
-     * @throws IOException
-     */
+    /** Deletes everything in the temp directory when application is finished running
+     *
+     * @throws IOException */
     public static void cleanTempDir() throws IOException {
         Files.walkFileTree(Paths.get(temp), new SimpleFileVisitor<Path>() {
             @Override
