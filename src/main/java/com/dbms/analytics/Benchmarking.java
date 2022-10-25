@@ -132,7 +132,8 @@ public class Benchmarking {
      * @throws IOException
      */
     private static void trial(Stopwatch stopwatch, int joinInt, boolean page5) throws IOException {
-        Catalog.CONFIG = new PlanBuilderConfig(Join.values()[joinInt], Sort.External, (page5) ? 5 : 1, EXTERNAL_PAGES);
+        Catalog.CONFIG =
+                new PlanBuilderConfig(Join.values()[joinInt], Sort.External, (page5) ? 5 : 1, EXTERNAL_PAGES, false);
         experiment(stopwatch, LOG_FILEPATH + mapJoinCodeToFileName(joinInt, page5));
     }
 

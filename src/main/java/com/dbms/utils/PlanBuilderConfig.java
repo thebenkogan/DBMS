@@ -25,11 +25,15 @@ public class PlanBuilderConfig {
 
     /** Sort method for query plan */
     public final Sort SORTTYPE;
+
     /** Number of buffer pages for BNLJ */
     public int BNLJPages;
 
     /** Number of buffer pages for external sort */
     public int EXTPages;
+
+    /** Whether or not to use indexes for selection */
+    public final boolean indexSelection;
 
     /**
      * Creates a {@code Config} type based on the contents of the configuration file
@@ -43,6 +47,7 @@ public class PlanBuilderConfig {
         SORTTYPE = Sort.values()[Integer.parseInt(sortNums.nextToken())];
         if (JOINTYPE == Join.BNLJ) BNLJPages = Integer.parseInt(joinNums.nextToken());
         if (SORTTYPE == Sort.External) EXTPages = Integer.parseInt(sortNums.nextToken());
+        indexSelection = Integer.parseInt(br.readLine()) == 1;
         br.close();
     }
 
@@ -52,12 +57,14 @@ public class PlanBuilderConfig {
      * @param sortType the type of sorting to use
      * @param bnljPages the number of pages for BNLJ
      * @param extPages the number pages for external sort
+     * @param indexing whether or not to use indexed selection
      */
-    public PlanBuilderConfig(Join joinType, Sort sortType, int bnljPages, int extPages) {
+    public PlanBuilderConfig(Join joinType, Sort sortType, int bnljPages, int extPages, boolean indexing) {
         JOINTYPE = joinType;
         SORTTYPE = sortType;
         BNLJPages = bnljPages;
         EXTPages = extPages;
+        indexSelection = indexing;
     }
 
     /**
@@ -71,5 +78,6 @@ public class PlanBuilderConfig {
         SORTTYPE = sortType;
         BNLJPages = -1;
         EXTPages = extPages;
+        indexSelection = false;
     }
 }
