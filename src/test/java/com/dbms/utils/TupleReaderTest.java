@@ -3,6 +3,7 @@ package com.dbms.utils;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.dbms.index.RID;
 import java.io.IOException;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
@@ -45,6 +46,10 @@ class TupleReaderTest {
                 Arguments.of("[30, 63, 101]", tr.nextTuple().toString()),
                 Arguments.of("[57, 24, 130]", tr.nextTuple().toString()),
                 Arguments.of("[172, 68, 43]", tr.nextTuple().toString()),
+                Arguments.of("[57, 24, 130]", tr.readTuple(new RID(0, 2)).toString()),
+                Arguments.of("[172, 68, 43]", tr.nextTuple().toString()),
+                Arguments.of("[26, 186, 63]", tr.readTuple(new RID(0, 339)).toString()),
+                Arguments.of("[165, 80, 90]", tr.nextTuple().toString()),
                 Arguments.of("[12, 143, 196]", resetTuple(-1)),
                 Arguments.of("[30, 63, 101]", tr.nextTuple().toString()),
                 Arguments.of("[57, 24, 130]", tr.nextTuple().toString()),

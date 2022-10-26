@@ -1,5 +1,6 @@
 package com.dbms.utils;
 
+import com.dbms.index.RID;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -84,6 +85,19 @@ public class TupleReader {
         memUsable = true;
         tupleId = index - 1;
         pageId = pageIndex;
+    }
+
+    /** @param rid record ID of tuple to read; requires rid is a valid record ID
+     * @return tuple with the location specificed by rid
+     * @throws IOException */
+    public List<Integer> readTuple(RID rid) throws IOException {
+        fc.position(rid.pageId * PAGE_SIZE);
+        pageId = rid.pageId - 1;
+        readNextPage();
+        tuplesRead = rid.tupleId;
+        bufferIndex += tuplesRead * numAttributes * 4;
+        tupleId = rid.tupleId - 1;
+        return nextTuple();
     }
 
     /** Reads the next page of data in the file. First clears the buffer, then reads the next page
