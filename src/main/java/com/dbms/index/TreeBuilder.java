@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ public class TreeBuilder {
         List<Integer> next;
         while ((next = tr.nextTuple()) != null) {
             int key = next.get(attributeIndex);
+            if (!entries.containsKey(key)) entries.put(key, new LinkedList<>());
             entries.get(key).add(new RID(tr.pageId, tr.tupleId));
         }
 
