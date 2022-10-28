@@ -1,5 +1,6 @@
 package com.dbms.utils;
 
+import com.dbms.index.Index;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -48,6 +49,9 @@ public class Catalog {
     /** The physical operator configuration */
     public static PlanBuilderConfig CONFIG;
 
+    /** Information used for data indexing */
+    public static List<Index> INDEXING;
+
     /** @param segments file path to join
      * @return segments joined with File.seperator */
     private static String join(String... segments) {
@@ -61,17 +65,38 @@ public class Catalog {
         return new BufferedReader(new FileReader(join(path)));
     }
 
-    /** initializes the input and output paths and reads the corresponding schema file *
+    /** Initializes the catalog with the info from the file in {@code path}
      *
-     * @param input  path to input directory
-     * @param output path to output directory
-     * @param temp   path for external sorting
+     * @param path file containing the configuration info
      * @throws IOException */
-    private static void initialize(String input, String output, String temp) throws IOException {
-        Catalog.input = input;
-        Catalog.output = output;
-        Catalog.temp = temp;
+    public static void init(String path) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader(path));
+        Catalog.input = br.readLine();
+        Catalog.output = br.readLine();
+        Catalog.temp = br.readLine();
+        Catalog.buildIndexes = Integer.parseInt(br.readLine()) == 1;
+        Catalog.evaluateQueries = Integer.parseInt(br.readLine()) == 1;
+        br.close();
+        getSchema(Catalog.input);
+        INDEXING = getIndexInfo(readerFromPath(Catalog.input, "db", "index_info.txt"));
+        CONFIG = new PlanBuilderConfig(readerFromPath(input, "plan_builder_config.txt"));
+    }
 
+    private static List<Index> getIndexInfo(BufferedReader br) throws IOException {
+        List<Index> result = new LinkedList<>();
+        String line;
+        while ((line = br.readLine()) != null) {
+            String info[] = line.split(" ");
+            String table = info[0];
+            String column = info[1];
+            int order = Integer.parseInt(info[2]);
+            boolean cluster = Integer.parseInt(info[3]) == 1;
+            result.add(new Index(table, column, order, cluster));
+        }
+        return result;
+    }
+
+    private static void getSchema(String input) throws IOException {
         BufferedReader schemaBr = readerFromPath(input, "db", "schema.txt");
         String line;
         while ((line = schemaBr.readLine()) != null) {
@@ -84,54 +109,6 @@ public class Catalog {
             schema.put(tableName, columns);
         }
         schemaBr.close();
-    }
-
-    /** initializes the input and output paths and reads the corresponding schema file
-     *
-     * @param input  path to input directory
-     * @param output path to output directory
-     * @param temp   path to temporary directory for external sorting
-     * @throws IOException */
-    public static void init(String input, String output, String temp) throws IOException {
-        initialize(input, output, temp);
-        CONFIG = new PlanBuilderConfig(readerFromPath(input, "plan_builder_config.txt"));
-    }
-
-    /** Initializes the catalog with the information given in the file at {@code path}
-     *
-     * @param path file containing the configuration info
-     * @throws IOException */
-    private static void initialize(String path) throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader(path));
-        Catalog.input = br.readLine();
-        Catalog.output = br.readLine();
-        Catalog.temp = br.readLine();
-        Catalog.buildIndexes = Integer.parseInt(br.readLine()) == 1;
-        Catalog.evaluateQueries = Integer.parseInt(br.readLine()) == 1;
-        br.close();
-        initialize(Catalog.input, Catalog.output, Catalog.temp);
-    }
-
-    /** Initializes the catalog with the info from the file in {@code path}
-     *
-     * @param path file containing the configuration info
-     * @throws IOException */
-    public static void init(String path) throws IOException {
-        initialize(path);
-        CONFIG = new PlanBuilderConfig(readerFromPath(input, "plan_builder_config.txt"));
-    }
-
-    /** Initializes the input and output paths with custom programmtic configuration and reads the
-     * corresponding schema file
-     *
-     * @param input  path to input directory
-     * @param output path to output directory
-     * @param temp   path to temporary directory for external sorting
-     * @param config is the configuration to determine which join type to use
-     * @throws IOException */
-    public static void init(String input, String output, String temp, PlanBuilderConfig config) throws IOException {
-        initialize(input, output, temp);
-        CONFIG = config;
     }
 
     /** @param name (unaliased) name of the table to lookup

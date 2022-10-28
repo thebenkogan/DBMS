@@ -17,22 +17,6 @@ import java.util.concurrent.TimeUnit;
 
 /** Main entry point of benchmarking experiments. */
 public class Benchmarking {
-
-    /**
-     * {@code INPUT} is the folder storing the data for benchmarking. We store our randomly generated tables there under the db/data directory.
-     */
-    private static final String INPUT = "benchmarking/input";
-
-    /**
-     * {@code OUTPUT} is the folder storing the outputted data for benchmarking. These are the resulting tables from calling our queries.
-     */
-    private static final String OUTPUT = "benchmarking/output";
-
-    /**
-     * {@code TEMP} is the temporary directory used for External Sort.
-     */
-    private static final String TEMP = "temp";
-
     /**
      * {@code LOG_FILEPATH} is the folder storing files containing the execution times of each join type.
      */
@@ -143,7 +127,7 @@ public class Benchmarking {
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
-        Catalog.init(INPUT, OUTPUT, TEMP, null);
+        Catalog.init("benchmarking/config.txt");
         Stopwatch stopwatch = Stopwatch.createStarted();
         final int TRIALS = (args.length > 0) ? Integer.parseInt(args[0]) : 1;
         for (int j = 0; j < TRIALS; j++) {
