@@ -1,5 +1,6 @@
 package com.dbms;
 
+import com.dbms.index.TreeIndexBuilder;
 import com.dbms.utils.Catalog;
 import com.dbms.utils.LogicalPlanBuilder;
 import com.dbms.visitors.PhysicalPlanBuilder;
@@ -25,7 +26,7 @@ public class Interpreter {
              * root logical node */
             PhysicalPlanBuilder physicalPlanBuilder = new PhysicalPlanBuilder();
             logicalPlan.root.accept(physicalPlanBuilder);
-            physicalPlanBuilder.physOp.dump(queryNumber);
+            physicalPlanBuilder.physOp.dump(Catalog.pathToOutputFile(queryNumber));
             Catalog.cleanTempDir();
         } catch (Exception e) {
             System.out.println("Failure: " + statement);
@@ -56,11 +57,7 @@ public class Interpreter {
      */
     public static void main(String[] args) throws IOException {
         Catalog.init(args[0]);
-        if (Catalog.buildIndexes) {
-            // TODO build B+ tree indexes
-        }
-        if (Catalog.evaluateQueries) {
-            run();
-        }
+        if (Catalog.buildIndexes) Catalog.INDEXING.forEach(index -> TreeIndexBuilder.serialize(index));
+        if (Catalog.evaluateQueries) run();
     }
 }

@@ -20,7 +20,7 @@ public class TupleWriter {
     /** Write buffer */
     private ByteBuffer buffer;
 
-    /** The index at which to read the next integer in the buffer */
+    /** The index at which to write the next integer in the buffer */
     private int bufferIndex;
 
     /** Output stream for the query */
@@ -29,10 +29,8 @@ public class TupleWriter {
     /** Channel to write the buffer to the output stream */
     private FileChannel fc;
 
-    /**
-     * @param path (unaliased) file path name
-     * @throws IOException
-     */
+    /** @param path (unaliased) file path name
+     * @throws IOException */
     public TupleWriter(String path) throws IOException {
         buffer = ByteBuffer.allocate(PAGE_SIZE);
         fout = new FileOutputStream(path);
@@ -40,11 +38,10 @@ public class TupleWriter {
         bufferIndex = 8;
     }
 
-    /**
-     * Writes tuple data to file path
+    /** Writes tuple data to file path
+     *
      * @param t contains the data to write
-     * @throws IOException
-     */
+     * @throws IOException */
     public void writeTuple(Tuple t) throws IOException {
         if (bufferIndex + t.size() * 4 > PAGE_SIZE) writePage();
         numAttributes = t.size();
@@ -55,10 +52,9 @@ public class TupleWriter {
         }
     }
 
-    /**
-     * Writes a page into the buffer
-     * @throws IOException
-     */
+    /** Writes a page into the buffer
+     *
+     * @throws IOException */
     private void writePage() throws IOException {
         buffer.putInt(0, numAttributes);
         buffer.putInt(4, numTuples);
@@ -76,10 +72,9 @@ public class TupleWriter {
         buffer.clear();
     }
 
-    /**
-     * Writes the buffer if tuples remaining and closes output writer.
-     * @throws IOException
-     */
+    /** Writes the buffer if tuples remaining and closes output writer.
+     *
+     * @throws IOException */
     public void close() throws IOException {
         if (numTuples > 0) writePage();
         fout.close();

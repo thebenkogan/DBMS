@@ -50,7 +50,7 @@ public class Catalog {
     public static PlanBuilderConfig CONFIG;
 
     /** Information used for data indexing */
-    public static List<Index> INDEXING;
+    public static List<Index> INDEXING = new LinkedList<>();
 
     /** @param segments file path to join
      * @return segments joined with File.seperator */
@@ -78,24 +78,32 @@ public class Catalog {
         Catalog.evaluateQueries = Integer.parseInt(br.readLine()) == 1;
         br.close();
         getSchema(Catalog.input);
-        INDEXING = getIndexInfo(readerFromPath(Catalog.input, "db", "index_info.txt"));
+        getIndexInfo(readerFromPath(Catalog.input, "db", "index_info.txt"));
         CONFIG = new PlanBuilderConfig(readerFromPath(input, "plan_builder_config.txt"));
     }
 
-    private static List<Index> getIndexInfo(BufferedReader br) throws IOException {
-        List<Index> result = new LinkedList<>();
+    /**
+     * Initializes {@code Catalog.INDEXING}
+     * @param br reader for reading {@code index_info.txt} file
+     * @throws IOException
+     */
+    private static void getIndexInfo(BufferedReader br) throws IOException {
         String line;
         while ((line = br.readLine()) != null) {
             String info[] = line.split(" ");
             String table = info[0];
             String column = info[1];
-            int order = Integer.parseInt(info[2]);
-            boolean cluster = Integer.parseInt(info[3]) == 1;
-            result.add(new Index(table, column, order, cluster));
+            boolean cluster = Integer.parseInt(info[2]) == 1;
+            int order = Integer.parseInt(info[3]);
+            INDEXING.add(new Index(table, column, order, cluster));
         }
-        return result;
     }
 
+    /**
+     * Initializes {@code Catalog.schema}
+     * @param input file path of schema file
+     * @throws IOException
+     */
     private static void getSchema(String input) throws IOException {
         BufferedReader schemaBr = readerFromPath(input, "db", "schema.txt");
         String line;
@@ -134,6 +142,15 @@ public class Catalog {
      * @return path to output file */
     public static String pathToOutputFile(int i) {
         return join(output, "query" + i);
+    }
+
+    /**
+     * @param tableName unaliased table name
+     * @param attributeName column name
+     * @return {@code String} of file path to indexes
+     */
+    public static String pathToIndexFile(String tableName, String attributeName) {
+        return join(input, "db", "indexes", tableName + "." + attributeName);
     }
 
     /** @param name (unaliased) name of the table to extract columns
