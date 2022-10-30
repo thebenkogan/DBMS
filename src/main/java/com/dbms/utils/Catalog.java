@@ -50,7 +50,7 @@ public class Catalog {
     public static PlanBuilderConfig CONFIG;
 
     /** Information used for data indexing */
-    public static List<Index> INDEXING = new LinkedList<>();
+    public static List<Index> INDEXING;
 
     /** @param segments file path to join
      * @return segments joined with File.seperator */
@@ -88,6 +88,7 @@ public class Catalog {
      * @throws IOException
      */
     private static void getIndexInfo(BufferedReader br) throws IOException {
+        INDEXING = new LinkedList<>();
         String line;
         while ((line = br.readLine()) != null) {
             String info[] = line.split(" ");
@@ -97,6 +98,7 @@ public class Catalog {
             int order = Integer.parseInt(info[3]);
             INDEXING.add(new Index(table, column, order, cluster));
         }
+        br.close();
     }
 
     /**

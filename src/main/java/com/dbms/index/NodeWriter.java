@@ -79,6 +79,12 @@ public class NodeWriter {
         writePage();
     }
 
+    /** closes the buffer */
+    public void close() throws IOException {
+        fout.close();
+        fc.close();
+    }
+
     /**
      * Constructs a {@code NodeWriter} instance according to the given table and column names
      * @param tableName unaliased name of the table

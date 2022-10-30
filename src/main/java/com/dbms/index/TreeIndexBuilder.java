@@ -44,6 +44,7 @@ public class TreeIndexBuilder {
             tableEntries = getDataEntries(i.table, i.column);
             serializeLeaves();
             serializeIndexAndHeader();
+            nw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
