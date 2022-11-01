@@ -1,6 +1,6 @@
 package com.dbms.visitors;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.dbms.utils.Helpers;
 import com.dbms.utils.Schema;
@@ -25,12 +25,12 @@ class ExpressionParseVisitorTest {
                 Schema.from("t", Arrays.asList(new String[] {"A", "B"})), Arrays.asList(new Integer[] {3, 10}));
     }
 
-    @ParameterizedTest(name = "Expression Visitor Test {index}: expected {1}; actual {0} ")
+    @ParameterizedTest(name = "Expression Visitor Test {index}: expression {0} should evaluate to {1} ")
     @MethodSource("argumentProvider")
-    void testExpressionVisitor(String actual, boolean expected) throws ParseException, IOException {
-        Expression exp = Helpers.strExpToExp(actual);
+    void testExpressionVisitor(String expression, boolean expected) throws ParseException, IOException {
+        Expression exp = Helpers.strExpToExp(expression);
         exp.accept(epv);
-        assertTrue(actual, expected == epv.booleanResult);
+        assertEquals(expected, epv.booleanResult);
     }
 
     private static Stream<Arguments> argumentProvider() {

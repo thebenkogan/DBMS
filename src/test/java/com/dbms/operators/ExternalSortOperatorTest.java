@@ -1,7 +1,7 @@
 package com.dbms.operators;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.dbms.operators.physical.ExternalSortOperator;
 import com.dbms.operators.physical.ScanOperator;

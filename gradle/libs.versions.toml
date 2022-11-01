@@ -1,0 +1,16 @@
+[versions]
+# Project
+guava = "31.1-jre"
+jsqlparser = "4.5"
+spotless = "6.11.0"
+
+# Testing
+junit-jupiter = "5.9.0"
+
+[plugins]
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+
+[libraries]
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+jsqlparser = { module = "com.github.jsqlparser:jsqlparser", version.ref = "jsqlparser" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
