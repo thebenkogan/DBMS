@@ -57,7 +57,7 @@ public class Interpreter {
      */
     public static void main(String[] args) throws IOException {
         Catalog.init(args[0]);
-        if (Catalog.buildIndexes) Catalog.INDEXING.forEach(index -> TreeIndexBuilder.serialize(index));
+        if (Catalog.buildIndexes) Catalog.INDEXES.values().forEach(index -> TreeIndexBuilder.serialize(index));
         if (Catalog.evaluateQueries) run();
     }
 }

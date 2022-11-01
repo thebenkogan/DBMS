@@ -1,6 +1,7 @@
 package com.dbms.index;
 
 import com.dbms.utils.Catalog;
+import com.dbms.utils.ColumnName;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -91,9 +92,9 @@ public class NodeWriter {
      * @param attributeName name of the column
      * @throws FileNotFoundException
      */
-    NodeWriter(String tableName, String attributeName) throws FileNotFoundException {
+    NodeWriter(ColumnName c) throws FileNotFoundException {
         buffer = ByteBuffer.allocate(PAGE_SIZE);
-        fout = new FileOutputStream(Catalog.pathToIndexFile(tableName, attributeName));
+        fout = new FileOutputStream(Catalog.pathToIndexFile(c));
         fc = fout.getChannel();
         bufferIndex = 8;
     }

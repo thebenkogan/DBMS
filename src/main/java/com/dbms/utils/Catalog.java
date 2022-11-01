@@ -50,7 +50,7 @@ public class Catalog {
     public static PlanBuilderConfig CONFIG;
 
     /** Information used for data indexing */
-    public static List<Index> INDEXING;
+    public static Map<ColumnName, Index> INDEXES;
 
     /** @param segments file path to join
      * @return segments joined with File.seperator */
@@ -83,12 +83,12 @@ public class Catalog {
     }
 
     /**
-     * Initializes {@code Catalog.INDEXING}
+     * Initializes {@code Catalog.INDEXES}
      * @param br reader for reading {@code index_info.txt} file
      * @throws IOException
      */
     private static void getIndexInfo(BufferedReader br) throws IOException {
-        INDEXING = new LinkedList<>();
+        INDEXES = new HashMap<>();
         String line;
         while ((line = br.readLine()) != null) {
             String info[] = line.split(" ");
@@ -96,7 +96,8 @@ public class Catalog {
             String column = info[1];
             boolean cluster = Integer.parseInt(info[2]) == 1;
             int order = Integer.parseInt(info[3]);
-            INDEXING.add(new Index(table, column, order, cluster));
+            ColumnName c = ColumnName.bundle(table, column);
+            INDEXES.put(c, new Index(c, order, cluster));
         }
         br.close();
     }
@@ -151,8 +152,8 @@ public class Catalog {
      * @param attributeName column name
      * @return {@code String} of file path to indexes
      */
-    public static String pathToIndexFile(String tableName, String attributeName) {
-        return join(input, "db", "indexes", tableName + "." + attributeName);
+    public static String pathToIndexFile(ColumnName c) {
+        return join(input, "db", "indexes", c.TABLE + "." + c.COLUMN);
     }
 
     /** @param name (unaliased) name of the table to extract columns

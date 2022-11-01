@@ -4,6 +4,7 @@ import com.dbms.operators.physical.ExternalSortOperator;
 import com.dbms.operators.physical.ScanOperator;
 import com.dbms.operators.physical.SortOperator;
 import com.dbms.utils.Catalog;
+import com.dbms.utils.ColumnName;
 import com.dbms.utils.TupleReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,14 +35,16 @@ public class TreeIndexBuilder {
     /** The list of entries from the scan operation */
     private static List<DataEntry> tableEntries;
 
-    /** @param i information about indexing from {@code index_info.txt} wrapped in {@code Index}
+    /**
+     * @param c {@code ColumnName} containing information about unaliased table and column names
+     * @param i information about indexing from {@code index_info.txt} wrapped in {@code Index}
      */
     public static void serialize(Index i) {
         try {
             TreeIndexBuilder.order = i.order;
-            nw = new NodeWriter(i.table, i.column);
-            if (i.cluster) createClusters(i.table, i.column);
-            tableEntries = getDataEntries(i.table, i.column);
+            nw = new NodeWriter(i.columnName);
+            if (i.isClustered) createClusters(i.columnName);
+            tableEntries = getDataEntries(i.columnName);
             serializeLeaves();
             serializeIndexAndHeader();
             nw.close();
@@ -52,29 +55,27 @@ public class TreeIndexBuilder {
 
     /**
      * Sorts the scanned table by {@code tableName.attributeName} and replaces the input file with it
-     * @param tableName unaliased name of the table
-     * @param attributeName name of the column
+     * @param cn {@code ColumnName} containing unaliased name of the table and column
      * @throws IOException
      */
-    private static void createClusters(String tableName, String attributeName) throws IOException {
-        Table t = new Table(tableName);
-        Column c = new Column(t, attributeName);
+    private static void createClusters(ColumnName cn) throws IOException {
+        Table t = new Table(cn.TABLE);
+        Column c = new Column(t, cn.COLUMN);
         OrderByElement o = new OrderByElement();
         o.setExpression(c);
         List<OrderByElement> sortCondition = Arrays.asList(o);
-        ScanOperator scanOp = new ScanOperator(tableName);
+        ScanOperator scanOp = new ScanOperator(cn.TABLE);
         SortOperator sortOp = new ExternalSortOperator(scanOp, sortCondition, 5);
-        sortOp.dump(Catalog.pathToTable(tableName));
+        sortOp.dump(Catalog.pathToTable(cn.TABLE));
     }
 
-    /** @param tableName (unaliased) name of table for index
-     * @param attribute attribute in table schema used as index key
+    /** @param cn {@code ColumnName} containing unaliased name of the table and column
      * @return list of all data entries in the table, sorted by key and with RIDs sorted by pageId
      *         and tupleId
      * @throws IOException */
-    private static List<DataEntry> getDataEntries(String tableName, String attribute) throws IOException {
-        int attributeIndex = Catalog.getColumnIndex(tableName, attribute);
-        TupleReader tr = new TupleReader(Catalog.pathToTable(tableName));
+    private static List<DataEntry> getDataEntries(ColumnName cn) throws IOException {
+        int attributeIndex = Catalog.getColumnIndex(cn.TABLE, cn.COLUMN);
+        TupleReader tr = new TupleReader(Catalog.pathToTable(cn.TABLE));
         Map<Integer, List<RID>> entries = new HashMap<>();
 
         List<Integer> next;
