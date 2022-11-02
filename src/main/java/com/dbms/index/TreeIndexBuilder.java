@@ -35,10 +35,8 @@ public class TreeIndexBuilder {
     /** The list of entries from the scan operation */
     private static List<DataEntry> tableEntries;
 
-    /**
-     * @param c {@code ColumnName} containing information about unaliased table and column names
-     * @param i information about indexing from {@code index_info.txt} wrapped in {@code Index}
-     */
+    /** @param c {@code ColumnName} containing information about unaliased table and column names
+     * @param i information about indexing from {@code index_info.txt} wrapped in {@code Index} */
     public static void serialize(Index i) {
         try {
             TreeIndexBuilder.order = i.order;
@@ -53,11 +51,11 @@ public class TreeIndexBuilder {
         }
     }
 
-    /**
-     * Sorts the scanned table by {@code tableName.attributeName} and replaces the input file with it
+    /** Sorts the scanned table by {@code tableName.attributeName} and replaces the input file with
+     * it
+     *
      * @param cn {@code ColumnName} containing unaliased name of the table and column
-     * @throws IOException
-     */
+     * @throws IOException */
     private static void createClusters(ColumnName cn) throws IOException {
         Table t = new Table(cn.TABLE);
         Column c = new Column(t, cn.COLUMN);
@@ -74,7 +72,7 @@ public class TreeIndexBuilder {
      *         and tupleId
      * @throws IOException */
     private static List<DataEntry> getDataEntries(ColumnName cn) throws IOException {
-        int attributeIndex = Catalog.getColumnIndex(cn.TABLE, cn.COLUMN);
+        int attributeIndex = Catalog.getColumnIndex(cn);
         TupleReader tr = new TupleReader(Catalog.pathToTable(cn.TABLE));
         Map<Integer, List<RID>> entries = new HashMap<>();
 

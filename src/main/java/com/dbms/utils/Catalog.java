@@ -82,11 +82,10 @@ public class Catalog {
         CONFIG = new PlanBuilderConfig(readerFromPath(input, "plan_builder_config.txt"));
     }
 
-    /**
-     * Initializes {@code Catalog.INDEXES}
+    /** Initializes {@code Catalog.INDEXES}
+     *
      * @param br reader for reading {@code index_info.txt} file
-     * @throws IOException
-     */
+     * @throws IOException */
     private static void getIndexInfo(BufferedReader br) throws IOException {
         INDEXES = new HashMap<>();
         String line;
@@ -102,11 +101,10 @@ public class Catalog {
         br.close();
     }
 
-    /**
-     * Initializes {@code Catalog.schema}
+    /** Initializes {@code Catalog.schema}
+     *
      * @param input file path of schema file
-     * @throws IOException
-     */
+     * @throws IOException */
     private static void getSchema(String input) throws IOException {
         BufferedReader schemaBr = readerFromPath(input, "db", "schema.txt");
         String line;
@@ -147,11 +145,9 @@ public class Catalog {
         return join(output, "query" + i);
     }
 
-    /**
-     * @param tableName unaliased table name
+    /** @param tableName unaliased table name
      * @param attributeName column name
-     * @return {@code String} of file path to indexes
-     */
+     * @return {@code String} of file path to indexes */
     public static String pathToIndexFile(ColumnName c) {
         return join(input, "db", "indexes", c.TABLE + "." + c.COLUMN);
     }
@@ -162,11 +158,10 @@ public class Catalog {
         return schema.get(name);
     }
 
-    /** @param tableName (unaliased) name of table
-     * @param columnName name of column
+    /** @param cn (unaliased) table name and associated column name
      * @return 0-based index of the column in the schema */
-    public static int getColumnIndex(String tableName, String columnName) {
-        return schema.get(tableName).indexOf(columnName);
+    public static int getColumnIndex(ColumnName cn) {
+        return schema.get(cn.TABLE).indexOf(cn.COLUMN);
     }
 
     /** If fromItems use aliases, this populates the aliasMap and returns the aliased names.
