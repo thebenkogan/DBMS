@@ -1,7 +1,7 @@
 package com.dbms.index;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.dbms.utils.Catalog;
 import com.dbms.utils.ColumnName;
