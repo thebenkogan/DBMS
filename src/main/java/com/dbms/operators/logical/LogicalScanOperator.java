@@ -2,15 +2,11 @@ package com.dbms.operators.logical;
 
 import com.dbms.visitors.PhysicalPlanBuilder;
 
-/**
- * The logical representation of the scan operator, which contains only the table name which we
- * need to construct the physical operator
- */
+/** The logical representation of the scan operator, which contains only the table name which we
+ * need to construct the physical operator */
 public class LogicalScanOperator extends LogicalOperator {
 
-    /**
-     * {@code tableName} is the name of the table to scan from
-     */
+    /** {@code tableName} is the (aliased) name of the table to scan from */
     public String tableName;
 
     /** @param tableName name (aliased) of underlying table */

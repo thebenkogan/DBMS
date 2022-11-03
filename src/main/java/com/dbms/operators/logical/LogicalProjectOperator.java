@@ -1,6 +1,7 @@
 package com.dbms.operators.logical;
 
 import com.dbms.visitors.PhysicalPlanBuilder;
+import java.io.IOException;
 import java.util.List;
 import net.sf.jsqlparser.statement.select.SelectItem;
 
@@ -23,9 +24,11 @@ public class LogicalProjectOperator extends LogicalOperator {
         this.selectItems = selectItems;
     }
 
-    /** @param physicalPlan visitor which converts logical to physical operator */
+    /** @param physicalPlan visitor which converts logical to physical operator
+     * @throws IOException
+     */
     @Override
-    public void accept(PhysicalPlanBuilder physicalPlan) {
+    public void accept(PhysicalPlanBuilder physicalPlan) throws IOException {
         physicalPlan.visit(this);
     }
 }

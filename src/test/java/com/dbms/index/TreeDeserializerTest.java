@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.dbms.utils.Catalog;
-import com.dbms.utils.ColumnName;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Stream;
@@ -21,8 +20,8 @@ class TreeDeserializerTest {
     @BeforeAll
     public static void setup() throws IOException {
         Catalog.init("input/index/config.txt");
-        Index boatsIndex = Catalog.INDEXES.get(ColumnName.bundle("Boats", "E"));
-        Index sailorsIndex = Catalog.INDEXES.get(ColumnName.bundle("Sailors", "A"));
+        Index boatsIndex = Catalog.INDEXES.get("Boats");
+        Index sailorsIndex = Catalog.INDEXES.get("Sailors");
         boatsTd = new TreeDeserializer(boatsIndex);
         sailorsTd = new TreeDeserializer(sailorsIndex);
     }

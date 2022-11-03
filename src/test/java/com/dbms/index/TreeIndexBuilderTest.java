@@ -3,7 +3,6 @@ package com.dbms.index;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.dbms.utils.Catalog;
-import com.dbms.utils.ColumnName;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -16,11 +15,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-/**
- * Test class for testing the serializing functionality of our {@code TreeIndexBuilder}.
- */
+/** Test class for testing the serializing functionality of our {@code TreeIndexBuilder}. */
 public class TreeIndexBuilderTest {
-    private static final String expectedPath = "expected/indexes";
+    private static final String expectedPath = "expected/indexes/binary";
     private static final String delimiter = ".";
     private static List<Arguments> testCases;
 
@@ -45,12 +42,14 @@ public class TreeIndexBuilderTest {
 class TreeIndexTestSet {
     private List<Arguments> arguments = new LinkedList<>();
 
-    TreeIndexTestSet(Map<ColumnName, Index> indexInfo, String expectedPath, String delimiter) throws IOException {
-        for (ColumnName c : indexInfo.keySet()) {
-            TreeIndexBuilder.serialize(indexInfo.get(c));
-            String actual = new String(Files.readAllBytes(Paths.get(Catalog.pathToIndexFile(c))));
-            String expected = new String(Files.readAllBytes(Paths.get(expectedPath, c.TABLE + delimiter + c.COLUMN)));
-            arguments.add(Arguments.of(expected, actual, c.TABLE + delimiter + c.COLUMN));
+    TreeIndexTestSet(Map<String, Index> indexInfo, String expectedPath, String delimiter) throws IOException {
+        for (String table : indexInfo.keySet()) {
+            Index i = indexInfo.get(table);
+            TreeIndexBuilder.serialize(i);
+            String indexName = i.columnName.TABLE + delimiter + i.columnName.COLUMN;
+            String actual = new String(Files.readAllBytes(Paths.get(Catalog.pathToIndexFile(i.columnName))));
+            String expected = new String(Files.readAllBytes(Paths.get(expectedPath, indexName)));
+            arguments.add(Arguments.of(expected, actual, indexName));
         }
     }
 

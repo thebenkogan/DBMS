@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import com.dbms.index.Index;
 import com.dbms.operators.physical.IndexScanOperator;
 import com.dbms.utils.Catalog;
-import com.dbms.utils.ColumnName;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +22,7 @@ class IndexScanOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {
         Catalog.init("input/index/config.txt");
-        boatsIndex = Catalog.INDEXES.get(ColumnName.bundle("Boats", "E"));
+        boatsIndex = Catalog.INDEXES.get("Boats");
     }
 
     @ParameterizedTest(name = "Next Tuple Test {index}: expected {0}; actual {1} ")

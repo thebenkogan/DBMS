@@ -49,8 +49,8 @@ public class Catalog {
     /** The physical operator configuration */
     public static PlanBuilderConfig CONFIG;
 
-    /** Information used for data indexing */
-    public static Map<ColumnName, Index> INDEXES;
+    /** Maps unaliased table name to corresponding index if it exists */
+    public static Map<String, Index> INDEXES;
 
     /** @param segments file path to join
      * @return segments joined with File.seperator */
@@ -96,7 +96,7 @@ public class Catalog {
             boolean cluster = Integer.parseInt(info[2]) == 1;
             int order = Integer.parseInt(info[3]);
             ColumnName c = ColumnName.bundle(table, column);
-            INDEXES.put(c, new Index(c, order, cluster));
+            INDEXES.put(table, new Index(c, order, cluster));
         }
         br.close();
     }
@@ -227,5 +227,11 @@ public class Catalog {
             }
         });
         new File(temp).mkdir();
+    }
+
+    /** @param indexName (unaliased) table name of index
+     * @return the index, null if not found */
+    public static Index findIndex(String indexName) {
+        return INDEXES.get(indexName);
     }
 }

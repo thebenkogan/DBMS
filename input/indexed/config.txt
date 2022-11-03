@@ -1,0 +1,5 @@
+./input/indexed
+./output/indexed
+./temp
+0
+1

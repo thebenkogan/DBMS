@@ -36,17 +36,19 @@ class EndToEndTest {
 
         QueryTestSetBuilder smj =
                 new QueryTestSetBuilder("input/smj/config.txt", "output/smj", "expected/smj/binary", "SMJ");
+        QueryTestSetBuilder indexed = new QueryTestSetBuilder(
+                "input/indexed/config.txt", "output/indexed", "expected/indexed", "index queries");
         queries = tnlj.queries();
         queries.addAll(bnlj.queries());
         queries.addAll(smj.queries());
+        queries.addAll(indexed.queries());
     }
 
-    /**
-     * Initializes catalog, runs the input queries file, and asserts interpreter output with
+    /** Initializes catalog, runs the input queries file, and asserts interpreter output with
      * expected output.
+     *
      * @throws IOException
-     * @throws ParseException
-     */
+     * @throws ParseException */
     @ParameterizedTest(name = "{2} query {3}")
     @MethodSource("argumentProvider")
     void test(String actual, String expected, String name, int number) throws IOException, ParseException {
@@ -62,12 +64,11 @@ class EndToEndTest {
 class QueryTestSetBuilder {
     private List<Arguments> arguments = new LinkedList<>();
 
-    /**
-     * Sorts the output of the contents in {@code path}
+    /** Sorts the output of the contents in {@code path}
+     *
      * @param path is the file path containing the output of the query
      * @return a sorted relation as a {@code String}
-     * @throws IOException
-     */
+     * @throws IOException */
     private String sortOutput(String path) throws IOException {
         List<String> tuples = new ArrayList<>();
         TupleReader tr = new TupleReader(path);
@@ -84,6 +85,7 @@ class QueryTestSetBuilder {
             final String configPath, final String outputPath, final String expectedOutputPath, final String name)
             throws IOException {
         Catalog.init(configPath);
+
         Interpreter.run();
 
         File[] outputFiles = new File(outputPath).listFiles();

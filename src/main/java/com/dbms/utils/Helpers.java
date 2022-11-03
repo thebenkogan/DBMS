@@ -58,6 +58,20 @@ public class Helpers {
         return andExp;
     }
 
+    /** @param expList
+     * @return an AND Expression comprised of joined expList */
+    public static Expression wrapListOfExpressions(List<Expression> expList) {
+        assert !expList.isEmpty();
+        if (expList.size() == 1) {
+            return expList.get(0);
+        }
+        AndExpression and = new AndExpression(expList.get(0), expList.get(1));
+        for (int i = 2; i < expList.size(); i++) {
+            and = new AndExpression(and, expList.get(i));
+        }
+        return and;
+    }
+
     /** Wrapper for grabbing the proper name of a table in String form.
      *
      * @param table Table to get the name of.
