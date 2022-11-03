@@ -77,9 +77,37 @@ In order to reduce the number of command line inputs, we defined constant file p
     │       └── [generated-query-outputs-here]
 ```
 
+#### Benchmarking Different Join Types
+
+To run the benchmarking task in [JoinType.java](./src/main/java/com/dbms/analytics/JoinType.java) only once, run the command below.
+
+```
+./gradlew benchmarkJoin
+```
+
+To run the benchmarking task in [JoinType.java](./src/main/java/com/dbms/analytics/JoinType.java) a certain number of times, run the command below.
+
+```
+./gradlew benchmarkJoin --args="[number-of-trials]"
+```
+
+#### Benchmarking Data Indexing
+
+To run the benchmarking task in [Indexing.java](./src/main/java/com/dbms/analytics/Indexing.java) only once, run the command below.
+
+```
+./gradlew benchmarkIndexing
+```
+
+To run the benchmarking task in [Indexing.java](./src/main/java/com/dbms/analytics/Indexing.java) a certain number of times, run the command below.
+
+```
+./gradlew benchmarkIndexing --args="[number-of-trials]"
+```
+
 ### Running the Application
 
-Because we have 2 executable `main` functions, we defined 2 new Gradle tasks in our [build.gradle.kts](build.gradle.kts) file to run either one. To run the `main` function in [Interpreter.java](./src/main/java/com/dbms/Interpreter.java), you can run either of the commands below (the default `main` function is still set to the one in [Interpreter.java](./src/main/java/com/dbms/Interpreter.java)).
+Because we have multiple executable `main` functions, we defined 2 new Gradle tasks in our [build.gradle.kts](build.gradle.kts) file to run either one. To run the `main` function in [Interpreter.java](./src/main/java/com/dbms/Interpreter.java), you can run either of the commands below (the default `main` function is still set to the one in [Interpreter.java](./src/main/java/com/dbms/Interpreter.java)).
 
 #### Interpreter as its own Gradle task
 
@@ -91,20 +119,6 @@ Because we have 2 executable `main` functions, we defined 2 new Gradle tasks in 
 
 ```
 ./gradlew run --args="[input-directory] [output-directory] [temp-directory]"
-```
-
-To run the benchmarking task in [Benchmarking.java](./src/main/java/com/dbms/analytics/Benchmarking.java), run the command below.
-
-#### Running it Once
-
-```
-./gradlew benchmarking
-```
-
-#### Running it X number of Times
-
-```
-./gradlew benchmarking --args="[number-of-trials]"
 ```
 
 ### Formatting Code

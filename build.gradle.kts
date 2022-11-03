@@ -44,7 +44,12 @@ task("interpreter", JavaExec::class) {
 	classpath = sourceSets["main"].runtimeClasspath
 }
 
-task("benchmarking", JavaExec::class) {
-	mainClass.set("com.dbms.analytics.Benchmarking")
+task("benchmarkJoin", JavaExec::class) {
+	mainClass.set("com.dbms.analytics.JoinType")
+	classpath = sourceSets["main"].runtimeClasspath
+}
+
+task("benchmarkIndexing", JavaExec::class) {
+	mainClass.set("com.dbms.analytics.Indexing")
 	classpath = sourceSets["main"].runtimeClasspath
 }
