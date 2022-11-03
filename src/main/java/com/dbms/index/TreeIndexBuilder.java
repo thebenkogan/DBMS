@@ -124,7 +124,7 @@ public class TreeIndexBuilder {
         int numLeaves = previousKeys.size();
         int pageNumber = previousAddresses.size() + 1;
 
-        while (previousKeys.size() > 1) {
+        while (previousKeys.size() > 1 || pageNumber - 1 == numLeaves) {
             List<Integer> nextKeys = new ArrayList<>();
             List<Integer> nextAddresses = new ArrayList<>();
 
