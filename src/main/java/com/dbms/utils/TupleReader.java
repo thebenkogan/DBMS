@@ -2,6 +2,7 @@ package com.dbms.utils;
 
 import com.dbms.index.RID;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -62,29 +63,24 @@ public class TupleReader {
      *
      * @throws IOException */
     public void reset() throws IOException {
-        close();
-        fin = new FileInputStream(path);
-        fc = fin.getChannel();
+        open();
+        fc.position(0);
         pageId = -1;
         tupleId = -1;
         readNextPage();
         maxTuples = numTuples;
-        memUsable = true;
     }
 
     /** @param index index of tuple to start reading from; requires the index is a valid index to a
      *              tuple that exists in the relation
      * @throws IOException */
     public void reset(int index) throws IOException {
-        close();
-        fin = new FileInputStream(path);
-        fc = fin.getChannel();
+        open();
         int pageIndex = index / maxTuples;
         fc.position(pageIndex * PAGE_SIZE);
         readNextPage();
         tuplesRead = index % maxTuples;
         bufferIndex += tuplesRead * numAttributes * 4;
-        memUsable = true;
         tupleId = index - 1;
         pageId = pageIndex;
     }
@@ -148,11 +144,22 @@ public class TupleReader {
         return data;
     }
 
+    /** Opens the input stream if closed, otherwise does nothing.
+     *
+     * @throws FileNotFoundException */
+    private void open() throws FileNotFoundException {
+        if (!memUsable) {
+            fin = new FileInputStream(path);
+            fc = fin.getChannel();
+            memUsable = true;
+        }
+    }
+
     /** Closes the reader. Call reset to restart. Do not call this if reader already returned null.
      *
      * @throws IOException */
     public void close() throws IOException {
-        if (fin != null) {
+        if (!memUsable) {
             fin.close();
             fc.close();
             memUsable = false;
