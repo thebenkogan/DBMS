@@ -65,6 +65,7 @@ public class TreeIndexBuilder {
         ScanOperator scanOp = new ScanOperator(cn.TABLE);
         SortOperator sortOp = new ExternalSortOperator(scanOp, sortCondition, 5);
         sortOp.dump(Catalog.pathToTable(cn.TABLE));
+        Catalog.cleanTempDir();
     }
 
     /** @param cn {@code ColumnName} containing unaliased name of the table and column
