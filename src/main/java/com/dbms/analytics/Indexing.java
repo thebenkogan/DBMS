@@ -26,9 +26,9 @@ public class Indexing {
     private static final ColumnName BoatsD = ColumnName.bundle(BOATS, "D");
 
     private static List<String> QUERIES = Arrays.asList(
-            "SELECT * FROM Sailors WHERE Sailors.A < 6969",
+            "SELECT * FROM Sailors WHERE Sailors.A < 50069",
             "SELECT * FROM Boats WHERE Boats.D < 69",
-            "SELECT * FROM Sailors, Boats WHERE Sailors.B = Boats.E AND Sailors.A < 5000 AND Boats.D > 5000");
+            "SELECT * FROM Sailors, Boats WHERE Sailors.B = Boats.E AND Sailors.A < 50000 AND Boats.D > 50000");
 
     private static final Map<Integer, String> LOG_FILES =
             Map.ofEntries(entry(0, "normal-scan"), entry(1, "index-select"), entry(2, "clustered"));
@@ -42,7 +42,10 @@ public class Indexing {
     private static void trial(Stopwatch stopwatch, int i) throws IOException {
         PlanBuilderConfig p = Catalog.CONFIG;
         Catalog.CONFIG = new PlanBuilderConfig(p.JOINTYPE, p.SORTTYPE, p.BNLJPages, p.EXTPages, (i >= 1));
-        if (i == 2) CLUSTERING_CONFIG.values().forEach(index -> TreeIndexBuilder.serialize(index));
+        if (i == 2) {
+            Catalog.INDEXES = CLUSTERING_CONFIG;
+            CLUSTERING_CONFIG.values().forEach(index -> TreeIndexBuilder.serialize(index));
+        }
         String filename = LOG_FILES.get(i);
         experiment(stopwatch, Benchmarking.LOG_FILEPATH + filename, QUERIES);
     }
@@ -53,12 +56,12 @@ public class Indexing {
      * @throws IOException
      */
     public static void main(String args[]) throws IOException {
-        Catalog.init(Benchmarking.CONFIG_FILEPATH);
         Stopwatch stopwatch = Stopwatch.createStarted();
         final int TRIALS = (args.length > 0) ? Integer.parseInt(args[0]) : 1;
         for (int j = 0; j < TRIALS; j++) {
             System.out.println("Generating new data...");
-            generate(20000, 10000);
+            Catalog.init(Benchmarking.CONFIG_FILEPATH);
+            generate(100_000, 100_000);
             UNCLUSTERED_CONFIG.values().forEach(index -> TreeIndexBuilder.serialize(index));
             for (int i = 0; i < 3; i++) trial(stopwatch, i);
         }
