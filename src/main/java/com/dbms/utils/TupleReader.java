@@ -62,6 +62,7 @@ public class TupleReader {
      *
      * @throws IOException */
     public void reset() throws IOException {
+        close();
         fin = new FileInputStream(path);
         fc = fin.getChannel();
         pageId = -1;
@@ -75,6 +76,7 @@ public class TupleReader {
      *              tuple that exists in the relation
      * @throws IOException */
     public void reset(int index) throws IOException {
+        close();
         fin = new FileInputStream(path);
         fc = fin.getChannel();
         int pageIndex = index / maxTuples;
@@ -150,8 +152,10 @@ public class TupleReader {
      *
      * @throws IOException */
     public void close() throws IOException {
-        fin.close();
-        fc.close();
-        memUsable = false;
+        if (fin != null) {
+            fin.close();
+            fc.close();
+            memUsable = false;
+        }
     }
 }
