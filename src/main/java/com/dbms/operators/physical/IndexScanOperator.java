@@ -8,7 +8,9 @@ import com.dbms.utils.Tuple;
 import java.io.IOException;
 import java.util.List;
 
+/** A class that scans an index for keys in between a lower and upper bound. */
 public class IndexScanOperator extends PhysicalOperator {
+
     /** Deserializer for index */
     private TreeDeserializer td;
 
@@ -25,13 +27,13 @@ public class IndexScanOperator extends PhysicalOperator {
     int attributeIndex;
 
     public IndexScanOperator(Index i, Integer lowkey, Integer highkey) throws IOException {
-        super(Schema.from(i.columnName.TABLE, Catalog.getTableColumns(i.columnName.TABLE)));
+        super(Schema.from(i.name.TABLE, Catalog.getTableColumns(i.name.TABLE)));
 
         this.lowkey = lowkey;
         this.highkey = highkey;
         td = new TreeDeserializer(i);
         isFirstCall = true;
-        attributeIndex = Catalog.getColumnIndex(i.columnName);
+        attributeIndex = Catalog.getColumnIndex(i.name);
     }
 
     @Override

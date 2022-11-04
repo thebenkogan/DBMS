@@ -46,8 +46,8 @@ class TreeIndexTestSet {
         for (String table : indexInfo.keySet()) {
             Index i = indexInfo.get(table);
             TreeIndexBuilder.serialize(i);
-            String indexName = i.columnName.TABLE + delimiter + i.columnName.COLUMN;
-            String actual = new String(Files.readAllBytes(Paths.get(Catalog.pathToIndexFile(i.columnName))));
+            String indexName = i.name.TABLE + delimiter + i.name.COLUMN;
+            String actual = new String(Files.readAllBytes(Paths.get(Catalog.pathToIndexFile(i.name))));
             String expected = new String(Files.readAllBytes(Paths.get(expectedPath, indexName)));
             arguments.add(Arguments.of(expected, actual, indexName));
         }

@@ -40,13 +40,14 @@ public class PhysicalPlanBuilder {
         physOp = new ScanOperator(logicalScan.tableName);
     }
 
-    /** Construct physical select from logical select
+    /** Constructs an index scan and a select operator if indexes can be used, otherwise creates a
+     * physical select.
      *
      * @param logicalSelect is the select operator from the logical plan
      * @throws IOException */
     public void visit(LogicalSelectOperator logicalSelect) throws IOException {
         String tableName = ((LogicalScanOperator) logicalSelect.child).tableName;
-        Index i = Catalog.findIndex(Catalog.getRealTableName(tableName));
+        Index i = Catalog.getIndex(Catalog.getRealTableName(tableName));
         if (Catalog.CONFIG.indexSelection && i != null) {
             IndexExpressionVisitor iev = new IndexExpressionVisitor();
             iev.index = i;

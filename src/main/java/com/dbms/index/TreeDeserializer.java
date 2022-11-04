@@ -8,7 +8,11 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.List;
 
+/** A class that deserializes an index by first traversing to a leaf node, then walking across the
+ * leaf layer to extract tuples. If the index is clustered, this reads directly from file after the
+ * first traversal. */
 public class TreeDeserializer {
+
     /** Bytes per page */
     private static final int PAGE_SIZE = 4096;
 
@@ -56,9 +60,9 @@ public class TreeDeserializer {
 
     public TreeDeserializer(Index i) throws IOException {
         buffer = ByteBuffer.allocate(PAGE_SIZE);
-        fin = new FileInputStream(Catalog.pathToIndexFile(i.columnName));
+        fin = new FileInputStream(Catalog.pathToIndexFile(i.name));
         fc = fin.getChannel();
-        tr = new TupleReader(Catalog.pathToTable(i.columnName.TABLE));
+        tr = new TupleReader(Catalog.pathToTable(i.name.TABLE));
         isClustered = i.isClustered;
 
         // read header page

@@ -4,18 +4,20 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-/** Type that represents the information provided by the configuration file*/
+/** Type that represents the information provided by the configuration file */
 public class PlanBuilderConfig {
 
-    /** The 3 types of join operations we support: tuple-nested loop join, block-nested loop join, and sort-merge join. */
-    public static enum Join {
+    /** The 3 types of join operations we support: tuple-nested loop join, block-nested loop join,
+     * and sort-merge join. */
+    public enum Join {
         TNLJ,
         BNLJ,
         SMJ
     }
 
-    /** The 2 types of sort operations we support: sorting in memory and sorting with external storage. */
-    public static enum Sort {
+    /** The 2 types of sort operations we support: sorting in memory and sorting with external
+     * storage. */
+    public enum Sort {
         InMemory,
         External
     }
@@ -35,11 +37,10 @@ public class PlanBuilderConfig {
     /** Whether or not to use indexes for selection */
     public final boolean indexSelection;
 
-    /**
-     * Creates a {@code Config} type based on the contents of the configuration file
-     * @param br is a {@code BufferedReader} containing the config file to read
-     * @throws IOException
-     */
+    /** Creates a {@code Config} type based on the contents of the configuration file
+     *
+     * @param br reader for the config file
+     * @throws IOException */
     public PlanBuilderConfig(BufferedReader br) throws IOException {
         StringTokenizer joinNums = new StringTokenizer(br.readLine(), " ");
         StringTokenizer sortNums = new StringTokenizer(br.readLine(), " ");
@@ -51,33 +52,18 @@ public class PlanBuilderConfig {
         br.close();
     }
 
-    /**
-     * Constructor for programmatic configurations
-     * @param joinType the type of join to use
-     * @param sortType the type of sorting to use
+    /** Constructor for programmatic configurations
+     *
+     * @param joinType  the type of join to use
+     * @param sortType  the type of sorting to use
      * @param bnljPages the number of pages for BNLJ
-     * @param extPages the number pages for external sort
-     * @param indexing whether or not to use indexed selection
-     */
+     * @param extPages  the number pages for external sort
+     * @param indexing  whether or not to use indexed selection */
     public PlanBuilderConfig(Join joinType, Sort sortType, int bnljPages, int extPages, boolean indexing) {
         JOINTYPE = joinType;
         SORTTYPE = sortType;
         BNLJPages = bnljPages;
         EXTPages = extPages;
         indexSelection = indexing;
-    }
-
-    /**
-     * Constructor for programmatic configurations
-     * @param joinType the type of join to use
-     * @param sortType the type of sorting to use
-     * @param extPages the number pages for external sort
-     */
-    public PlanBuilderConfig(Join joinType, Sort sortType, int extPages) {
-        JOINTYPE = joinType;
-        SORTTYPE = sortType;
-        BNLJPages = -1;
-        EXTPages = extPages;
-        indexSelection = false;
     }
 }

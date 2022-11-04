@@ -5,7 +5,7 @@ import com.dbms.utils.ColumnName;
 /** Class that contains information from {@code index_info.txt} */
 public class Index {
     /** object containing unaliased table and column name */
-    public final ColumnName columnName;
+    public final ColumnName name;
 
     /** order used for indexing leaves and nodes */
     public final int order;
@@ -15,11 +15,11 @@ public class Index {
 
     /** Constructs an instance of an {@code Index} object
      *
-     * @param columnName  object containing unaliased table and column name
+     * @param name object containing unaliased table and column name
      * @param order       order to serialize nodes by
      * @param isClustered whether or not to sort the relation */
-    public Index(ColumnName columnName, int order, boolean isClustered) {
-        this.columnName = columnName;
+    public Index(ColumnName name, int order, boolean isClustered) {
+        this.name = name;
         this.order = order;
         this.isClustered = isClustered;
     }

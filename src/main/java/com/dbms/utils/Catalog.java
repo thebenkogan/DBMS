@@ -184,8 +184,7 @@ public class Catalog {
     /** @param name table name (aliased)
      * @return the actual table name corresponding to the input */
     public static String getRealTableName(String name) {
-        if (aliasMap.containsKey(name)) return aliasMap.get(name);
-        return name;
+        return aliasMap.containsKey(name) ? aliasMap.get(name) : name;
     }
 
     /** @return BufferedReader for the query file corresponding to the Catalog input. Each line will
@@ -231,7 +230,7 @@ public class Catalog {
 
     /** @param indexName (unaliased) table name of index
      * @return the index, null if not found */
-    public static Index findIndex(String indexName) {
+    public static Index getIndex(String indexName) {
         return INDEXES.get(indexName);
     }
 }

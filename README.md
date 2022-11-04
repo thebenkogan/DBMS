@@ -6,6 +6,27 @@
 
 The top level class of our code is [Interpreter.java](./src/main/java/com/dbms/Interpreter.java)
 
+### Index Scan Operator Logic
+
+Our index scan operator takes an index along with a lowkey and a highkey, and uses the [TreeDeserializer.java](./src/main/java/com/dbms/index/TreeDeserializer.java) to scan the index for keys in the inclusive range [lowkey, highkey]. Both of the bounds could be null, which means we will perform a scan to the end of the key range.
+
+##### Setting the Lowkey and Highkey
+The lowkey and highkey are set in the [PhysicalPlanBuilder.java](./src/main/java/com/dbms/visitors/PhysicalPlanBuilder.java) when we visit a logical select operator and visit the corresponding WHERE expression with the [IndexExpressionVisitor.java](./src/main/java/com/dbms/visitors/IndexExpressionVisitor.java). This visitor handles each conjunct in the expression and extracts the column name and long value, if they exist. The visitor then updates its lowkey and highkey depending on the type of binary operator. Once we have visited the whole expression, the visitor will have the final lowkey and highkey exposed and ready to use in the physical plan builder.
+
+##### Clustered/Unclustered Index Scanning
+The [TreeDeserializer.java](./src/main/java/com/dbms/index/TreeDeserializer.java) exposes a `getNextTuple()` method that behaves differently for clustered and unclustered indexes. For an unclustered index, it reads the next RID in the data entry, then looks up the associated page ID and tuple ID from file. If the index is clustered, it instead just calls getNextTuple on the [TupleReader.java](./src/main/java/com/dbms/utils/TupleReader.java). This is because the underlying data file is sorted by key, so once we find the first tuple in the key range, all following tuples are already ordered in file.
+
+##### Root-to-leaf Tree Descent
+The [TreeDeserializer.java](./src/main/java/com/dbms/index/TreeDeserializer.java) also handles the root-to-leaf tree descent of the index. This process behaves the same for both clustered and unclustered indexes. Note that the key we are searching for may not be contained in the index, in which case we look for the first data entry with a key that is greater than the search key. 
+
+It starts off by going to the root address specificed on the header page. Next, it follows an algorithm for reading index nodes and finding the next index/leaf address as follows. It first reads the number of keys in the node, then iterates through them and finds the smallest key that is greater than the search key. If the search key is null, we use the first key, and if no key is greater than the search key, we use the last key. Let the index of this key be i. Then, the next node's address is located at index i + 1. We read this address from the index node, then repeat the algorithm for the next node. We stop when the first number on the node page is a 0, which indicates that we have found a leaf node and are finished with the descent. 
+
+The next step is to search the leaf node for the data entry with the smallest key that is greater than or equal to the search key. This data entry may not exist (an example is looking up 6 in the index from the handout), in which case we move to the next leaf node and use its first data entry. Once we find the data entry, we are ready to read its RIDs and return tuples.
+
+### Separating the Selection Condition
+
+The [IndexExpressionVisitor.java](./src/main/java/com/dbms/visitors/IndexExpressionVisitor.java) needs to determine which conjuncts can be handled with the index. To solve this problem, we require each conjunct to satisfy three conditions: the first is that it contains a column with the same attribute as the index, the second is that it contains a long value, and the third is that the binary operator must be one of >, <, >=, <=, or =. If all of these conditions are met, then we can use an index and we can update our lowkey and highkey to include the long value. All conjuncts that do not meet these conditions are placed in a list. If the physical plan builder sees that this list is nonempty, it will first join them together in an AND expression, then construct a seperate select operator with the index scan operator as a child.
+
 ### Operators
 
 The logical operators are [here](./src/main/java/com/dbms/operators/logical/), and the physical operators are [here](./src/main/java/com/dbms/operators/physical/). We convert from logical operators to physical operators using the [PhysicalPlanBuilder.java](./src/main/java/com/dbms/visitors/PhysicalPlanBuilder.java).

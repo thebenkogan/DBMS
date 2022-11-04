@@ -58,16 +58,16 @@ public class Helpers {
         return andExp;
     }
 
-    /** @param expList
-     * @return an AND Expression comprised of joined expList */
-    public static Expression wrapListOfExpressions(List<Expression> expList) {
-        assert !expList.isEmpty();
-        if (expList.size() == 1) {
-            return expList.get(0);
+    /** @param exps the list of expressions
+     * @return left-deep AND Expression comprised of joined expList */
+    public static Expression wrapListOfExpressions(List<Expression> exps) {
+        assert !exps.isEmpty();
+        if (exps.size() == 1) {
+            return exps.get(0);
         }
-        AndExpression and = new AndExpression(expList.get(0), expList.get(1));
-        for (int i = 2; i < expList.size(); i++) {
-            and = new AndExpression(and, expList.get(i));
+        AndExpression and = new AndExpression(exps.get(0), exps.get(1));
+        for (int i = 2; i < exps.size(); i++) {
+            and = new AndExpression(and, exps.get(i));
         }
         return and;
     }
@@ -80,6 +80,8 @@ public class Helpers {
         return table.getAlias() != null ? table.getAlias().getName() : table.getName();
     }
 
+    /** @param selectItems select items in the query
+     * @return list of (aliased) table names and column names associated with the items */
     public static List<ColumnName> getColumnNamesFromSelectItems(List<SelectItem> selectItems) {
         List<ColumnName> names = new LinkedList<>();
         for (SelectItem item : selectItems) {

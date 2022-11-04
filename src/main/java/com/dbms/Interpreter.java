@@ -16,18 +16,16 @@ public class Interpreter {
      *
      * @param queryString is the query as a {@code String}
      * @param queryNumber is the {@code queryNumber}th query in the queries.sql file. It helps with
-     *                    naming the outputfiles to their corresponding line number in the
+     *                    naming the output files to their corresponding line number in the
      *                    queries.sql file. */
     public static void executeQuery(String queryString, int queryNumber) {
         Statement statement = null;
         try {
             statement = CCJSqlParserUtil.parse(queryString);
             LogicalPlanBuilder logicalPlan = new LogicalPlanBuilder(statement);
-            /** convert logical plan to physical plan by using PhysicalPlanBuilder visitor on root
-             * logical node */
-            PhysicalPlanBuilder physicalPlanBuilder = new PhysicalPlanBuilder();
-            logicalPlan.root.accept(physicalPlanBuilder);
-            physicalPlanBuilder.physOp.dump(Catalog.pathToOutputFile(queryNumber));
+            PhysicalPlanBuilder ppb = new PhysicalPlanBuilder();
+            logicalPlan.root.accept(ppb);
+            ppb.physOp.dump(Catalog.pathToOutputFile(queryNumber));
             Catalog.cleanTempDir();
         } catch (Exception e) {
             System.out.println("Failure: " + statement);
@@ -44,10 +42,7 @@ public class Interpreter {
         BufferedReader fileReader = Catalog.getQueriesFile();
         int i = 1;
         String currentQuery;
-        while ((currentQuery = fileReader.readLine()) != null) {
-            executeQuery(currentQuery, i);
-            i++;
-        }
+        while ((currentQuery = fileReader.readLine()) != null) executeQuery(currentQuery, i++);
     }
 
     /** Initializes the catalog with the provided input and output paths, then runs the interpreter.

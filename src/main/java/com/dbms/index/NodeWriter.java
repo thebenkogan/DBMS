@@ -9,9 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.List;
 
-/**
- * Class for writing nodes to the buffer
- */
+/** Class for serializing leaf/index nodes and writing the header node. */
 public class NodeWriter {
     /** Bytes per page */
     private static final int PAGE_SIZE = 4096;
@@ -28,13 +26,24 @@ public class NodeWriter {
     /** Channel to write the buffer to the output stream */
     private FileChannel fc;
 
-    /**
-     * Writes the header node on the first page
+    /** Constructs a {@code NodeWriter} instance according to the given table and column names
+     *
+     * @param tableName     unaliased name of the table
+     * @param attributeName name of the column
+     * @throws FileNotFoundException */
+    NodeWriter(ColumnName c) throws FileNotFoundException {
+        buffer = ByteBuffer.allocate(PAGE_SIZE);
+        fout = new FileOutputStream(Catalog.pathToIndexFile(c));
+        fc = fout.getChannel();
+        bufferIndex = 8;
+    }
+
+    /** Writes the header node on the first page
+     *
      * @param rootAddress the page number of the root node in the index tree
-     * @param numLeaves the number of leaves in the index tree
-     * @param order the order given by {@code index_info.txt}
-     * @throws IOException
-     */
+     * @param numLeaves   the number of leaves in the index tree
+     * @param order       the order given by {@code index_info.txt}
+     * @throws IOException */
     public void writeHeaderNode(int rootAddress, int numLeaves, int order) throws IOException {
         setChannelToPage(0);
         writeInt(rootAddress);
@@ -43,12 +52,11 @@ public class NodeWriter {
         writePage();
     }
 
-    /**
-     * Writes leaf nodes to the buffer
+    /** Writes leaf nodes to the buffer
+     *
      * @param pageNumber the page to write the node on
-     * @param entries list of {@code DataEntry} containing the key and {@code RID}
-     * @throws IOException
-     */
+     * @param entries    list of {@code DataEntry} containing the key and {@code RID}
+     * @throws IOException */
     public void writeLeafNode(int pageNumber, List<DataEntry> entries) throws IOException {
         setChannelToPage(pageNumber);
         writeInt(0);
@@ -64,13 +72,12 @@ public class NodeWriter {
         writePage();
     }
 
-    /**
-     * Write index nodes to the buffer
+    /** Write index nodes to the buffer
+     *
      * @param pageNumber location in buffer to write the node
-     * @param keys smallest keys of the children excluding the smallest
-     * @param addresses location of children nodes
-     * @throws IOException
-     */
+     * @param keys       smallest keys of the children excluding the smallest
+     * @param addresses  location of children nodes
+     * @throws IOException */
     public void writeIndexNode(int pageNumber, List<Integer> keys, List<Integer> addresses) throws IOException {
         setChannelToPage(pageNumber);
         writeInt(1);
@@ -84,19 +91,6 @@ public class NodeWriter {
     public void close() throws IOException {
         fout.close();
         fc.close();
-    }
-
-    /**
-     * Constructs a {@code NodeWriter} instance according to the given table and column names
-     * @param tableName unaliased name of the table
-     * @param attributeName name of the column
-     * @throws FileNotFoundException
-     */
-    NodeWriter(ColumnName c) throws FileNotFoundException {
-        buffer = ByteBuffer.allocate(PAGE_SIZE);
-        fout = new FileOutputStream(Catalog.pathToIndexFile(c));
-        fc = fout.getChannel();
-        bufferIndex = 8;
     }
 
     /** Writes num at the current bufferIndex and increments bufferIndex by 4
@@ -115,11 +109,10 @@ public class NodeWriter {
         clearBuffer();
     }
 
-    /**
-     * Sets channel to a given page
+    /** Sets channel to a given page
+     *
      * @param pageNumber page numebr to set channel to
-     * @throws IOException
-     */
+     * @throws IOException */
     private void setChannelToPage(int pageNumber) throws IOException {
         fc.position(PAGE_SIZE * pageNumber);
         clearBuffer();

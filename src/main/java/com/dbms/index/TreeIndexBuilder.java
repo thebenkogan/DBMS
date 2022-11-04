@@ -18,6 +18,7 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
+/** A class that builds clustered and unclustered indexes. */
 public class TreeIndexBuilder {
 
     /** Output writer for serializing nodes */
@@ -35,14 +36,13 @@ public class TreeIndexBuilder {
     /** The list of entries from the scan operation */
     private static List<DataEntry> tableEntries;
 
-    /** @param c {@code ColumnName} containing information about unaliased table and column names
-     * @param i information about indexing from {@code index_info.txt} wrapped in {@code Index} */
+    /** @param i information about indexing from {@code index_info.txt} wrapped in {@code Index} */
     public static void serialize(Index i) {
         try {
             TreeIndexBuilder.order = i.order;
-            nw = new NodeWriter(i.columnName);
-            if (i.isClustered) createClusters(i.columnName);
-            tableEntries = getDataEntries(i.columnName);
+            nw = new NodeWriter(i.name);
+            if (i.isClustered) createClusters(i.name);
+            tableEntries = getDataEntries(i.name);
             serializeLeaves();
             serializeIndexAndHeader();
             nw.close();

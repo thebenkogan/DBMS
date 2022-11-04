@@ -17,7 +17,7 @@ import net.sf.jsqlparser.schema.Column;
 
 /** A visitor that takes the JsqlParser expressions (AndExpression, Column, LongValue, EqualsTo,
  * NotEqualsTo, GreaterThan, GreaterThanEquals, MinorThan, MinorThanEquals) and checks whether the
- * provided indexes can be used to evaluate them */
+ * provided index can be used to evaluate them */
 public class IndexExpressionVisitor extends ExpressionVisitorBase {
 
     /** The highest integer (inclusive) that our index scans up to, null if no bound found */
@@ -174,7 +174,7 @@ public class IndexExpressionVisitor extends ExpressionVisitorBase {
 
     @Override
     public void visit(Column col) {
-        columnSatisfied = index.columnName.COLUMN == col.getColumnName();
+        columnSatisfied = index.name.COLUMN == col.getColumnName();
         booleanResult = false;
     }
 }
