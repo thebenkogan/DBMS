@@ -38,28 +38,28 @@ class IndexScanOperatorTest {
     private static Stream<Arguments> nextTupleProvider() throws IOException {
         List<Arguments> args = new LinkedList<>();
 
-        IndexScanOperator lowAndHigh = new IndexScanOperator(boatsIndex, 7774, 7777);
+        IndexScanOperator lowAndHigh = new IndexScanOperator("Boats", boatsIndex, 7774, 7777);
         args.add(Arguments.of("2181,7774,2664", lowAndHigh.getNextTuple().toString()));
         args.add(Arguments.of("2488,7774,771", lowAndHigh.getNextTuple().toString()));
         args.add(Arguments.of("1038,7774,5865", lowAndHigh.getNextTuple().toString()));
         args.add(Arguments.of("6306,7777,7314", lowAndHigh.getNextTuple().toString()));
         args.add(Arguments.of("null", lowAndHigh.getNextTuple()));
 
-        IndexScanOperator lowAndUnbound = new IndexScanOperator(boatsIndex, 9998, null);
+        IndexScanOperator lowAndUnbound = new IndexScanOperator("Boats", boatsIndex, 9998, null);
         args.add(Arguments.of("6437,9998,2317", lowAndUnbound.getNextTuple().toString()));
         args.add(Arguments.of("8439,9998,6378", lowAndUnbound.getNextTuple().toString()));
         args.add(Arguments.of("4461,9999,4000", lowAndUnbound.getNextTuple().toString()));
         args.add(Arguments.of("5317,9999,266", lowAndUnbound.getNextTuple().toString()));
         args.add(Arguments.of("null", lowAndUnbound.getNextTuple()));
 
-        IndexScanOperator unboundAndHigh = new IndexScanOperator(boatsIndex, null, 5);
+        IndexScanOperator unboundAndHigh = new IndexScanOperator("Boats", boatsIndex, null, 5);
         args.add(Arguments.of("9206,4,5488", unboundAndHigh.getNextTuple().toString()));
         args.add(Arguments.of("7775,4,6175", unboundAndHigh.getNextTuple().toString()));
         args.add(Arguments.of("9076,4,8209", unboundAndHigh.getNextTuple().toString()));
         args.add(Arguments.of("1803,5,8850", unboundAndHigh.getNextTuple().toString()));
         args.add(Arguments.of("1109,5,9486", unboundAndHigh.getNextTuple().toString()));
 
-        IndexScanOperator bothNotFound = new IndexScanOperator(boatsIndex, 1, 7);
+        IndexScanOperator bothNotFound = new IndexScanOperator("Boats", boatsIndex, 1, 7);
         args.add(Arguments.of("9206,4,5488", bothNotFound.getNextTuple().toString()));
         args.add(Arguments.of("7775,4,6175", bothNotFound.getNextTuple().toString()));
         args.add(Arguments.of("9076,4,8209", bothNotFound.getNextTuple().toString()));

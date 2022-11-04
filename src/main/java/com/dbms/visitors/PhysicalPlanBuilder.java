@@ -54,7 +54,7 @@ public class PhysicalPlanBuilder {
             logicalSelect.exp.accept(iev);
             if (iev.booleanResult) {
                 // we should use IndexScan
-                physOp = new IndexScanOperator(i, iev.low, iev.high);
+                physOp = new IndexScanOperator(tableName, i, iev.low, iev.high);
                 if (!iev.nonIndexedExps.isEmpty()) {
                     // use both IndexScan and normal selection
                     physOp = new SelectOperator(physOp, Helpers.wrapListOfExpressions(iev.nonIndexedExps));

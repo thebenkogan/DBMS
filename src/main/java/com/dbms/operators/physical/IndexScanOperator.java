@@ -26,8 +26,13 @@ public class IndexScanOperator extends PhysicalOperator {
     /** Index of key attribute in tuples */
     int attributeIndex;
 
-    public IndexScanOperator(Index i, Integer lowkey, Integer highkey) throws IOException {
-        super(Schema.from(i.name.TABLE, Catalog.getTableColumns(i.name.TABLE)));
+    /** @param tableName (aliased) table name for the index
+     * @param i         index
+     * @param lowkey    lower bound on keys, null if unbound
+     * @param highkey   upper bound on keys, null if unbound
+     * @throws IOException */
+    public IndexScanOperator(String tableName, Index i, Integer lowkey, Integer highkey) throws IOException {
+        super(Schema.from(tableName, Catalog.getTableColumns(i.name.TABLE)));
 
         this.lowkey = lowkey;
         this.highkey = highkey;
