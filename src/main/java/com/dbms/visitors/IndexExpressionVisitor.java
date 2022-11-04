@@ -77,10 +77,10 @@ public class IndexExpressionVisitor extends ExpressionVisitorBase {
         int numInt = num.intValue();
         int val = isInclusive || isLowerBound == null ? numInt : isLowerBound ? numInt + 1 : numInt - 1;
         if (isLowerBound == null || isLowerBound) {
-            low = low != null ? Math.min(low, val) : val;
+            low = low != null ? Math.max(low, val) : val;
         }
         if (isLowerBound == null || !isLowerBound) {
-            high = high != null ? Math.max(high, val) : val;
+            high = high != null ? Math.min(high, val) : val;
         }
     }
 
