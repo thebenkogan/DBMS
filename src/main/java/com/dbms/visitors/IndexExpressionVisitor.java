@@ -163,6 +163,7 @@ public class IndexExpressionVisitor extends ExpressionVisitorBase {
     @Override
     public void visit(NotEqualsTo exp) {
         booleanResult = false;
+        nonIndexedExps.add(exp);
     }
 
     @Override
@@ -174,7 +175,7 @@ public class IndexExpressionVisitor extends ExpressionVisitorBase {
 
     @Override
     public void visit(Column col) {
-        columnSatisfied = index.name.COLUMN == col.getColumnName();
+        columnSatisfied = index.name.COLUMN.equals(col.getColumnName());
         booleanResult = false;
     }
 }
