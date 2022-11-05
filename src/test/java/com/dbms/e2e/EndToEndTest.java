@@ -29,10 +29,10 @@ class EndToEndTest {
     @BeforeAll
     public static void setup() throws IOException {
         QueryTestSetBuilder tnlj =
-                new QueryTestSetBuilder("input/tnlj/config.txt", "output/tnlj", "expected/tnlj/binary", "TNLJ");
+                new QueryTestSetBuilder("input/tnlj/config.txt", "output/tnlj", "expected/tnlj", "TNLJ");
 
         QueryTestSetBuilder bnlj =
-                new QueryTestSetBuilder("input/bnlj/config.txt", "output/bnlj", "expected/bnlj/binary", "BNLJ");
+                new QueryTestSetBuilder("input/bnlj/config.txt", "output/bnlj", "expected/bnlj", "BNLJ");
 
         QueryTestSetBuilder smj =
                 new QueryTestSetBuilder("input/smj/config.txt", "output/smj", "expected/smj/binary", "SMJ");
