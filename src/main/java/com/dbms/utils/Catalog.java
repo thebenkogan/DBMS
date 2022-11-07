@@ -2,9 +2,11 @@ package com.dbms.utils;
 
 import com.dbms.index.Index;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -52,6 +54,9 @@ public class Catalog {
     /** Maps unaliased table name to corresponding index if it exists */
     public static Map<String, Index> INDEXES;
 
+    /** Stats about all the tables in the database: number of rows, number of attributes, and min/max of attributes */
+    public static Stats STATS;
+
     /** @param segments file path to join
      * @return segments joined with File.seperator */
     private static String join(String... segments) {
@@ -80,6 +85,7 @@ public class Catalog {
         getSchema(Catalog.input);
         getIndexInfo(readerFromPath(Catalog.input, "db", "index_info.txt"));
         CONFIG = new PlanBuilderConfig(readerFromPath(input, "plan_builder_config.txt"));
+        STATS = new Stats(new BufferedWriter(new FileWriter(join(input, "db", "stats.txt"))), schema);
     }
 
     /** Initializes {@code Catalog.INDEXES}
