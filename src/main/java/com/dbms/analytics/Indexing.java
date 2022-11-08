@@ -8,8 +8,8 @@ import static java.util.Map.entry;
 
 import com.dbms.index.Index;
 import com.dbms.index.TreeIndexBuilder;
+import com.dbms.utils.Attribute;
 import com.dbms.utils.Catalog;
-import com.dbms.utils.ColumnName;
 import com.dbms.utils.PlanBuilderConfig;
 import com.google.common.base.Stopwatch;
 import java.io.IOException;
@@ -21,9 +21,9 @@ import java.util.concurrent.TimeUnit;
 public class Indexing {
     private static final int ORDER = 15;
 
-    private static final ColumnName SailorsA = ColumnName.bundle(SAILORS, "A");
+    private static final Attribute SailorsA = Attribute.bundle(SAILORS, "A");
 
-    private static final ColumnName BoatsD = ColumnName.bundle(BOATS, "D");
+    private static final Attribute BoatsD = Attribute.bundle(BOATS, "D");
 
     private static List<String> QUERIES = Arrays.asList(
             "SELECT * FROM Sailors WHERE Sailors.A < 50069",

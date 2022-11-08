@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
  * Class to represent a column name of a tuple, along with the aliased table name that the tuple belongs to
  */
-public final class ColumnName {
+public final class Attribute {
     /**
      * {@code TABLE} is the aliased name of the table as a {@code String}.
      */
@@ -17,11 +17,11 @@ public final class ColumnName {
     public final String COLUMN;
 
     /**
-     * A private constructor used for initializing a {@code ColumnName} type.
+     * A private constructor used for initializing a {@code Attribute} type.
      * @param table is the aliased name of the table as a {@code String}
      * @param column is the name of the column as a {@code String}
      */
-    private ColumnName(String table, String column) {
+    private Attribute(String table, String column) {
         TABLE = table;
         COLUMN = column;
     }
@@ -32,15 +32,15 @@ public final class ColumnName {
      * @param column is the name of the column as a {@code String}
      * @return an initialized {@code Column}
      */
-    public static ColumnName bundle(String table, String column) {
-        return new ColumnName(table, column);
+    public static Attribute bundle(String table, String column) {
+        return new Attribute(table, column);
     }
 
     /** Two {@code Schema} objects are equal if they have identical table and column names. */
     @Override
     public boolean equals(Object other) {
-        if (other instanceof ColumnName) {
-            ColumnName otherName = (ColumnName) other;
+        if (other instanceof Attribute) {
+            Attribute otherName = (Attribute) other;
             return TABLE.equals(otherName.TABLE) && COLUMN.equals(otherName.COLUMN);
         }
         return false;

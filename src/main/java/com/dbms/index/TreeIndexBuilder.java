@@ -3,8 +3,8 @@ package com.dbms.index;
 import com.dbms.operators.physical.ExternalSortOperator;
 import com.dbms.operators.physical.ScanOperator;
 import com.dbms.operators.physical.SortOperator;
+import com.dbms.utils.Attribute;
 import com.dbms.utils.Catalog;
-import com.dbms.utils.ColumnName;
 import com.dbms.utils.TupleReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,7 +56,7 @@ public class TreeIndexBuilder {
      *
      * @param cn {@code ColumnName} containing unaliased name of the table and column
      * @throws IOException */
-    private static void createClusters(ColumnName cn) throws IOException {
+    private static void createClusters(Attribute cn) throws IOException {
         Table t = new Table(cn.TABLE);
         Column c = new Column(t, cn.COLUMN);
         OrderByElement o = new OrderByElement();
@@ -72,7 +72,7 @@ public class TreeIndexBuilder {
      * @return list of all data entries in the table, sorted by key and with RIDs sorted by pageId
      *         and tupleId
      * @throws IOException */
-    private static List<DataEntry> getDataEntries(ColumnName cn) throws IOException {
+    private static List<DataEntry> getDataEntries(Attribute cn) throws IOException {
         int attributeIndex = Catalog.getColumnIndex(cn);
         TupleReader tr = new TupleReader(Catalog.pathToTable(cn.TABLE));
         Map<Integer, List<RID>> entries = new HashMap<>();

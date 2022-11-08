@@ -1,6 +1,6 @@
 package com.dbms.analytics;
 
-import com.dbms.utils.ColumnName;
+import com.dbms.utils.Attribute;
 import com.dbms.utils.Tuple;
 import com.dbms.utils.TupleWriter;
 import java.io.IOException;
@@ -43,10 +43,10 @@ public class TupleGenerator {
      * @param columns is a set containing the name of the columns
      * @return {@code Set} of {@code ColumnName} type for inputting into {@code Tuple} constructor
      */
-    private static Set<ColumnName> mapStringNameToColumnName(String tableName, Set<String> columns) {
-        Set<ColumnName> result = new HashSet<>();
+    private static Set<Attribute> mapStringNameToColumnName(String tableName, Set<String> columns) {
+        Set<Attribute> result = new HashSet<>();
         for (String column : columns) {
-            result.add(ColumnName.bundle(tableName, column));
+            result.add(Attribute.bundle(tableName, column));
         }
         return result;
     }

@@ -68,7 +68,7 @@ public class Stats {
         for (String tableName : stats.keySet()) {
             TupleWriter tw = new TupleWriter(String.join(File.separator, path, tableName));
             TableStats ts = stats.get(tableName);
-            Set<ColumnName> schema = new HashSet<>();
+            Set<Attribute> schema = new HashSet<>();
             for (int i = 0; i < ts.ROWS; i++) {
                 List<Integer> rngList = new LinkedList<>();
                 for (String column : ts.columns()) {
@@ -76,7 +76,7 @@ public class Stats {
                     int max = ts.get(column).max;
                     int rng = (int) (Math.random() * (max - min)) + min;
                     rngList.add(rng);
-                    schema.add(ColumnName.bundle(tableName, column));
+                    schema.add(Attribute.bundle(tableName, column));
                 }
                 Tuple t = new Tuple(schema, rngList);
                 tw.writeTuple(t);
@@ -87,11 +87,11 @@ public class Stats {
 
     /**
      * Gets the minimum and maximum value of a given table and attribute
-     * @param c {@code ColumnName} object that stores the unaliased table name and column name
+     * @param a {@code Attribute} object that stores the unaliased table name and column name
      * @return {@code Range} object that contains the minimum and maximum of the table and column
      */
-    public Range get(ColumnName c) {
-        return stats.get(c.TABLE).get(c.COLUMN);
+    public Range get(Attribute a) {
+        return stats.get(a.TABLE).get(a.COLUMN);
     }
 
     /**

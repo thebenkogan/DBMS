@@ -82,12 +82,12 @@ public class Helpers {
 
     /** @param selectItems select items in the query
      * @return list of (aliased) table names and column names associated with the items */
-    public static List<ColumnName> getColumnNamesFromSelectItems(List<SelectItem> selectItems) {
-        List<ColumnName> names = new LinkedList<>();
+    public static List<Attribute> getColumnNamesFromSelectItems(List<SelectItem> selectItems) {
+        List<Attribute> names = new LinkedList<>();
         for (SelectItem item : selectItems) {
             Column col = (Column) ((SelectExpressionItem) item).getExpression();
             String tableName = Helpers.getProperTableName(col.getTable());
-            names.add(ColumnName.bundle(tableName, col.getColumnName()));
+            names.add(Attribute.bundle(tableName, col.getColumnName()));
         }
         return names;
     }

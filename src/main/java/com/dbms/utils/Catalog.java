@@ -101,7 +101,7 @@ public class Catalog {
             String column = info[1];
             boolean cluster = Integer.parseInt(info[2]) == 1;
             int order = Integer.parseInt(info[3]);
-            ColumnName c = ColumnName.bundle(table, column);
+            Attribute c = Attribute.bundle(table, column);
             INDEXES.put(table, new Index(c, order, cluster));
         }
         br.close();
@@ -154,7 +154,7 @@ public class Catalog {
     /** @param tableName unaliased table name
      * @param attributeName column name
      * @return {@code String} of file path to indexes */
-    public static String pathToIndexFile(ColumnName c) {
+    public static String pathToIndexFile(Attribute c) {
         return join(input, "db", "indexes", c.TABLE + "." + c.COLUMN);
     }
 
@@ -166,7 +166,7 @@ public class Catalog {
 
     /** @param cn (unaliased) table name and associated column name
      * @return 0-based index of the column in the schema */
-    public static int getColumnIndex(ColumnName cn) {
+    public static int getColumnIndex(Attribute cn) {
         return schema.get(cn.TABLE).indexOf(cn.COLUMN);
     }
 

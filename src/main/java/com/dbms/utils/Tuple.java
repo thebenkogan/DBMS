@@ -11,7 +11,7 @@ import java.util.Set;
 public class Tuple {
     /** Maps (aliased) table.column key to value in row. Insertion order represents column
      * ordering. */
-    private LinkedHashMap<ColumnName, Integer> row;
+    private LinkedHashMap<Attribute, Integer> row;
 
     /** Creates a new Tuple for the table with columns and data.
      *
@@ -20,7 +20,7 @@ public class Tuple {
      * @param data      the row of data in the table; same size as columns */
     public Tuple(Schema s, List<Integer> data) {
         row = new LinkedHashMap<>();
-        List<ColumnName> columns = s.get();
+        List<Attribute> columns = s.get();
         for (int i = 0; i < data.size(); i++) {
             row.put(columns.get(i), data.get(i));
         }
@@ -28,9 +28,9 @@ public class Tuple {
 
     /** @param schema row keys; assumes is in the same order as the input data
      * @param data   associated data \ */
-    public Tuple(Set<ColumnName> schema, List<Integer> data) {
+    public Tuple(Set<Attribute> schema, List<Integer> data) {
         row = new LinkedHashMap<>();
-        Iterator<ColumnName> names = schema.iterator();
+        Iterator<Attribute> names = schema.iterator();
         for (int i = 0; i < data.size(); i++) {
             row.put(names.next(), data.get(i));
         }
@@ -39,7 +39,7 @@ public class Tuple {
     /** Creates a new Tuple from a derived row of an old Tuple
      *
      * @param row row map */
-    private Tuple(LinkedHashMap<ColumnName, Integer> row) {
+    private Tuple(LinkedHashMap<Attribute, Integer> row) {
         this.row = row;
     }
 
@@ -52,11 +52,11 @@ public class Tuple {
      * @param columnName name of table column
      * @return value in the column */
     public int get(String tableName, String columnName) {
-        return row.get(ColumnName.bundle(tableName, columnName));
+        return row.get(Attribute.bundle(tableName, columnName));
     }
 
     /** @return set of {@code ColumnName} type containing table and column name */
-    public Set<ColumnName> getSchema() {
+    public Set<Attribute> getSchema() {
         return row.keySet();
     }
 
@@ -70,7 +70,7 @@ public class Tuple {
      * @param schema list of {@code ColumnName} objects containing aliased table names and column
      *               names */
     public void project(Schema s) {
-        List<ColumnName> columns = s.get();
+        List<Attribute> columns = s.get();
         Integer[] data = new Integer[s.size()];
         for (int i = 0; i < columns.size(); i++) {
             data[i] = row.get(columns.get(i));
@@ -101,7 +101,7 @@ public class Tuple {
      * @param right right tuple
      * @return merged Tuple with order specified by the concatenation of left and right */
     public static Tuple mergeTuples(Tuple left, Tuple right) {
-        LinkedHashMap<ColumnName, Integer> row = new LinkedHashMap<>();
+        LinkedHashMap<Attribute, Integer> row = new LinkedHashMap<>();
         left.row.forEach((key, value) -> row.put(key, value));
         right.row.forEach((key, value) -> row.put(key, value));
         return new Tuple(row);

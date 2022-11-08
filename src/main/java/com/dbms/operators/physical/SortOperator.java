@@ -1,6 +1,6 @@
 package com.dbms.operators.physical;
 
-import com.dbms.utils.ColumnName;
+import com.dbms.utils.Attribute;
 import com.dbms.utils.Schema;
 import com.dbms.utils.Tuple;
 import java.util.Comparator;
@@ -38,17 +38,17 @@ public abstract class SortOperator extends PhysicalOperator {
      * @return aliased table & column names in order of sorting; first the columns specified in the
      *         ORDER BY statement, then the columns not previously mentioned as they appear in the
      *         child Tuples */
-    private List<ColumnName> getSortOrder(List<OrderByElement> orderBys) {
-        List<ColumnName> sortOrder = new LinkedList<>();
+    private List<Attribute> getSortOrder(List<OrderByElement> orderBys) {
+        List<Attribute> sortOrder = new LinkedList<>();
         if (orderBys != null) {
             for (OrderByElement orderBy : orderBys) {
                 Column col = (Column) orderBy.getExpression();
                 String tableName = col.getTable().getName();
                 String columnName = col.getColumnName();
-                sortOrder.add(ColumnName.bundle(tableName, columnName));
+                sortOrder.add(Attribute.bundle(tableName, columnName));
             }
         }
-        for (ColumnName col : schema.get()) {
+        for (Attribute col : schema.get()) {
             if (!sortOrder.contains(col)) sortOrder.add(col);
         }
         return sortOrder;
@@ -60,7 +60,7 @@ public abstract class SortOperator extends PhysicalOperator {
 
         /** {@code tableColumnNames} is an ordered list of {@code ColumnName} objects that contain
          * the columns to sort by */
-        private List<ColumnName> sortOrder;
+        private List<Attribute> sortOrder;
 
         /** @param orderBys is the ordered list of columns to sort by
          * @param rep      is a representative child tuple */
@@ -71,7 +71,7 @@ public abstract class SortOperator extends PhysicalOperator {
         /** compares Tuples column by column as specified by tableColumnNames */
         @Override
         public int compare(Tuple t1, Tuple t2) {
-            for (ColumnName name : sortOrder) {
+            for (Attribute name : sortOrder) {
                 String tableName = name.TABLE;
                 String columnName = name.COLUMN;
                 int comp = Integer.compare(t1.get(tableName, columnName), t2.get(tableName, columnName));
