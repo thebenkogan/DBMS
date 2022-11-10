@@ -48,11 +48,10 @@ public class Tuple {
         return row.size();
     }
 
-    /** @param tableName name of table name
-     * @param columnName name of table column
+    /** @param a column
      * @return value in the column */
-    public int get(String tableName, String columnName) {
-        return row.get(Attribute.bundle(tableName, columnName));
+    public int get(Attribute a) {
+        return row.get(a);
     }
 
     /** @return set of {@code ColumnName} type containing table and column name */

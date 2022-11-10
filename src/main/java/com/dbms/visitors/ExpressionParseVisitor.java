@@ -1,6 +1,6 @@
 package com.dbms.visitors;
 
-import com.dbms.utils.Helpers;
+import com.dbms.utils.Attribute;
 import com.dbms.utils.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
@@ -112,6 +112,6 @@ public class ExpressionParseVisitor extends ExpressionVisitorBase {
     /** Evaluates a column reference by looking up the corresponding column in the current Tuple */
     @Override
     public void visit(Column col) {
-        longResult = currentTuple.get(Helpers.getProperTableName(col.getTable()), col.getColumnName());
+        longResult = currentTuple.get(Attribute.fromColumn(col));
     }
 }

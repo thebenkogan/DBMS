@@ -1,6 +1,6 @@
 package com.dbms.operators.physical;
 
-import com.dbms.utils.Helpers;
+import com.dbms.utils.Attribute;
 import com.dbms.utils.Schema;
 import com.dbms.utils.Tuple;
 import net.sf.jsqlparser.schema.Column;
@@ -104,8 +104,8 @@ public class SortMergeJoinOperator extends PhysicalOperator {
         for (int i = 0; i < right.orderBys.size(); i++) {
             Column leftCol = (Column) left.orderBys.get(i).getExpression();
             Column rightCol = (Column) right.orderBys.get(i).getExpression();
-            int leftVal = leftTuple.get(Helpers.getProperTableName(leftCol.getTable()), leftCol.getColumnName());
-            int rightVal = rightTuple.get(Helpers.getProperTableName(rightCol.getTable()), rightCol.getColumnName());
+            int leftVal = leftTuple.get(Attribute.fromColumn(leftCol));
+            int rightVal = rightTuple.get(Attribute.fromColumn(rightCol));
             int comp = Integer.compare(leftVal, rightVal);
             if (comp != 0) return comp;
         }

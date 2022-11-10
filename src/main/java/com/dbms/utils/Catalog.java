@@ -43,7 +43,7 @@ public class Catalog {
     public static boolean evaluateQueries;
 
     /** Map from (unaliased) table name to list of column names */
-    private static Map<String, List<String>> schema = new HashMap<>();
+    private static Map<String, List<String>> schema;
 
     /** Map of aliases to real table names */
     private static Map<String, String> aliasMap = new HashMap<>();
@@ -82,18 +82,19 @@ public class Catalog {
         Catalog.buildIndexes = Integer.parseInt(br.readLine()) == 1;
         Catalog.evaluateQueries = Integer.parseInt(br.readLine()) == 1;
         br.close();
-        getSchema(Catalog.input);
-        getIndexInfo(readerFromPath(Catalog.input, "db", "index_info.txt"));
+        schema = getSchema(Catalog.input);
+        INDEXES = getIndexInfo(readerFromPath(Catalog.input, "db", "index_info.txt"));
         CONFIG = new PlanBuilderConfig(readerFromPath(input, "plan_builder_config.txt"));
         STATS = new Stats(new BufferedWriter(new FileWriter(join(input, "db", "stats.txt"))), schema);
     }
 
-    /** Initializes {@code Catalog.INDEXES}
+    /** Creates a map to set {@code Catalog.INDEXES} to
      *
      * @param br reader for reading {@code index_info.txt} file
+     * @return map containing indexing info
      * @throws IOException */
-    private static void getIndexInfo(BufferedReader br) throws IOException {
-        INDEXES = new HashMap<>();
+    private static Map<String, Index> getIndexInfo(BufferedReader br) throws IOException {
+        Map<String, Index> indexes = new HashMap<>();
         String line;
         while ((line = br.readLine()) != null) {
             String info[] = line.split(" ");
@@ -102,16 +103,19 @@ public class Catalog {
             boolean cluster = Integer.parseInt(info[2]) == 1;
             int order = Integer.parseInt(info[3]);
             Attribute c = Attribute.bundle(table, column);
-            INDEXES.put(table, new Index(c, order, cluster));
+            indexes.put(table, new Index(c, order, cluster));
         }
         br.close();
+        return indexes;
     }
 
-    /** Initializes {@code Catalog.schema}
+    /** Creates a map to set {@code Catalog.schema} to
      *
      * @param input file path of schema file
+     * @return schema map containing schema info
      * @throws IOException */
-    private static void getSchema(String input) throws IOException {
+    private static Map<String, List<String>> getSchema(String input) throws IOException {
+        Map<String, List<String>> schemaMap = new HashMap<>();
         BufferedReader schemaBr = readerFromPath(input, "db", "schema.txt");
         String line;
         while ((line = schemaBr.readLine()) != null) {
@@ -121,9 +125,10 @@ public class Catalog {
             while (table.hasMoreTokens()) {
                 columns.add(table.nextToken());
             }
-            schema.put(tableName, columns);
+            schemaMap.put(tableName, columns);
         }
         schemaBr.close();
+        return schemaMap;
     }
 
     /** @param name (unaliased) name of the table to lookup

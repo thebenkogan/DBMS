@@ -1,6 +1,7 @@
 package com.dbms.utils;
 
 import java.util.Objects;
+import net.sf.jsqlparser.schema.Column;
 
 /**
  * Class to represent a column name of a tuple, along with the aliased table name that the tuple belongs to
@@ -34,6 +35,15 @@ public final class Attribute {
      */
     public static Attribute bundle(String table, String column) {
         return new Attribute(table, column);
+    }
+
+    /**
+     * Create attribute from column
+     * @param c is the {@code Column} object containing (possibly aliased) table and column name
+     * @return {@code Attribute} object containing information of {@code c}
+     */
+    public static Attribute fromColumn(Column c) {
+        return Attribute.bundle(Helpers.getProperTableName(c.getTable()), c.getColumnName());
     }
 
     /** Two {@code Schema} objects are equal if they have identical table and column names. */

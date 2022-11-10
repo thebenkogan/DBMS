@@ -71,10 +71,8 @@ public abstract class SortOperator extends PhysicalOperator {
         /** compares Tuples column by column as specified by tableColumnNames */
         @Override
         public int compare(Tuple t1, Tuple t2) {
-            for (Attribute name : sortOrder) {
-                String tableName = name.TABLE;
-                String columnName = name.COLUMN;
-                int comp = Integer.compare(t1.get(tableName, columnName), t2.get(tableName, columnName));
+            for (Attribute attr : sortOrder) {
+                int comp = Integer.compare(t1.get(attr), t2.get(attr));
                 if (comp != 0) return comp;
             }
             return 0;
