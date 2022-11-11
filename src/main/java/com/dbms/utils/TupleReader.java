@@ -155,11 +155,11 @@ public class TupleReader {
         }
     }
 
-    /** Closes the reader. Call reset to restart. Do not call this if reader already returned null.
+    /** Closes the reader. Call reset to restart.
      *
      * @throws IOException */
     public void close() throws IOException {
-        if (!memUsable) {
+        if (memUsable) {
             fin.close();
             fc.close();
             memUsable = false;

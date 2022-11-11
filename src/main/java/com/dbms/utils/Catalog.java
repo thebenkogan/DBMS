@@ -54,7 +54,8 @@ public class Catalog {
     /** Maps unaliased table name to corresponding index if it exists */
     public static Map<String, Index> INDEXES;
 
-    /** Stats about all the tables in the database: number of rows, number of attributes, and min/max of attributes */
+    /** Stats about all the tables in the database: number of rows, number of attributes, and
+     * min/max of attributes */
     public static Stats STATS;
 
     /** @param segments file path to join
