@@ -42,14 +42,15 @@ public class TreeIndexBuilderTest {
 class TreeIndexTestSet {
     private List<Arguments> arguments = new LinkedList<>();
 
-    TreeIndexTestSet(Map<String, Index> indexInfo, String expectedPath, String delimiter) throws IOException {
+    TreeIndexTestSet(Map<String, List<Index>> indexInfo, String expectedPath, String delimiter) throws IOException {
         for (String table : indexInfo.keySet()) {
-            Index i = indexInfo.get(table);
-            TreeIndexBuilder.serialize(i);
-            String indexName = i.name.TABLE + delimiter + i.name.COLUMN;
-            String actual = new String(Files.readAllBytes(Paths.get(Catalog.pathToIndexFile(i.name))));
-            String expected = new String(Files.readAllBytes(Paths.get(expectedPath, indexName)));
-            arguments.add(Arguments.of(expected, actual, indexName));
+            for (Index i : indexInfo.get(table)) {
+                TreeIndexBuilder.serialize(i);
+                String indexName = i.name.TABLE + delimiter + i.name.COLUMN;
+                String actual = new String(Files.readAllBytes(Paths.get(Catalog.pathToIndexFile(i.name))));
+                String expected = new String(Files.readAllBytes(Paths.get(expectedPath, indexName)));
+                arguments.add(Arguments.of(expected, actual, indexName));
+            }
         }
     }
 

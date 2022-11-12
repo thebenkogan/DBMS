@@ -47,23 +47,44 @@ public class PhysicalPlanBuilder {
      * @throws IOException */
     public void visit(LogicalSelectOperator logicalSelect) throws IOException {
         String tableName = ((LogicalScanOperator) logicalSelect.child).tableName;
-        Index i = Catalog.getIndex(Catalog.getRealTableName(tableName));
-        if (Catalog.CONFIG.indexSelection && i != null) {
+        String unaliasedName = Catalog.getRealTableName(tableName);
+        List<Index> indexes = Catalog.getIndexes(unaliasedName);
+
+        // if no indexes available, create a scan and select
+        if (indexes == null) {
+            logicalSelect.child.accept(this);
+            physOp = new SelectOperator(physOp, logicalSelect.exp);
+            return;
+        }
+
+        // get the scan cost and search for the index with lowest cost
+        double scanCost = Catalog.STATS.getTableScanCost(unaliasedName);
+        IndexExpressionVisitor bestIev = null;
+        double bestCost = Integer.MAX_VALUE;
+        for (Index i : indexes) {
             IndexExpressionVisitor iev = new IndexExpressionVisitor();
             iev.index = i;
             logicalSelect.exp.accept(iev);
-            if (iev.booleanResult) {
-                // we should use IndexScan
-                physOp = new IndexScanOperator(tableName, i, iev.low, iev.high);
-                if (!iev.nonIndexedExps.isEmpty()) {
-                    // use both IndexScan and normal selection
-                    physOp = new SelectOperator(physOp, Helpers.wrapListOfExpressions(iev.nonIndexedExps));
+            if (iev.isIndexable) {
+                double cost = Catalog.STATS.getTableIndexCost(i, iev.extent());
+                if (cost < bestCost) {
+                    bestIev = iev;
+                    bestCost = cost;
                 }
-                return;
             }
         }
-        logicalSelect.child.accept(this);
-        physOp = new SelectOperator(physOp, logicalSelect.exp);
+
+        // if scanning is cheaper, use a scan and select, otherwise use the best index
+        if (scanCost < bestCost) {
+            logicalSelect.child.accept(this);
+            physOp = new SelectOperator(physOp, logicalSelect.exp);
+        } else {
+            physOp = new IndexScanOperator(tableName, bestIev.index, bestIev.low, bestIev.high);
+            if (!bestIev.nonIndexedExps.isEmpty()) {
+                // use both IndexScan and normal selection
+                physOp = new SelectOperator(physOp, Helpers.wrapListOfExpressions(bestIev.nonIndexedExps));
+            }
+        }
     }
 
     /** Construct physical project from logical project

@@ -20,8 +20,8 @@ class TreeDeserializerTest {
     @BeforeAll
     public static void setup() throws IOException {
         Catalog.init("input/index/config.txt");
-        Index boatsIndex = Catalog.INDEXES.get("Boats");
-        Index sailorsIndex = Catalog.INDEXES.get("Sailors");
+        Index boatsIndex = Catalog.INDEXES.get("Boats").get(0);
+        Index sailorsIndex = Catalog.INDEXES.get("Sailors").get(0);
         boatsTd = new TreeDeserializer(boatsIndex);
         sailorsTd = new TreeDeserializer(sailorsIndex);
     }

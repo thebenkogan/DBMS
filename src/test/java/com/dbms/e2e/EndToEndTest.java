@@ -52,7 +52,7 @@ class EndToEndTest {
     @ParameterizedTest(name = "{2} query {3}")
     @MethodSource("argumentProvider")
     void test(String actual, String expected, String name, int number) throws IOException, ParseException {
-        assertEquals(actual, expected);
+        assertEquals(expected, actual);
     }
 
     private static Stream<Arguments> argumentProvider() throws IOException {

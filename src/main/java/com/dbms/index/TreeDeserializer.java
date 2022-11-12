@@ -41,7 +41,7 @@ public class TreeDeserializer {
     private int rootAddress;
 
     /** Number of leaves in the index */
-    private int numLeaves;
+    public int numLeaves;
 
     /** Order of the index */
     // private int order;

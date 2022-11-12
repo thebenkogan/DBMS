@@ -1,6 +1,7 @@
 package com.dbms.utils;
 
 import com.dbms.index.Index;
+import com.dbms.index.TreeIndexBuilder;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -51,8 +52,8 @@ public class Catalog {
     /** The physical operator configuration */
     public static PlanBuilderConfig CONFIG;
 
-    /** Maps unaliased table name to corresponding index if it exists */
-    public static Map<String, Index> INDEXES;
+    /** Maps unaliased table name to the indexes associated with that table */
+    public static Map<String, List<Index>> INDEXES;
 
     /** Stats about all the tables in the database: number of rows, number of attributes, and
      * min/max of attributes */
@@ -89,13 +90,12 @@ public class Catalog {
         STATS = new Stats(new BufferedWriter(new FileWriter(join(input, "db", "stats.txt"))), schema);
     }
 
-    /** Creates a map to set {@code Catalog.INDEXES} to
+    /** Initializes {@code Catalog.INDEXES}
      *
      * @param br reader for reading {@code index_info.txt} file
-     * @return map containing indexing info
      * @throws IOException */
-    private static Map<String, Index> getIndexInfo(BufferedReader br) throws IOException {
-        Map<String, Index> indexes = new HashMap<>();
+    private static Map<String, List<Index>> getIndexInfo(BufferedReader br) throws IOException {
+        Map<String, List<Index>> indexes = new HashMap<>();
         String line;
         while ((line = br.readLine()) != null) {
             String info[] = line.split(" ");
@@ -104,10 +104,16 @@ public class Catalog {
             boolean cluster = Integer.parseInt(info[2]) == 1;
             int order = Integer.parseInt(info[3]);
             Attribute c = Attribute.bundle(table, column);
-            indexes.put(table, new Index(c, order, cluster));
+            if (!indexes.containsKey(table)) indexes.put(table, new LinkedList<>());
+            indexes.get(table).add(new Index(c, order, cluster));
         }
         br.close();
         return indexes;
+    }
+
+    /** Serialize all indexes in INDEXES */
+    public static void serializeIndexes() {
+        INDEXES.values().forEach(indexes -> indexes.forEach(index -> TreeIndexBuilder.serialize(index)));
     }
 
     /** Creates a map to set {@code Catalog.schema} to
@@ -241,8 +247,8 @@ public class Catalog {
     }
 
     /** @param indexName (unaliased) table name of index
-     * @return the index, null if not found */
-    public static Index getIndex(String indexName) {
-        return INDEXES.get(indexName);
+     * @return the indexes associated with the table, null if none */
+    public static List<Index> getIndexes(String tableName) {
+        return INDEXES.get(tableName);
     }
 }

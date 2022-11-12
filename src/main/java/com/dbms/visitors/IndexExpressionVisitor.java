@@ -1,6 +1,8 @@
 package com.dbms.visitors;
 
 import com.dbms.index.Index;
+import com.dbms.utils.Catalog;
+import com.dbms.utils.Range;
 import java.util.ArrayList;
 import java.util.List;
 import net.sf.jsqlparser.expression.BinaryExpression;
@@ -45,13 +47,20 @@ public class IndexExpressionVisitor extends ExpressionVisitorBase {
     public List<Expression> nonIndexedExps = new ArrayList<>();
 
     /** Here, booleanResult refers to whether the expression can use an index or not */
-    public boolean booleanResult;
+    public boolean isIndexable;
+
+    public int extent() {
+        Range r = Catalog.STATS.getAttributeRange(index.name);
+        int top = high != null ? high : r.max;
+        int bottom = low != null ? low : r.min;
+        return top - bottom + 1;
+    }
 
     /** @param exp The expression which the visitor evaluates
      * @return the boolean result of evaluating exp */
     private boolean evaluateBoolean(Expression exp) {
         exp.accept(this);
-        return booleanResult;
+        return isIndexable;
     }
 
     /** @param exp The expression for which we check if we can use an index (assumed to be
@@ -90,7 +99,7 @@ public class IndexExpressionVisitor extends ExpressionVisitorBase {
         boolean leftBool = evaluateBoolean(exp.getLeftExpression());
         boolean rightBool = evaluateBoolean(exp.getRightExpression());
         // AndExpression can use index if either of its subexpressions can use index
-        booleanResult = leftBool || rightBool;
+        isIndexable = leftBool || rightBool;
     }
 
     // the only expressions for which we can use indexes are of the form
@@ -101,8 +110,8 @@ public class IndexExpressionVisitor extends ExpressionVisitorBase {
     /** evaluates A == B */
     @Override
     public void visit(EqualsTo exp) {
-        booleanResult = indexInBinary(exp);
-        if (booleanResult) {
+        isIndexable = indexInBinary(exp);
+        if (isIndexable) {
             updateHighAndLow(value, null, true);
         } else {
             nonIndexedExps.add(exp);
@@ -112,8 +121,8 @@ public class IndexExpressionVisitor extends ExpressionVisitorBase {
     /** Evaluates A strictly greater than B */
     @Override
     public void visit(GreaterThan exp) {
-        booleanResult = indexInBinary(exp);
-        if (booleanResult) {
+        isIndexable = indexInBinary(exp);
+        if (isIndexable) {
             boolean rightValue = exp.getRightExpression() instanceof LongValue;
             updateHighAndLow(value, rightValue, false);
         } else {
@@ -124,8 +133,8 @@ public class IndexExpressionVisitor extends ExpressionVisitorBase {
     /** Evaluates A greater than or equal to B */
     @Override
     public void visit(GreaterThanEquals exp) {
-        booleanResult = indexInBinary(exp);
-        if (booleanResult) {
+        isIndexable = indexInBinary(exp);
+        if (isIndexable) {
             boolean rightValue = exp.getRightExpression() instanceof LongValue;
             updateHighAndLow(value, rightValue, true);
         } else {
@@ -136,8 +145,8 @@ public class IndexExpressionVisitor extends ExpressionVisitorBase {
     /** Evaluates A strictly less than B */
     @Override
     public void visit(MinorThan exp) {
-        booleanResult = indexInBinary(exp);
-        if (booleanResult) {
+        isIndexable = indexInBinary(exp);
+        if (isIndexable) {
             boolean rightValue = exp.getRightExpression() instanceof LongValue;
             updateHighAndLow(value, !rightValue, false);
         } else {
@@ -148,8 +157,8 @@ public class IndexExpressionVisitor extends ExpressionVisitorBase {
     /** Evaluates A less than or equal to B */
     @Override
     public void visit(MinorThanEquals exp) {
-        booleanResult = indexInBinary(exp);
-        if (booleanResult) {
+        isIndexable = indexInBinary(exp);
+        if (isIndexable) {
             boolean rightValue = exp.getRightExpression() instanceof LongValue;
             updateHighAndLow(value, !rightValue, true);
         } else {
@@ -162,7 +171,7 @@ public class IndexExpressionVisitor extends ExpressionVisitorBase {
     /** Evaluates A not equal to B */
     @Override
     public void visit(NotEqualsTo exp) {
-        booleanResult = false;
+        isIndexable = false;
         nonIndexedExps.add(exp);
     }
 
@@ -170,12 +179,12 @@ public class IndexExpressionVisitor extends ExpressionVisitorBase {
     public void visit(LongValue longValue) {
         longSatisfied = true;
         value = longValue.getValue();
-        booleanResult = false;
+        isIndexable = false;
     }
 
     @Override
     public void visit(Column col) {
         columnSatisfied = index.name.COLUMN.equals(col.getColumnName());
-        booleanResult = false;
+        isIndexable = false;
     }
 }

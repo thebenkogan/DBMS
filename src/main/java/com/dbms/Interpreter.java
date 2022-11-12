@@ -1,6 +1,5 @@
 package com.dbms;
 
-import com.dbms.index.TreeIndexBuilder;
 import com.dbms.utils.Catalog;
 import com.dbms.utils.LogicalPlanBuilder;
 import com.dbms.visitors.PhysicalPlanBuilder;
@@ -51,7 +50,7 @@ public class Interpreter {
      * @throws IOException */
     public static void main(String[] args) throws IOException {
         Catalog.init(args[0]);
-        if (Catalog.buildIndexes) Catalog.INDEXES.values().forEach(index -> TreeIndexBuilder.serialize(index));
+        if (Catalog.buildIndexes) Catalog.serializeIndexes();
         if (Catalog.evaluateQueries) run();
     }
 }

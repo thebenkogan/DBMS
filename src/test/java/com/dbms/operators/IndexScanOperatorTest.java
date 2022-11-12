@@ -22,7 +22,7 @@ class IndexScanOperatorTest {
     @BeforeAll
     public static void setup() throws IOException {
         Catalog.init("input/index/config.txt");
-        boatsIndex = Catalog.INDEXES.get("Boats");
+        boatsIndex = Catalog.INDEXES.get("Boats").get(0);
     }
 
     @ParameterizedTest(name = "Next Tuple Test {index}: expected {0}; actual {1} ")
