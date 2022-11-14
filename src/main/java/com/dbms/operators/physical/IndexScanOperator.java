@@ -32,7 +32,7 @@ public class IndexScanOperator extends PhysicalOperator {
      * @param highkey   upper bound on keys, null if unbound
      * @throws IOException */
     public IndexScanOperator(String tableName, Index i, Integer lowkey, Integer highkey) throws IOException {
-        super(Schema.from(tableName, Catalog.getTableColumns(i.name.TABLE)));
+        super(Schema.from(tableName, Catalog.getAttributes(i.name.TABLE)));
 
         this.lowkey = lowkey;
         this.highkey = highkey;

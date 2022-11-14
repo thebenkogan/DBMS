@@ -2,6 +2,7 @@ package com.dbms.visitors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.dbms.utils.Attribute;
 import com.dbms.utils.Helpers;
 import com.dbms.utils.Schema;
 import com.dbms.utils.Tuple;
@@ -18,11 +19,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 /** Unit tests for the ExpressionParseVisitor */
 class ExpressionParseVisitorTest {
     private static ExpressionParseVisitor epv = new ExpressionParseVisitor();
+    private static Attribute tA = Attribute.bundle("t", "A");
+    private static Attribute tB = Attribute.bundle("t", "B");
 
     @BeforeAll
     public static void setup() {
-        epv.currentTuple = new Tuple(
-                Schema.from("t", Arrays.asList(new String[] {"A", "B"})), Arrays.asList(new Integer[] {3, 10}));
+        epv.currentTuple = new Tuple(Schema.from("t", Arrays.asList(tA, tB)), Arrays.asList(3, 10));
     }
 
     @ParameterizedTest(name = "Expression Visitor Test {index}: expression {0} should evaluate to {1} ")

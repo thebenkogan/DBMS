@@ -24,12 +24,12 @@ public class Schema {
     }
 
     /** @param tableName (aliased) table name
-     * @param columnNames list of column names associated with the table
+     * @param attributes list of {@code Attribute} objects associated with the table
      * @return schema representing all column names from tableName x columnNames */
-    public static Schema from(String tableName, List<String> columnNames) {
+    public static Schema from(String tableName, List<Attribute> attributes) {
         List<Attribute> s = new LinkedList<>();
-        for (String col : columnNames) {
-            s.add(Attribute.bundle(tableName, col));
+        for (Attribute a : attributes) {
+            s.add(a.alias(tableName));
         }
         return new Schema(s);
     }

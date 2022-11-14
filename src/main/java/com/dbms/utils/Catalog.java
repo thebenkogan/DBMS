@@ -43,8 +43,8 @@ public class Catalog {
     /** {@code evaluateQueries} is whether or not to evaluate the queries */
     public static boolean evaluateQueries;
 
-    /** Map from (unaliased) table name to list of column names */
-    private static Map<String, List<String>> schema;
+    /** Map from (unaliased) table name to list of {@code Attribute} objects */
+    private static Map<String, List<Attribute>> schema;
 
     /** Map of aliases to real table names */
     private static Map<String, String> aliasMap = new HashMap<>();
@@ -121,18 +121,18 @@ public class Catalog {
      * @param input file path of schema file
      * @return schema map containing schema info
      * @throws IOException */
-    private static Map<String, List<String>> getSchema(String input) throws IOException {
-        Map<String, List<String>> schemaMap = new HashMap<>();
+    private static Map<String, List<Attribute>> getSchema(String input) throws IOException {
+        Map<String, List<Attribute>> schemaMap = new HashMap<>();
         BufferedReader schemaBr = readerFromPath(input, "db", "schema.txt");
         String line;
         while ((line = schemaBr.readLine()) != null) {
             StringTokenizer table = new StringTokenizer(line, " ");
             String tableName = table.nextToken();
-            List<String> columns = new LinkedList<>();
+            List<Attribute> attributes = new LinkedList<>();
             while (table.hasMoreTokens()) {
-                columns.add(table.nextToken());
+                attributes.add(Attribute.bundle(tableName, table.nextToken()));
             }
-            schemaMap.put(tableName, columns);
+            schemaMap.put(tableName, attributes);
         }
         schemaBr.close();
         return schemaMap;
@@ -171,15 +171,15 @@ public class Catalog {
     }
 
     /** @param name (unaliased) name of the table to extract columns
-     * @return list of column names */
-    public static List<String> getTableColumns(String name) {
+     * @return list of {@code Attribute} */
+    public static List<Attribute> getAttributes(String name) {
         return schema.get(name);
     }
 
     /** @param cn (unaliased) table name and associated column name
      * @return 0-based index of the column in the schema */
     public static int getColumnIndex(Attribute cn) {
-        return schema.get(cn.TABLE).indexOf(cn.COLUMN);
+        return schema.get(cn.TABLE).indexOf(cn);
     }
 
     /** If fromItems use aliases, this populates the aliasMap and returns the aliased names.

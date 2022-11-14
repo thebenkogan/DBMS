@@ -27,10 +27,10 @@ public class Stats {
      * @param bw     {@code BufferedWriter} for writing the stats to {@code stats.txt}
      * @param schema schema of our database
      * @throws IOException */
-    Stats(BufferedWriter bw, Map<String, List<String>> schema) throws IOException {
+    Stats(BufferedWriter bw, Map<String, List<Attribute>> schema) throws IOException {
         for (String table : schema.keySet()) {
             TupleReader tr = new TupleReader(Catalog.pathToTable(table));
-            List<String> columnNames = schema.get(table);
+            List<Attribute> columnNames = schema.get(table);
             String result = table;
             Map<String, Range> columnInfo = new HashMap<>();
             Integer max[] = new Integer[columnNames.size()];
@@ -49,7 +49,7 @@ public class Stats {
             }
             result += " " + numRows + " ";
             for (int i = 0; i < columnNames.size(); i++) {
-                String columnName = columnNames.get(i);
+                String columnName = columnNames.get(i).COLUMN;
                 result += String.join(",", columnName, min[i].toString(), max[i].toString());
                 if (i < columnNames.size() - 1) result += " ";
                 columnInfo.put(columnName, new Range(min[i], max[i]));

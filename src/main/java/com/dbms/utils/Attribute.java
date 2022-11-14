@@ -38,6 +38,15 @@ public final class Attribute {
     }
 
     /**
+     * Aliases the attribute
+     * @param alias aliased table name
+     * @return a copy of {@code Attribute} with aliased name
+     */
+    public Attribute alias(String alias) {
+        return new Attribute(alias, COLUMN);
+    }
+
+    /**
      * Create attribute from column
      * @param c is the {@code Column} object containing (possibly aliased) table and column name
      * @return {@code Attribute} object containing information of {@code c}
@@ -54,6 +63,11 @@ public final class Attribute {
             return TABLE.equals(otherName.TABLE) && COLUMN.equals(otherName.COLUMN);
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return TABLE + "." + COLUMN;
     }
 
     /** {@code Schema} types are hashed using their table and column {@code String} values. */

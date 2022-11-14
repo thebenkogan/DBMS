@@ -15,7 +15,7 @@ public class ScanOperator extends PhysicalOperator {
 
     /** @param tableName name (aliased) of underlying table */
     public ScanOperator(String tableName) {
-        super(Schema.from(tableName, Catalog.getTableColumns(Catalog.getRealTableName(tableName))));
+        super(Schema.from(tableName, Catalog.getAttributes(Catalog.getRealTableName(tableName))));
         try {
             reader = new TupleReader(Catalog.pathToTable(Catalog.getRealTableName(tableName)));
         } catch (IOException e) {
