@@ -90,6 +90,10 @@ public class Catalog {
         STATS = new Stats(new BufferedWriter(new FileWriter(join(input, "db", "stats.txt"))), schema);
     }
 
+    public static void setSchema(Map<String, List<Attribute>> s) {
+        schema = s;
+    }
+
     /** Initializes {@code Catalog.INDEXES}
      *
      * @param br reader for reading {@code index_info.txt} file
