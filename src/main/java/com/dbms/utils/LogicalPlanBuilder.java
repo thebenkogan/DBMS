@@ -8,6 +8,7 @@ import com.dbms.operators.logical.LogicalScanOperator;
 import com.dbms.operators.logical.LogicalSelectOperator;
 import com.dbms.operators.logical.LogicalSortOperator;
 import com.dbms.visitors.JoinVisitor;
+import com.dbms.visitors.UnionFindVisitor;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -37,6 +38,26 @@ public class LogicalPlanBuilder {
         return op;
     }
 
+    /** @param tableName aliased table name
+     * @param uv {@code UnionFindVisitor} to obtain the new expression after selection-pushing
+     * @return scan/select operator from first table name in tables
+     * @throws FileNotFoundException */
+    private LogicalOperator getNextOperator(String tableName, UnionFindVisitor uv) throws FileNotFoundException {
+        String unaliased = Catalog.getRealTableName(tableName);
+        Expression usableSelects = uv.unionFind.expressionOfTable(tableName, Catalog.getAttributes(unaliased), false);
+        List<Expression> selectConditions = uv.unusableSelects.get(tableName);
+        selectConditions.add(usableSelects);
+        Expression exp = Helpers.wrapListOfExpressions(selectConditions);
+        return createScanAndSelect(tableName, exp);
+    }
+
+    private Expression getJoinExpression(String tableName, UnionFindVisitor uv) {
+        String unaliased = Catalog.getRealTableName(tableName);
+        List<Expression> joins = uv.unusableJoins.get(tableName);
+        joins.add(uv.unionFind.expressionOfTable(tableName, Catalog.getAttributes(unaliased), true));
+        return Helpers.wrapListOfExpressions(joins);
+    }
+
     /** @param tables table names (aliased), removes first
      * @param jv     join visitor
      * @return scan/select operator from first table name in tables
@@ -47,7 +68,7 @@ public class LogicalPlanBuilder {
         return createScanAndSelect(tableName, exp);
     }
 
-    /** Creates left-deep tree for join condition parsing
+    /** Creates children for join condition parsing
      *
      * @param tables tables to place in tree. If aliases exist, then tables consists solely of
      *               aliases. Otherwise, tables contains actual table names; tables.length > 1
@@ -77,8 +98,26 @@ public class LogicalPlanBuilder {
             seenNames.add(nextName);
             joinOp = nextOp;
         }
-
         return joinOp;
+    }
+
+    /**
+     * Initializes a join operator after selection-pushing has been done
+     * @param tables list of join tables
+     * @param uv {@code UnionFindVisitor} for selection-pushing
+     * @return {@code LogicalJoinOperator} that contains all the conditions of each children as select operators
+     * @throws FileNotFoundException
+     */
+    private LogicalJoinOperator createJoinOperator(List<String> tables, UnionFindVisitor uv)
+            throws FileNotFoundException {
+        List<LogicalOperator> children = new LinkedList<>();
+        List<Expression> joins = new LinkedList<>();
+        while (tables.size() > 0) {
+            String table = tables.remove(0);
+            children.add(getNextOperator(table, uv));
+            joins.add(getJoinExpression(table, uv));
+        }
+        return new LogicalJoinOperator(children, Helpers.wrapListOfExpressions(joins));
     }
 
     /** Populates Catalog alias map if tables use aliases.
@@ -114,6 +153,12 @@ public class LogicalPlanBuilder {
             // build left deep tree of expressions and operators
             JoinVisitor jv = new JoinVisitor(tableNames);
             Helpers.wrapExpressionWithAnd(exp).accept(jv);
+
+            // TODO figure out the new join expression after selection-pushing
+            UnionFindVisitor uv = new UnionFindVisitor();
+            exp.accept(uv);
+            subRoot = createJoinOperator(tableNames, uv);
+
             subRoot = createLeftDeepTree(tableNames, jv);
         } else {
             // if no joins, create a scan/select operator for the from table
