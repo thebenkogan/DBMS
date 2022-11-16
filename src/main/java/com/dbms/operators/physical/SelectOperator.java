@@ -1,13 +1,16 @@
 package com.dbms.operators.physical;
 
+import static com.dbms.utils.Helpers.writeLevel;
+
 import com.dbms.utils.ExpressionParseVisitor;
 import com.dbms.utils.Tuple;
+import java.io.PrintWriter;
 import net.sf.jsqlparser.expression.Expression;
 
 /** An operator that returns only those child Tuples that satisfy a specified expression. */
 public class SelectOperator extends PhysicalOperator {
     /** {@code scanOperator} is the child {@code ScanOperator} of the {@code SelectOperator} */
-    private PhysicalOperator scanOperator;
+    public PhysicalOperator scanOp;
 
     /** {@code visitor} helps convert the select conditions to programmatic types */
     private ExpressionParseVisitor epv = new ExpressionParseVisitor();
@@ -19,25 +22,32 @@ public class SelectOperator extends PhysicalOperator {
      * @param expression   the WHERE expression which we select for; is not null */
     public SelectOperator(PhysicalOperator scanOperator, Expression expression) {
         super(scanOperator.schema);
-        this.scanOperator = scanOperator;
+        scanOp = scanOperator;
         exp = expression;
     }
 
     /** resets underlying scan operator */
     @Override
     public void reset() {
-        scanOperator.reset();
+        scanOp.reset();
     }
 
     /** @return the next tuple that passes the select expression */
     @Override
     public Tuple getNextTuple() {
         while (true) {
-            Tuple nextTuple = scanOperator.getNextTuple();
+            Tuple nextTuple = scanOp.getNextTuple();
             if (nextTuple == null) return null;
             epv.currentTuple = nextTuple;
             exp.accept(epv);
             if (epv.booleanResult) return nextTuple;
         }
+    }
+
+    @Override
+    public void write(PrintWriter pw, int level) {
+        String s = String.format("Select[%s]", exp.toString());
+        pw.println(writeLevel(s, level));
+        scanOp.write(pw, level + 1);
     }
 }

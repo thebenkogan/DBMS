@@ -116,6 +116,15 @@ public class Helpers {
         return result;
     }
 
+    /** @param s string to print at this level
+     * @param level level in the query plan tree, 0-based
+     * @return level number of dashes (-) concatenated with s */
+    public static String writeLevel(String s, int level) {
+        String dashes = "";
+        for (int i = 0; i < level; i++) dashes += "-";
+        return dashes + s;
+    }
+
     /** Just a shorter version of {@code Expression.toString()}
      *
      * @param e given {@code Expression} (can be null)

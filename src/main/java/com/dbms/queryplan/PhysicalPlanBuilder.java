@@ -22,7 +22,9 @@ import com.dbms.operators.physical.ScanOperator;
 import com.dbms.operators.physical.SelectOperator;
 import com.dbms.operators.physical.SortMergeJoinOperator;
 import com.dbms.utils.Catalog;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
@@ -167,5 +169,15 @@ public class PhysicalPlanBuilder {
         return new SortMergeJoinOperator(
                 new ExternalSortOperator(localLeft, leftOrderByElements, Catalog.CONFIG.EXTPages),
                 new ExternalSortOperator(localRight, rightOrderByElements, Catalog.CONFIG.EXTPages));
+    }
+
+    /** Writes this plan. Assumes a logical plan was already visited and physOp is not null.
+     *
+     * @param i query number
+     * @throws FileNotFoundException */
+    public void writePlan(int i) throws FileNotFoundException {
+        PrintWriter pw = new PrintWriter(Catalog.pathToOutputPhysicalPlan(i));
+        physOp.write(pw, 0);
+        pw.close();
     }
 }

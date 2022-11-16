@@ -1,11 +1,14 @@
 package com.dbms.operators.physical;
 
+import static com.dbms.utils.Helpers.writeLevel;
+
 import com.dbms.utils.Tuple;
+import java.io.PrintWriter;
 
 /** An operator that assumes its child returns Tuples in sorted order and filters out any
  * duplicates. */
 public class DuplicateEliminationOperator extends PhysicalOperator {
-    PhysicalOperator child;
+    public PhysicalOperator child;
 
     /** previous Tuple returned */
     Tuple prev = null;
@@ -30,5 +33,11 @@ public class DuplicateEliminationOperator extends PhysicalOperator {
     public void reset() {
         child.reset();
         prev = null;
+    }
+
+    @Override
+    public void write(PrintWriter pw, int level) {
+        pw.println(writeLevel("DupElim", level));
+        child.write(pw, level + 1);
     }
 }

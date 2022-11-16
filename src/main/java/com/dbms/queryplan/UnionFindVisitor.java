@@ -71,6 +71,18 @@ public class UnionFindVisitor extends ExpressionVisitorBase {
         return wrapListOfExpressions(exps);
     }
 
+    /** @return expression with conjuncts that references two different tables */
+    public Expression getAllJoinExps() {
+        List<Expression> joinExps = new LinkedList<>();
+        unusables.forEach((key, exps) -> {
+            if (key.indexOf("[") != -1) {
+                joinExps.addAll(exps);
+            }
+        });
+        if (joinExps.size() == 0) return null;
+        return wrapListOfExpressions(joinExps);
+    }
+
     /** Constructs a key from two table names to lookup their corresponding expressions.
      *
      * @param as 1 or 2 attributes to form the key from

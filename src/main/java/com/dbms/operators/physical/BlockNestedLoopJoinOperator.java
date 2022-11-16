@@ -1,8 +1,11 @@
 package com.dbms.operators.physical;
 
+import static com.dbms.utils.Helpers.writeLevel;
+
 import com.dbms.utils.ExpressionParseVisitor;
 import com.dbms.utils.Schema;
 import com.dbms.utils.Tuple;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import net.sf.jsqlparser.expression.Expression;
@@ -13,10 +16,10 @@ import net.sf.jsqlparser.expression.Expression;
 public class BlockNestedLoopJoinOperator extends PhysicalOperator {
 
     /** Table on the left of the condition */
-    private PhysicalOperator left;
+    public PhysicalOperator left;
 
     /** Table on the right of the condition */
-    private PhysicalOperator right;
+    public PhysicalOperator right;
 
     /** This buffer reads the outer relation one block at a time */
     private List<Tuple> buffer;
@@ -111,5 +114,13 @@ public class BlockNestedLoopJoinOperator extends PhysicalOperator {
         innerTuple = right.getNextTuple();
         outerTupleId = 0;
         readBlockIntoBuffer();
+    }
+
+    @Override
+    public void write(PrintWriter pw, int level) {
+        String s = String.format("BNLJ[%s]", joinCondition != null ? joinCondition.toString() : "");
+        pw.println(writeLevel(s, level));
+        left.write(pw, level + 1);
+        right.write(pw, level + 1);
     }
 }

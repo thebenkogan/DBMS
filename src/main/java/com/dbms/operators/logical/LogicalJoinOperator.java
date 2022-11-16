@@ -1,8 +1,11 @@
 package com.dbms.operators.logical;
 
+import static com.dbms.utils.Helpers.writeLevel;
+
 import com.dbms.queryplan.PhysicalPlanBuilder;
 import com.dbms.queryplan.UnionFindVisitor;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import net.sf.jsqlparser.expression.Expression;
 
@@ -45,5 +48,18 @@ public class LogicalJoinOperator extends LogicalOperator {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void write(PrintWriter pw, int level) {
+        String s = "TODO: Join";
+        // TODO: Uncomment this when new join operator is integrated
+        // Expression joinExp = uv.getAllJoinExps();
+        // String s = String.format("Join[%s]\n", joinExp != null ? joinExp.toString() : "") +
+        // uv.unionFind.toString();
+        // for (LogicalOperator op : children) op.write(pw, level + 1);
+        pw.println(writeLevel(s, level));
+        left.write(pw, level + 1);
+        right.write(pw, level + 1);
     }
 }

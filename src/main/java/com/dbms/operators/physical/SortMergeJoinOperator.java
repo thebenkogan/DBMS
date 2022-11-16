@@ -1,18 +1,23 @@
 package com.dbms.operators.physical;
 
+import static com.dbms.utils.Helpers.writeLevel;
+
 import com.dbms.utils.Attribute;
 import com.dbms.utils.Schema;
 import com.dbms.utils.Tuple;
+import java.io.PrintWriter;
+import java.util.LinkedList;
+import java.util.List;
 import net.sf.jsqlparser.schema.Column;
 
 /** An operator specialized in sorted equi-join conditions */
 public class SortMergeJoinOperator extends PhysicalOperator {
 
     /** Sorted table on the left of the equal condition. */
-    private SortOperator left;
+    public SortOperator left;
 
     /** Sorted table on the right of the equal condition. */
-    private SortOperator right;
+    public SortOperator right;
 
     /** {@code} leftTuple} is an iterator to keep track of tuples in the left (outer) operator */
     private Tuple leftTuple;
@@ -111,5 +116,18 @@ public class SortMergeJoinOperator extends PhysicalOperator {
         }
 
         return 0; // We have no tiebreakers. The tuples are equal.
+    }
+
+    @Override
+    public void write(PrintWriter pw, int level) {
+        List<String> equals = new LinkedList<>();
+        for (int i = 0; i < right.orderBys.size(); i++) {
+            equals.add(left.orderBys.get(i).getExpression().toString() + " = "
+                    + right.orderBys.get(i).getExpression().toString());
+        }
+        String s = String.format("SMJ[%s]", String.join("AND", equals));
+        pw.println(writeLevel(s, level));
+        left.write(pw, level + 1);
+        right.write(pw, level + 1);
     }
 }

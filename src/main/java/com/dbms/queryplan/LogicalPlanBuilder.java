@@ -11,6 +11,7 @@ import com.dbms.operators.logical.LogicalSelectOperator;
 import com.dbms.operators.logical.LogicalSortOperator;
 import com.dbms.utils.Catalog;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -92,8 +93,7 @@ public class LogicalPlanBuilder {
     private LogicalJoinOperator createJoinOperator(List<String> tables, UnionFindVisitor uv)
             throws FileNotFoundException {
         List<LogicalOperator> children = new LinkedList<>();
-        while (tables.size() > 0) {
-            String table = tables.remove(0);
+        for (String table : tables) {
             children.add(createScanAndSelect(table, uv.getExpression(table)));
         }
         return new LogicalJoinOperator(children, uv);
@@ -133,9 +133,8 @@ public class LogicalPlanBuilder {
             JoinVisitor jv = new JoinVisitor(tableNames);
             wrapExpressionWithAnd(exp).accept(jv);
 
-            // TODO figure out the new join expression after selection-pushing
             UnionFindVisitor uv = new UnionFindVisitor();
-            exp.accept(uv);
+            if (exp != null) exp.accept(uv);
             subRoot = createJoinOperator(tableNames, uv);
 
             subRoot = createLeftDeepTree(tableNames, jv);
@@ -150,5 +149,15 @@ public class LogicalPlanBuilder {
                 ? new LogicalSortOperator(subRoot, orderByElements)
                 : subRoot;
         root = distinct != null ? new LogicalDuplicateEliminationOperator(subRoot) : subRoot;
+    }
+
+    /** Writes this plan. Assumes a statement was already processed.
+     *
+     * @param i query number
+     * @throws FileNotFoundException */
+    public void writePlan(int i) throws FileNotFoundException {
+        PrintWriter pw = new PrintWriter(Catalog.pathToOutputLogicalPlan(i));
+        root.write(pw, 0);
+        pw.close();
     }
 }

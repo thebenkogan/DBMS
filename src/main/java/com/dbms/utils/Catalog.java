@@ -168,6 +168,18 @@ public class Catalog {
         return join(output, "query" + i);
     }
 
+    /** @param i query number
+     * @return path to output file */
+    public static String pathToOutputLogicalPlan(int i) {
+        return join(output, "query" + i + "_logicalplan");
+    }
+
+    /** @param i query number
+     * @return path to output file */
+    public static String pathToOutputPhysicalPlan(int i) {
+        return join(output, "query" + i + "_physicalplan");
+    }
+
     /** @param tableName unaliased table name
      * @param attributeName column name
      * @return {@code String} of file path to indexes */

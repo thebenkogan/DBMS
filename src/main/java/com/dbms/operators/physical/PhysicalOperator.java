@@ -4,6 +4,7 @@ import com.dbms.utils.Schema;
 import com.dbms.utils.Tuple;
 import com.dbms.utils.TupleWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public abstract class PhysicalOperator {
     /** schema for this operator, representing the order and names of columns */
@@ -19,6 +20,8 @@ public abstract class PhysicalOperator {
 
     /** Resets the operator to the first tuple of the result of the relation */
     public abstract void reset();
+
+    public abstract void write(PrintWriter pw, int level);
 
     /** @param path is the destination file location for tuple writing
      * @throws IOException */

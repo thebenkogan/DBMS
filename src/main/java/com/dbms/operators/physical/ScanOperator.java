@@ -1,14 +1,20 @@
 package com.dbms.operators.physical;
 
+import static com.dbms.utils.Helpers.writeLevel;
+
 import com.dbms.utils.Catalog;
 import com.dbms.utils.Schema;
 import com.dbms.utils.Tuple;
 import com.dbms.utils.TupleReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
 /** An operator that reads data from file and builds Tuples. */
 public class ScanOperator extends PhysicalOperator {
+
+    /** (aliased) name of underlying table */
+    private String tableName;
 
     /** reader for the underlying table */
     private TupleReader reader;
@@ -16,6 +22,7 @@ public class ScanOperator extends PhysicalOperator {
     /** @param tableName name (aliased) of underlying table */
     public ScanOperator(String tableName) {
         super(Schema.from(tableName, Catalog.getAttributes(Catalog.getRealTableName(tableName))));
+        this.tableName = tableName;
         try {
             reader = new TupleReader(Catalog.pathToTable(Catalog.getRealTableName(tableName)));
         } catch (IOException e) {
@@ -44,5 +51,11 @@ public class ScanOperator extends PhysicalOperator {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void write(PrintWriter pw, int level) {
+        String s = String.format("TableScan[%s]", Catalog.getRealTableName(tableName));
+        pw.println(writeLevel(s, level));
     }
 }

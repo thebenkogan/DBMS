@@ -1,11 +1,14 @@
 package com.dbms.operators.physical;
 
+import static com.dbms.utils.Helpers.writeLevel;
+
 import com.dbms.utils.Catalog;
 import com.dbms.utils.Tuple;
 import com.dbms.utils.TupleReader;
 import com.dbms.utils.TupleWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -29,7 +32,7 @@ import net.sf.jsqlparser.statement.select.OrderByElement;
 public class ExternalSortOperator extends SortOperator {
 
     /** {@code child} is the child operator for external sort */
-    private PhysicalOperator child;
+    public PhysicalOperator child;
 
     /** Unique identifier for this sort. Used to distinguish this sort in temp directory. */
     private String id = UUID.randomUUID().toString();
@@ -198,5 +201,12 @@ public class ExternalSortOperator extends SortOperator {
         }
         tw.close();
         return tuplesRemaining;
+    }
+
+    @Override
+    public void write(PrintWriter pw, int level) {
+        String s = "ExternalSort" + (orderBys != null ? orderBys.toString() : "[]");
+        pw.println(writeLevel(s, level));
+        child.write(pw, level + 1);
     }
 }

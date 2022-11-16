@@ -25,6 +25,8 @@ public class Interpreter {
             PhysicalPlanBuilder ppb = new PhysicalPlanBuilder();
             logicalPlan.root.accept(ppb);
             ppb.physOp.dump(Catalog.pathToOutputFile(queryNumber));
+            logicalPlan.writePlan(queryNumber);
+            ppb.writePlan(queryNumber);
             Catalog.cleanTempDir();
         } catch (Exception e) {
             System.out.println("Failure: " + statement);

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -84,8 +85,11 @@ class QueryTestSetBuilder {
 
         Interpreter.run();
 
-        File[] outputFiles = new File(outputPath).listFiles();
         File[] expectedFiles = new File(expectedOutputPath).listFiles();
+        File[] outputFiles = Arrays.stream(new File(outputPath).listFiles())
+                .filter(f -> f.getName().indexOf("_") == -1)
+                .toArray(File[]::new);
+
         for (int i = 0; i < outputFiles.length; i++) {
             String outputFilePath = outputFiles[i].getPath();
             String expectedFilePath = expectedFiles[i].getPath();
