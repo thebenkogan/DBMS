@@ -2,6 +2,7 @@ package com.dbms.utils;
 
 import com.dbms.index.Index;
 import com.dbms.index.TreeIndexBuilder;
+import com.dbms.queryplan.PlanBuilderConfig;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;

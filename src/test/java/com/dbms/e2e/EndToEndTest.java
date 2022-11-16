@@ -28,9 +28,6 @@ class EndToEndTest {
 
     @BeforeAll
     public static void setup() throws IOException {
-        QueryTestSetBuilder tnlj =
-                new QueryTestSetBuilder("input/tnlj/config.txt", "output/tnlj", "expected/tnlj", "TNLJ");
-
         QueryTestSetBuilder bnlj =
                 new QueryTestSetBuilder("input/bnlj/config.txt", "output/bnlj", "expected/bnlj", "BNLJ");
 
@@ -38,8 +35,7 @@ class EndToEndTest {
                 new QueryTestSetBuilder("input/smj/config.txt", "output/smj", "expected/smj/binary", "SMJ");
         QueryTestSetBuilder indexed = new QueryTestSetBuilder(
                 "input/indexed/config.txt", "output/indexed", "expected/indexed", "index queries");
-        queries = tnlj.queries();
-        queries.addAll(bnlj.queries());
+        queries = bnlj.queries();
         queries.addAll(smj.queries());
         queries.addAll(indexed.queries());
     }

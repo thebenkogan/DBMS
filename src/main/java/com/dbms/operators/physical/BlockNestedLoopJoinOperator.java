@@ -1,8 +1,8 @@
 package com.dbms.operators.physical;
 
+import com.dbms.utils.ExpressionParseVisitor;
 import com.dbms.utils.Schema;
 import com.dbms.utils.Tuple;
-import com.dbms.visitors.ExpressionParseVisitor;
 import java.util.ArrayList;
 import java.util.List;
 import net.sf.jsqlparser.expression.Expression;

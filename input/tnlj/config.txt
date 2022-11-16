@@ -1,5 +1,0 @@
-./input/tnlj
-./output/tnlj
-./temp
-0
-0

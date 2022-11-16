@@ -75,71 +75,12 @@ while (outer hasn't reached the end) {
 }
 ```
 
-### Benchmarking
-
-To benchmark, we first developed a [class](./src/main/java/com/dbms/analytics/TupleGenerator.java) to randomly generate tuples. We leveraged our [TupleWriter.java](./src/main/java/com/dbms/utils/TupleWriter.java) class and used it to write randomly generated tuples to files. To keep track of execution time, we used a 3rd party library stopwatch by Google called Guava Stopwatch instead of the Java library one because it uses device native time, instead of a time from a server. The stopwatch recorded the elapsed time for each query, and we wrote the time for each query to a log file. To make benchmarking easier, we also added a function to programmatically apply the configuration, so we don't need to manually update the given config file. Finally, we defined a separate `main` function to run our benchmarking experiments a certain number of times (a command line argument). All the code can be found in the [analytics](./src/main/java/com/dbms/analytics) package.
-
-#### Benchmarking File Structure
-
-In order to reduce the number of command line inputs, we defined constant file paths to keep our benchmarking-related files. Set up the benchmarking file path below to avoid runtime errors.
-
-```
-.
-└── project/
-    ├── benchmarking/
-    │   ├── input/
-    │   │   └── db/
-    │   │       ├── schema.txt
-    │   │       └── data/
-    │   │           └── [rng-data-here]
-    │   ├── logs/
-    │   │   └── [generated-execution-time-log-files-here]
-    │   └── output/
-    │       └── [generated-query-outputs-here]
-```
-
-#### Benchmarking Different Join Types
-
-To run the benchmarking task in [JoinType.java](./src/main/java/com/dbms/analytics/JoinType.java) only once, run the command below.
-
-```
-./gradlew benchmarkJoin
-```
-
-To run the benchmarking task in [JoinType.java](./src/main/java/com/dbms/analytics/JoinType.java) a certain number of times, run the command below.
-
-```
-./gradlew benchmarkJoin --args="[number-of-trials]"
-```
-
-#### Benchmarking Data Indexing
-
-To run the benchmarking task in [Indexing.java](./src/main/java/com/dbms/analytics/Indexing.java) only once, run the command below.
-
-```
-./gradlew benchmarkIndexing
-```
-
-To run the benchmarking task in [Indexing.java](./src/main/java/com/dbms/analytics/Indexing.java) a certain number of times, run the command below.
-
-```
-./gradlew benchmarkIndexing --args="[number-of-trials]"
-```
-
 ### Running the Application
 
-Because we have multiple executable `main` functions, we defined 2 new Gradle tasks in our [build.gradle.kts](build.gradle.kts) file to run either one. To run the `main` function in [Interpreter.java](./src/main/java/com/dbms/Interpreter.java), you can run either of the commands below (the default `main` function is still set to the one in [Interpreter.java](./src/main/java/com/dbms/Interpreter.java)).
-
-#### Interpreter as its own Gradle task
+To run the top-level application, use the command below.
 
 ```
-./gradlew interpreter --args="[input-directory] [output-directory] [temp-directory]"
-```
-
-#### Interpreter as the default Gradle run task
-
-```
-./gradlew run --args="[input-directory] [output-directory] [temp-directory]"
+./gradlew run --args="[config-file-path]"
 ```
 
 ### Formatting Code

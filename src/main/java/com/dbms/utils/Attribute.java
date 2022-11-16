@@ -1,5 +1,7 @@
 package com.dbms.utils;
 
+import static com.dbms.utils.Helpers.getProperTableName;
+
 import java.util.Objects;
 import net.sf.jsqlparser.schema.Column;
 
@@ -52,7 +54,7 @@ public final class Attribute {
      * @return {@code Attribute} object containing information of {@code c}
      */
     public static Attribute fromColumn(Column c) {
-        return Attribute.bundle(Helpers.getProperTableName(c.getTable()), c.getColumnName());
+        return Attribute.bundle(getProperTableName(c.getTable()), c.getColumnName());
     }
 
     /** Two {@code Schema} objects are equal if they have identical table and column names. */

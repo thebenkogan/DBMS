@@ -1,8 +1,8 @@
 package com.dbms;
 
+import com.dbms.queryplan.LogicalPlanBuilder;
+import com.dbms.queryplan.PhysicalPlanBuilder;
 import com.dbms.utils.Catalog;
-import com.dbms.utils.LogicalPlanBuilder;
-import com.dbms.visitors.PhysicalPlanBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;

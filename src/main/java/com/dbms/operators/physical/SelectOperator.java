@@ -1,7 +1,7 @@
 package com.dbms.operators.physical;
 
+import com.dbms.utils.ExpressionParseVisitor;
 import com.dbms.utils.Tuple;
-import com.dbms.visitors.ExpressionParseVisitor;
 import net.sf.jsqlparser.expression.Expression;
 
 /** An operator that returns only those child Tuples that satisfy a specified expression. */

@@ -1,6 +1,6 @@
 package com.dbms.operators.logical;
 
-import com.dbms.visitors.PhysicalPlanBuilder;
+import com.dbms.queryplan.PhysicalPlanBuilder;
 import java.io.IOException;
 
 /**

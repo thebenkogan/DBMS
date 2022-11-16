@@ -86,7 +86,7 @@ public class Helpers {
         List<Attribute> names = new LinkedList<>();
         for (SelectItem item : selectItems) {
             Column col = (Column) ((SelectExpressionItem) item).getExpression();
-            String tableName = Helpers.getProperTableName(col.getTable());
+            String tableName = getProperTableName(col.getTable());
             names.add(Attribute.bundle(tableName, col.getColumnName()));
         }
         return names;
@@ -114,5 +114,21 @@ public class Helpers {
         }
 
         return result;
+    }
+
+    /** Just a shorter version of {@code Expression.toString()}
+     *
+     * @param e given {@code Expression} (can be null)
+     * @return either {@code "null"} or the integer value as a string */
+    public static String str(Expression e) {
+        return e == null ? "null" : e.toString();
+    }
+
+    /** Just a shorter version of {@code Integer.toString()}
+     *
+     * @param e given {@code Integer} (can be null)
+     * @return either {@code "null"} or the integer value as a string */
+    public static String str(Integer i) {
+        return i == null ? "null" : i.toString();
     }
 }

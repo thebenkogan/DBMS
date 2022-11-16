@@ -1,6 +1,6 @@
 package com.dbms.operators.logical;
 
-import com.dbms.visitors.PhysicalPlanBuilder;
+import com.dbms.queryplan.PhysicalPlanBuilder;
 import java.io.IOException;
 import java.util.List;
 import net.sf.jsqlparser.statement.select.SelectItem;

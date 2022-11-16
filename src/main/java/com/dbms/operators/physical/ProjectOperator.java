@@ -1,6 +1,7 @@
 package com.dbms.operators.physical;
 
-import com.dbms.utils.Helpers;
+import static com.dbms.utils.Helpers.getColumnNamesFromSelectItems;
+
 import com.dbms.utils.Schema;
 import com.dbms.utils.Tuple;
 import java.util.List;
@@ -15,7 +16,7 @@ public class ProjectOperator extends PhysicalOperator {
     /** @param child   child operator to project
      * @param selectItems columns to project; does not contain AllColumns */
     public ProjectOperator(PhysicalOperator child, List<SelectItem> selectItems) {
-        super(new Schema(Helpers.getColumnNamesFromSelectItems(selectItems)));
+        super(new Schema(getColumnNamesFromSelectItems(selectItems)));
         this.child = child;
     }
 
