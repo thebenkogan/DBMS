@@ -1,0 +1,3 @@
+./input/joins
+./output/joins
+./temp

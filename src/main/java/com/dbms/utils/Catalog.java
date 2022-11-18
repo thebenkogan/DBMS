@@ -2,7 +2,6 @@ package com.dbms.utils;
 
 import com.dbms.index.Index;
 import com.dbms.index.TreeIndexBuilder;
-import com.dbms.queryplan.PlanBuilderConfig;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -38,20 +37,11 @@ public class Catalog {
     /** path to temp directory */
     private static String temp;
 
-    /** {@code buildIndexes} is whether or not to build the B+-tree for indexing */
-    public static boolean buildIndexes;
-
-    /** {@code evaluateQueries} is whether or not to evaluate the queries */
-    public static boolean evaluateQueries;
-
     /** Map from (unaliased) table name to list of {@code Attribute} objects */
     private static Map<String, List<Attribute>> schema;
 
     /** Map of aliases to real table names */
     private static Map<String, String> aliasMap = new HashMap<>();
-
-    /** The physical operator configuration */
-    public static PlanBuilderConfig CONFIG;
 
     /** Maps unaliased table name to the indexes associated with that table */
     public static Map<String, List<Index>> INDEXES;
@@ -59,6 +49,12 @@ public class Catalog {
     /** Stats about all the tables in the database: number of rows, number of attributes, and
      * min/max of attributes */
     public static Stats STATS;
+
+    /** Number of pages to use in external sort */
+    public static int EXTPages = 5;
+
+    /** Number of pages to use in BNLJ */
+    public static int BNLJPages = 5;
 
     /** @param segments file path to join
      * @return segments joined with File.seperator */
@@ -82,12 +78,9 @@ public class Catalog {
         Catalog.input = br.readLine();
         Catalog.output = br.readLine();
         Catalog.temp = br.readLine();
-        Catalog.buildIndexes = Integer.parseInt(br.readLine()) == 1;
-        Catalog.evaluateQueries = Integer.parseInt(br.readLine()) == 1;
         br.close();
         schema = getSchema(Catalog.input);
         INDEXES = getIndexInfo(readerFromPath(Catalog.input, "db", "index_info.txt"));
-        CONFIG = new PlanBuilderConfig(readerFromPath(input, "plan_builder_config.txt"));
         STATS = new Stats(new BufferedWriter(new FileWriter(join(input, "db", "stats.txt"))), schema);
     }
 

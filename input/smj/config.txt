@@ -1,5 +1,0 @@
-./input/smj
-./output/smj
-./temp
-0
-0

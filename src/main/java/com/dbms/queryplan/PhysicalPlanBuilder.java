@@ -1,6 +1,5 @@
 package com.dbms.queryplan;
 
-import static com.dbms.utils.Helpers.getEqualityConditions;
 import static com.dbms.utils.Helpers.getProperTableName;
 import static com.dbms.utils.Helpers.wrapListOfExpressions;
 
@@ -105,7 +104,7 @@ public class PhysicalPlanBuilder {
      * @throws IOException */
     public void visit(LogicalSortOperator logicalSort) throws IOException {
         logicalSort.child.accept(this);
-        physOp = new ExternalSortOperator(physOp, logicalSort.orderBys, Catalog.CONFIG.EXTPages);
+        physOp = new ExternalSortOperator(physOp, logicalSort.orderBys, Catalog.EXTPages);
     }
 
     /** Construct physical duplicate elimination from logical duplicate elimination
@@ -126,16 +125,13 @@ public class PhysicalPlanBuilder {
         PhysicalOperator localLeft = physOp;
         logicalJoin.right.accept(this);
         PhysicalOperator localRight = physOp;
-        switch (Catalog.CONFIG.JOINTYPE) {
-            case BNLJ:
-                physOp = new BlockNestedLoopJoinOperator(
-                        localLeft, localRight, logicalJoin.exp, Catalog.CONFIG.BNLJPages);
-                break;
-            case SMJ:
-                List<EqualsTo> equalityConditions = getEqualityConditions(logicalJoin.exp);
-                physOp = createSortMergeJoinOperator(equalityConditions, logicalJoin, localLeft, localRight);
-                break;
-        }
+
+        physOp = new BlockNestedLoopJoinOperator(localLeft, localRight, logicalJoin.exp, Catalog.BNLJPages);
+
+        //        List<EqualsTo> equalityConditions= getEqualityConditions(logicalJoin.exp);
+        //        physOp= createSortMergeJoinOperator(equalityConditions, logicalJoin, localLeft,
+        //            localRight);
+
     }
 
     /** @param equalityConditions list of EqualTo expressions found in the EquiJoin condition
@@ -167,8 +163,8 @@ public class PhysicalPlanBuilder {
         }
 
         return new SortMergeJoinOperator(
-                new ExternalSortOperator(localLeft, leftOrderByElements, Catalog.CONFIG.EXTPages),
-                new ExternalSortOperator(localRight, rightOrderByElements, Catalog.CONFIG.EXTPages));
+                new ExternalSortOperator(localLeft, leftOrderByElements, Catalog.EXTPages),
+                new ExternalSortOperator(localRight, rightOrderByElements, Catalog.EXTPages));
     }
 
     /** Writes this plan. Assumes a logical plan was already visited and physOp is not null.

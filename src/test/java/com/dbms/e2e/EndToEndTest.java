@@ -29,15 +29,13 @@ class EndToEndTest {
 
     @BeforeAll
     public static void setup() throws IOException {
-        QueryTestSetBuilder bnlj =
-                new QueryTestSetBuilder("input/bnlj/config.txt", "output/bnlj", "expected/bnlj", "BNLJ");
+        QueryTestSetBuilder joins =
+                new QueryTestSetBuilder("input/joins/config.txt", "output/joins", "expected/joins", "Joins");
 
-        QueryTestSetBuilder smj =
-                new QueryTestSetBuilder("input/smj/config.txt", "output/smj", "expected/smj/binary", "SMJ");
         QueryTestSetBuilder indexed = new QueryTestSetBuilder(
                 "input/indexed/config.txt", "output/indexed", "expected/indexed", "index queries");
-        queries = bnlj.queries();
-        queries.addAll(smj.queries());
+
+        queries = joins.queries();
         queries.addAll(indexed.queries());
     }
 

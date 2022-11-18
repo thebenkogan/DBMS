@@ -52,7 +52,7 @@ public class Interpreter {
      * @throws IOException */
     public static void main(String[] args) throws IOException {
         Catalog.init(args[0]);
-        if (Catalog.buildIndexes) Catalog.serializeIndexes();
-        if (Catalog.evaluateQueries) run();
+        Catalog.serializeIndexes();
+        run();
     }
 }
