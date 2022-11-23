@@ -1,2 +1,7 @@
+Boats_old E 0 10
+Sailors_old A 1 15
 Boats E 0 10
 Sailors A 1 15
+Reserves G 0 8
+Table1 K 0 6
+Table2 N 1 10

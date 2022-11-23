@@ -155,8 +155,8 @@ public class TreeIndexBuilder {
     private static int updateStep(int total, int index, int capacity) {
         double remaining = total - index;
         int step = Math.min(capacity, (int) remaining);
-        if (remaining > capacity && remaining < 3 * capacity / 2) {
-            step = (int) Math.ceil(remaining / 2);
+        if (remaining > capacity && remaining <= 3 * capacity / 2) {
+            step = (int) Math.floor(remaining / 2);
         }
         return step;
     }
