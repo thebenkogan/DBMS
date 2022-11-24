@@ -121,7 +121,15 @@ public class UnionFind {
 
     @Override
     public String toString() {
-        return Joiner.on("\n").join(elements.values());
+        List<String> result = new LinkedList<>();
+        Set<Attribute> seen = new HashSet<>();
+
+        elements.forEach((attr, ufe) -> {
+            if (seen.contains(attr)) return;
+            seen.addAll(ufe.attributes);
+            result.add(ufe.toString());
+        });
+        return Joiner.on("\n").join(result);
     }
 
     /** Maximum value with {@code null} support
