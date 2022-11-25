@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
@@ -30,12 +31,18 @@ public class UnionFindVisitor extends ExpressionVisitorBase {
     public UnionFind unionFind = new UnionFind();
 
     /** Maps an aliased table to a list of select expressions with it */
-    public Map<String, List<Expression>> unusables = new HashMap<>();
+    private Map<String, List<Expression>> selectUnusables = new HashMap<>();
+
+    /** Maps a two-table key to a list of join expressions with it */
+    private Map<String, List<Expression>> joinUnusables = new HashMap<>();
+
+    /** Maps a two-table key to a list of join equalities */
+    private Map<String, List<Expression>> joinEqualities = new HashMap<>();
 
     /** Possible column reference on the left of a binary operator */
     private Attribute leftAttribute;
 
-    /** Possible column refernece on the right of a binary operator */
+    /** Possible column reference on the right of a binary operator */
     private Attribute rightAttribute;
 
     /** Any number that may be in the current condition */
@@ -54,9 +61,8 @@ public class UnionFindVisitor extends ExpressionVisitorBase {
 
     /** @param tableName (aliased) table name */
     public Expression getExpression(String tableName) {
-        String unaliased = Catalog.getRealTableName(tableName);
-        Expression select = unionFind.expressionOfAttributes(Catalog.getAttributes(unaliased));
-        List<Expression> unusable = unusables.get(namesToKey(tableName));
+        Expression select = unionFind.expressionOfAttributes(Catalog.getAliasedAttributes(tableName));
+        List<Expression> unusable = selectUnusables.get(namesToKey(tableName));
         if (select != null && unusable != null) unusable.add(select);
         if (unusable == null) return select;
         return wrapListOfExpressions(unusable);
@@ -66,21 +72,48 @@ public class UnionFindVisitor extends ExpressionVisitorBase {
      * @param name2 (aliased) second table name, must be different from name1
      * @return usable expression referencing the join of name1 and name2 */
     public Expression getExpression(String name1, String name2) {
-        List<Expression> exps = unusables.get(namesToKey(name1, name2));
+        List<Expression> exps = joinUnusables.get(namesToKey(name1, name2));
         if (exps == null) return null;
+        return wrapListOfExpressions(exps);
+    }
+
+    /** @param name inner table
+     * @param names all tables in outer subtree
+     * @return expression with conjuncts that reference the inner table and any table in the outer
+     *         subtree */
+    public Expression getExpression(String name, List<String> names) {
+        List<Expression> exps = new LinkedList<>();
+        for (int i = 0; i < names.size(); i++) {
+            List<Expression> joinExps = joinUnusables.get(namesToKey(name, names.get(i)));
+            if (joinExps == null) continue;
+            exps.addAll(joinExps);
+        }
         return wrapListOfExpressions(exps);
     }
 
     /** @return expression with conjuncts that references two different tables */
     public Expression getAllJoinExps() {
         List<Expression> joinExps = new LinkedList<>();
-        unusables.forEach((key, exps) -> {
-            if (key.indexOf("[") != -1) {
-                joinExps.addAll(exps);
-            }
-        });
+        joinUnusables.forEach((key, exps) -> joinExps.addAll(exps));
         if (joinExps.size() == 0) return null;
         return wrapListOfExpressions(joinExps);
+    }
+
+    /** @param innerName inner table name
+     * @param outerNames outer table names
+     * @return sets of attributes that are equated with each other in the join expression */
+    public List<Set<Attribute>> getJoinEqualities(String innerName, List<String> outerNames) {
+        List<Set<Attribute>> eqs = new LinkedList<>();
+        for (int i = 0; i < outerNames.size(); i++) {
+            List<Expression> joinEqs = joinEqualities.get(namesToKey(innerName, outerNames.get(i)));
+            if (joinEqs == null) continue;
+            for (Expression exp : joinEqs) {
+                Attribute l = Attribute.fromColumn((Column) ((EqualsTo) exp).getLeftExpression());
+                Attribute r = Attribute.fromColumn((Column) ((EqualsTo) exp).getRightExpression());
+                eqs.add(Set.of(l, r));
+            }
+        }
+        return eqs;
     }
 
     /** Constructs a key from two table names to lookup their corresponding expressions.
@@ -101,17 +134,24 @@ public class UnionFindVisitor extends ExpressionVisitorBase {
         Expression left = exp.getLeftExpression();
         Expression right = exp.getRightExpression();
         String key;
+        boolean isJoin = false;
         if (left instanceof Column && right instanceof Column) {
             leftAttribute = Attribute.fromColumn((Column) left);
             rightAttribute = Attribute.fromColumn((Column) right);
+            isJoin = !leftAttribute.TABLE.equals(rightAttribute.TABLE);
             key = namesToKey(leftAttribute.TABLE, rightAttribute.TABLE);
         } else if (right instanceof Column) {
             key = namesToKey(Attribute.fromColumn((Column) right).TABLE);
         } else {
             key = namesToKey(Attribute.fromColumn((Column) left).TABLE);
         }
-        if (!unusables.containsKey(key)) unusables.put(key, new LinkedList<>());
-        unusables.get(key).add(exp);
+        Map<String, List<Expression>> mp = isJoin ? joinUnusables : selectUnusables;
+        if (!mp.containsKey(key)) mp.put(key, new LinkedList<>());
+        mp.get(key).add(exp);
+        if (exp instanceof EqualsTo && isJoin) {
+            if (!joinEqualities.containsKey(key)) joinEqualities.put(key, new LinkedList<>());
+            joinEqualities.get(key).add(exp);
+        }
     }
 
     private void visit(Expression left, Expression right) {

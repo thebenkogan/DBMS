@@ -28,9 +28,15 @@ public class Schema {
      * @return schema representing all column names from tableName x columnNames */
     public static Schema from(String tableName, List<Attribute> attributes) {
         List<Attribute> s = new LinkedList<>();
-        for (Attribute a : attributes) {
-            s.add(a.alias(tableName));
-        }
+        for (Attribute a : attributes) s.add(a.alias(tableName));
+        return new Schema(s);
+    }
+
+    /** @param tableNames list of aliased table names
+     * @return schema with all table attributes combined in tableNames order */
+    public static Schema from(List<String> tableNames) {
+        List<Attribute> s = new LinkedList<>();
+        for (String name : tableNames) s.addAll(Catalog.getAliasedAttributes(name));
         return new Schema(s);
     }
 

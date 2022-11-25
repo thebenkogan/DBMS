@@ -1,11 +1,13 @@
 package com.dbms.operators.physical;
 
+import static com.dbms.utils.Helpers.getColumnNamesFromSelectItems;
 import static com.dbms.utils.Helpers.strExpToExp;
 import static com.dbms.utils.Helpers.strSelectItemsToSelectItems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.dbms.utils.Catalog;
+import com.dbms.utils.Schema;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Stream;
@@ -28,10 +30,11 @@ class ProjectOperatorTest {
     public static void setup() throws IOException {
         Catalog.init("input/general/config.txt");
         items = strSelectItemsToSelectItems("Boats.F", "Boats.D");
+        Schema s = new Schema(getColumnNamesFromSelectItems(items));
         exp = strExpToExp("Boats.D = 32 AND Boats.E != 100");
         scanOp = new ScanOperator("Boats");
         selectOp = new SelectOperator(scanOp, exp);
-        projectOp = new ProjectOperator(selectOp, items);
+        projectOp = new ProjectOperator(selectOp, s, false);
     }
 
     @ParameterizedTest(name = "Next Tuple Test {index}: expected {0}; actual {1} ")

@@ -1,12 +1,16 @@
 package com.dbms.queryplan;
 
+import static com.dbms.utils.Helpers.getColumnNamesFromSelectItems;
+import static com.dbms.utils.Helpers.getEqualityConditions;
 import static com.dbms.utils.Helpers.getProperTableName;
+import static com.dbms.utils.Helpers.isEquiJoin;
 import static com.dbms.utils.Helpers.wrapListOfExpressions;
 
 import com.dbms.index.Index;
 import com.dbms.index.IndexExpressionVisitor;
 import com.dbms.operators.logical.LogicalDuplicateEliminationOperator;
 import com.dbms.operators.logical.LogicalJoinOperator;
+import com.dbms.operators.logical.LogicalOperator;
 import com.dbms.operators.logical.LogicalProjectOperator;
 import com.dbms.operators.logical.LogicalScanOperator;
 import com.dbms.operators.logical.LogicalSelectOperator;
@@ -21,11 +25,15 @@ import com.dbms.operators.physical.ScanOperator;
 import com.dbms.operators.physical.SelectOperator;
 import com.dbms.operators.physical.SortMergeJoinOperator;
 import com.dbms.utils.Catalog;
+import com.dbms.utils.Schema;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.OrderByElement;
@@ -95,7 +103,8 @@ public class PhysicalPlanBuilder {
      * @throws IOException */
     public void visit(LogicalProjectOperator logicalProject) throws IOException {
         logicalProject.child.accept(this);
-        physOp = new ProjectOperator(physOp, logicalProject.selectItems);
+        Schema s = new Schema(getColumnNamesFromSelectItems(logicalProject.selectItems));
+        physOp = new ProjectOperator(physOp, s, true);
     }
 
     /** Construct physical sort from logical sort
@@ -116,22 +125,87 @@ public class PhysicalPlanBuilder {
         physOp = new DuplicateEliminationOperator(physOp);
     }
 
-    /** Construct physical join from logical join
+    /** Constructs the left deep join tree with optimal order. Inserts a project operator at the
+     * root of this tree if the optimal join order is different than the join order in the query.
      *
      * @param logicalJoin is the join operator from the logical plan
      * @throws IOException */
     public void visit(LogicalJoinOperator logicalJoin) throws IOException {
-        logicalJoin.left.accept(this);
-        PhysicalOperator localLeft = physOp;
-        logicalJoin.right.accept(this);
-        PhysicalOperator localRight = physOp;
+        // we use DP to calculate the best ordering for the children of logicalJoin
+        JoinOrderOptimizer opt = new JoinOrderOptimizer(logicalJoin);
+        // we then create a left deep tree of physical operators using the best join order
+        List<String> optOrder = opt.getBestOrder();
+        physOp = createLeftDeepTree(optOrder, logicalJoin, logicalJoin.children);
+        if (!logicalJoin.tableNames.equals(optOrder)) {
+            physOp = new ProjectOperator(physOp, Schema.from(logicalJoin.tableNames), false);
+        }
+    }
 
-        physOp = new BlockNestedLoopJoinOperator(localLeft, localRight, logicalJoin.exp, Catalog.BNLJPages);
+    /** @param tables table names (aliaed), removes first
+     * @param children the Logical Scan/Select operators corresponding to tables
+     * @return
+     * @throws IOException */
+    private PhysicalOperator getNextOperator(List<String> tables, Map<String, LogicalOperator> children)
+            throws IOException {
+        String tableName = tables.remove(0);
+        LogicalOperator logicalChild = children.get(tableName);
+        logicalChild.accept(this);
 
-        //        List<EqualsTo> equalityConditions= getEqualityConditions(logicalJoin.exp);
-        //        physOp= createSortMergeJoinOperator(equalityConditions, logicalJoin, localLeft,
-        //            localRight);
+        // physOp is the physical operator for the logical operator that tableName maps to
+        return physOp;
+    }
 
+    /** @param left       outer child
+     * @param right          inner child
+     * @param joinExp        join expression
+     * @param innerTableName inner child's table name
+     * @return SMJ operator if joinExp is an equijoin, otherwise a BNLJ operator
+     * @throws IOException */
+    private PhysicalOperator selectJoinImplementation(
+            PhysicalOperator left, PhysicalOperator right, Expression joinExp, String innerTableName)
+            throws IOException {
+        if (isEquiJoin(joinExp)) {
+            List<EqualsTo> equalityConditions = getEqualityConditions(joinExp);
+            return createSortMergeJoinOperator(equalityConditions, left, right, innerTableName);
+        } else {
+            return new BlockNestedLoopJoinOperator(left, right, joinExp, Catalog.BNLJPages);
+        }
+    }
+
+    /** Creates children for join condition parsing
+     *
+     * @param tables   tables to place in tree. If aliases exist, then tables consists solely of
+     *                 aliases. Otherwise, tables contains actual table names; tables.length > 1
+     * @param uv       the {@code UnionFindVisitor} for obtaining the join conditions
+     * @param children the list of logical scan/select operators corresponding to tables
+     * @return a {@code LogicalJoinOperator} containing the left-deep tree
+     * @throws IOException, FileNotFoundException */
+    private PhysicalOperator createLeftDeepTree(
+            List<String> tables, LogicalJoinOperator logicalJoin, Map<String, LogicalOperator> children)
+            throws IOException, FileNotFoundException {
+        UnionFindVisitor uv = logicalJoin.uv;
+
+        String leftName = tables.get(0);
+        PhysicalOperator leftOp = getNextOperator(tables, children);
+
+        String rightName = tables.get(0);
+        PhysicalOperator rightOp = getNextOperator(tables, children);
+
+        Expression joinExp = uv.getExpression(leftName, rightName);
+        PhysicalOperator joinOp = selectJoinImplementation(leftOp, rightOp, joinExp, rightName);
+
+        List<String> seenNames = new ArrayList<>();
+        seenNames.add(leftName);
+        seenNames.add(rightName);
+
+        while (tables.size() > 0) {
+            String nextName = tables.get(0);
+            PhysicalOperator nextOp = getNextOperator(tables, children);
+            joinExp = uv.getExpression(nextName, seenNames);
+            joinOp = selectJoinImplementation(joinOp, nextOp, joinExp, nextName);
+            seenNames.add(nextName);
+        }
+        return joinOp;
     }
 
     /** @param equalityConditions list of EqualTo expressions found in the EquiJoin condition
@@ -142,16 +216,16 @@ public class PhysicalPlanBuilder {
      * @throws IOException */
     private SortMergeJoinOperator createSortMergeJoinOperator(
             List<EqualsTo> equalityConditions,
-            LogicalJoinOperator joinOperator,
             PhysicalOperator localLeft,
-            PhysicalOperator localRight)
+            PhysicalOperator localRight,
+            String innerTableName)
             throws IOException {
         List<OrderByElement> leftOrderByElements = new LinkedList<>();
         List<OrderByElement> rightOrderByElements = new LinkedList<>();
         for (EqualsTo condition : equalityConditions) {
             Column leftCol = (Column) condition.getLeftExpression();
             Column rightCol = (Column) condition.getRightExpression();
-            boolean leftIsInner = getProperTableName(leftCol.getTable()).equals(joinOperator.innerTableName);
+            boolean leftIsInner = getProperTableName(leftCol.getTable()).equals(innerTableName);
 
             OrderByElement left = new OrderByElement();
             left.setExpression(leftIsInner ? rightCol : leftCol);

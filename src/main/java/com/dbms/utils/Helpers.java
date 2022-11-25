@@ -99,21 +99,37 @@ public class Helpers {
      *            AndExpression
      * @return a list of EqualsTo expressions in the EquiJoin */
     public static List<EqualsTo> getEqualityConditions(Expression exp) {
-        AndExpression andExpression = wrapExpressionWithAnd(exp);
+        AndExpression and = wrapExpressionWithAnd(exp);
         List<EqualsTo> result = new LinkedList<>();
 
-        while (andExpression.getRightExpression() != null) {
-            Expression nextAnd = andExpression.getLeftExpression();
-            result.add((EqualsTo) andExpression.getRightExpression());
+        while (and.getRightExpression() != null) {
+            Expression nextAnd = and.getLeftExpression();
+            result.add((EqualsTo) and.getRightExpression());
             if (nextAnd instanceof EqualsTo) {
-                result.add((EqualsTo) andExpression.getLeftExpression());
+                result.add((EqualsTo) and.getLeftExpression());
                 return result;
             }
             if (nextAnd == null) return result;
-            andExpression = (AndExpression) nextAnd;
+            and = (AndExpression) nextAnd;
         }
 
         return result;
+    }
+
+    /** @param exp The Expression associated with the JoinOperator.
+     * @return {@code true} when {@code exp} has only {@code EqualsTo} conditions, {@code false}
+     *         otherwise */
+    public static boolean isEquiJoin(Expression exp) {
+        AndExpression and = wrapExpressionWithAnd(exp);
+        while (and.getRightExpression() != null) {
+            Expression nextAnd = and.getLeftExpression();
+            Expression next = and.getRightExpression();
+            if (!(next instanceof EqualsTo)) return false;
+            if (nextAnd == null || nextAnd instanceof EqualsTo) return true;
+            if (!(nextAnd instanceof AndExpression)) return false;
+            and = (AndExpression) nextAnd;
+        }
+        return true;
     }
 
     /** @param s string to print at this level
@@ -129,15 +145,7 @@ public class Helpers {
      *
      * @param e given {@code Expression} (can be null)
      * @return either {@code "null"} or the integer value as a string */
-    public static String str(Expression e) {
-        return e == null ? "null" : e.toString();
-    }
-
-    /** Just a shorter version of {@code Integer.toString()}
-     *
-     * @param e given {@code Integer} (can be null)
-     * @return either {@code "null"} or the integer value as a string */
-    public static String str(Integer i) {
-        return i == null ? "null" : i.toString();
+    public static String str(Object o) {
+        return o == null ? "null" : o.toString();
     }
 }

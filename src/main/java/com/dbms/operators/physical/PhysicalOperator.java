@@ -21,6 +21,11 @@ public abstract class PhysicalOperator {
     /** Resets the operator to the first tuple of the result of the relation */
     public abstract void reset();
 
+    /** Writes this operator at the corresponding level and writes each child operator on the next
+     * level.
+     *
+     * @param pw    the writer that is accumulating the printed plan
+     * @param level 0-based level in the tree */
     public abstract void write(PrintWriter pw, int level);
 
     /** @param path is the destination file location for tuple writing

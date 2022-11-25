@@ -1,5 +1,6 @@
 package com.dbms.operators.physical;
 
+import static com.dbms.utils.Helpers.getColumnNamesFromSelectItems;
 import static com.dbms.utils.Helpers.strExpToExp;
 import static com.dbms.utils.Helpers.strOrderBysToOrderBys;
 import static com.dbms.utils.Helpers.strSelectItemsToSelectItems;
@@ -7,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.dbms.utils.Catalog;
+import com.dbms.utils.Schema;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Stream;
@@ -34,10 +36,11 @@ class DuplicateEliminationOperatorTest {
     public static void setup() throws IOException {
         Catalog.init("input/general/config.txt");
         items = strSelectItemsToSelectItems("Reserves.H");
+        Schema s = new Schema(getColumnNamesFromSelectItems(items));
         scanOp = new ScanOperator("Reserves");
         exp = strExpToExp("Reserves.H > 185");
         selectOp = new SelectOperator(scanOp, exp);
-        projectOp = new ProjectOperator(selectOp, items);
+        projectOp = new ProjectOperator(selectOp, s, false);
         orderBys = strOrderBysToOrderBys("Reserves.H");
         sortOp = new ExternalSortOperator(projectOp, orderBys, 5);
         duplicateOp = new DuplicateEliminationOperator(sortOp);

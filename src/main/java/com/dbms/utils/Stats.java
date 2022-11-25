@@ -82,8 +82,7 @@ public class Stats {
         TreeDeserializer td = new TreeDeserializer(i);
         int numLeaves = td.numLeaves;
         td.close();
-        TableStats tstats = stats.get(i.name.TABLE);
-        double reductionFactor = extent * 1.0 / tstats.get(i.name.COLUMN).extent();
+        double reductionFactor = getReductionFactor(i.name, extent);
         if (i.isClustered) {
             return 3 + getNumPages(i.name.TABLE) * reductionFactor;
         } else {
@@ -101,10 +100,10 @@ public class Stats {
 
     /** Number of rows in a given table
      *
-     * @param tableName the unaliased name of table
+     * @param tableName the aliased name of table
      * @return number of rows in that table */
     public int numRows(String tableName) {
-        return stats.get(tableName).ROWS;
+        return stats.get(Catalog.getRealTableName(tableName)).ROWS;
     }
 
     /** Number of attributes in a given table
@@ -113,6 +112,21 @@ public class Stats {
      * @return number of attributes/columns it has */
     public int numAttributes(String tableName) {
         return stats.get(tableName).NUM_ATTRIBUTES;
+    }
+
+    /** @param a Attribute with (aliased) table name
+     * @return base table V-Value for this attribute */
+    public int baseTableV(Attribute a) {
+        String unaliased = Catalog.getRealTableName(a.TABLE);
+        return stats.get(unaliased).get(a.COLUMN).extent();
+    }
+
+    /** @param a  Attribute with (aliased) table name
+     * @param extent extent of values in selection
+     * @return the reduction factor: ratio of selected values to total possible values */
+    public double getReductionFactor(Attribute a, int extent) {
+        String unaliased = Catalog.getRealTableName(a.TABLE);
+        return extent * 1.0 / stats.get(unaliased).get(a.COLUMN).extent();
     }
 
     /** Generates random tuples with the given {@code stats}

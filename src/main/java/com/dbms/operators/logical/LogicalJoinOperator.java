@@ -7,37 +7,31 @@ import com.dbms.queryplan.UnionFindVisitor;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 import net.sf.jsqlparser.expression.Expression;
 
-/** The logical representation of the join operator, which contains the expression, left child
- * operator, and right child operator which we need to construct the physical operator */
+/** The logical representation of the join operator, which contains the children, the union find
+ * visitor which contains organized join expressions, and the aliased list of table names as orderd
+ * in the query. */
 public class LogicalJoinOperator extends LogicalOperator {
 
-    public LogicalOperator left;
-    public LogicalOperator right;
-    public Expression exp;
-    public String innerTableName;
-    public List<LogicalOperator> children;
+    /** maps (aliased) table name to child operator (scan or select) */
+    public Map<String, LogicalOperator> children;
+
+    /** the UF visitor that parsed this query's expression */
     public UnionFindVisitor uv;
 
-    /** @param left       left child operator
-     * @param right          right child operator
-     * @param innerTableName aliased inner table name
-     * @param exp            join condition, null if none */
-    public LogicalJoinOperator(LogicalOperator left, LogicalOperator right, String innerTableName, Expression exp) {
-        this.left = left;
-        this.right = right;
-        this.exp = exp;
-        this.innerTableName = innerTableName;
-    }
+    /** The ordered (aliased) names of joined tables in the query */
+    public List<String> tableNames;
 
     /** Creates a {@code LogicalJoinOperator}
      *
      * @param children list of children after {@code FROM}
      * @param uv       visitor that contains union find and access to join expressions */
-    public LogicalJoinOperator(List<LogicalOperator> children, UnionFindVisitor uv) {
+    public LogicalJoinOperator(Map<String, LogicalOperator> children, UnionFindVisitor uv, List<String> tableNames) {
         this.children = children;
         this.uv = uv;
+        this.tableNames = tableNames;
     }
 
     /** @param physicalPlan visitor which converts logical to physical operator */
@@ -52,14 +46,11 @@ public class LogicalJoinOperator extends LogicalOperator {
 
     @Override
     public void write(PrintWriter pw, int level) {
-        String s = "TODO: Join";
-        // TODO: Uncomment this when new join operator is integrated
-        // Expression joinExp = uv.getAllJoinExps();
-        // String s = String.format("Join[%s]\n", joinExp != null ? joinExp.toString() : "") +
-        // uv.unionFind.toString();
-        // for (LogicalOperator op : children) op.write(pw, level + 1);
+        Expression joinExp = uv.getAllJoinExps();
+        String s = String.format("Join[%s]", joinExp != null ? joinExp.toString() : "");
+        String uf = uv.unionFind.toString();
+        if (!uf.equals("")) s += "\n" + uf;
         pw.println(writeLevel(s, level));
-        left.write(pw, level + 1);
-        right.write(pw, level + 1);
+        for (LogicalOperator op : children.values()) op.write(pw, level + 1);
     }
 }

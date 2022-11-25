@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
 
@@ -184,6 +185,13 @@ public class Catalog {
      * @return list of {@code Attribute} */
     public static List<Attribute> getAttributes(String name) {
         return schema.get(name);
+    }
+
+    /** @param name (aliased) name of the table to extract columns
+     * @return list of {@code Attribute} with (aliased) table names */
+    public static List<Attribute> getAliasedAttributes(String name) {
+        List<Attribute> attributes = schema.get(getRealTableName(name));
+        return attributes.stream().map(a -> a.alias(name)).collect(Collectors.toCollection(LinkedList::new));
     }
 
     /** @param cn (unaliased) table name and associated column name

@@ -1,7 +1,5 @@
 package com.dbms.queryplan;
 
-import static com.dbms.utils.Helpers.wrapExpressionWithAnd;
-
 import com.dbms.operators.logical.LogicalDuplicateEliminationOperator;
 import com.dbms.operators.logical.LogicalJoinOperator;
 import com.dbms.operators.logical.LogicalOperator;
@@ -12,9 +10,10 @@ import com.dbms.operators.logical.LogicalSortOperator;
 import com.dbms.utils.Catalog;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.Statement;
@@ -40,49 +39,6 @@ public class LogicalPlanBuilder {
         return op;
     }
 
-    /** @param tables table names (aliased), removes first
-     * @param jv     join visitor
-     * @return scan/select operator from first table name in tables
-     * @throws FileNotFoundException */
-    private LogicalOperator getNextOperator(List<String> tables, JoinVisitor jv) throws FileNotFoundException {
-        String tableName = tables.remove(0);
-        Expression exp = jv.getExpression(tableName);
-        return createScanAndSelect(tableName, exp);
-    }
-
-    /** Creates children for join condition parsing
-     *
-     * @param tables tables to place in tree. If aliases exist, then tables consists solely of
-     *               aliases. Otherwise, tables contains actual table names; tables.length > 1
-     * @param jv     the {@code JoinVisitor} for obtaining the join conditions
-     * @return a {@code LogicalJoinOperator} containing the left-deep tree
-     * @throws FileNotFoundException */
-    private LogicalJoinOperator createLeftDeepTree(List<String> tables, JoinVisitor jv) throws FileNotFoundException {
-        String leftName = tables.get(0);
-        LogicalOperator leftOp = getNextOperator(tables, jv);
-
-        String rightName = tables.get(0);
-        LogicalOperator rightOp = getNextOperator(tables, jv);
-
-        LogicalJoinOperator joinOp =
-                new LogicalJoinOperator(leftOp, rightOp, rightName, jv.getExpression(leftName, rightName));
-
-        List<String> seenNames = new ArrayList<>();
-        seenNames.add(leftName);
-        seenNames.add(rightName);
-
-        while (tables.size() > 0) {
-            String nextName = tables.get(0);
-            LogicalOperator nextScan = getNextOperator(tables, jv);
-
-            LogicalJoinOperator nextOp =
-                    new LogicalJoinOperator(joinOp, nextScan, nextName, jv.getExpression(nextName, seenNames));
-            seenNames.add(nextName);
-            joinOp = nextOp;
-        }
-        return joinOp;
-    }
-
     /** Initializes a join operator after selection-pushing has been done
      *
      * @param tables list of join tables
@@ -92,11 +48,11 @@ public class LogicalPlanBuilder {
      * @throws FileNotFoundException */
     private LogicalJoinOperator createJoinOperator(List<String> tables, UnionFindVisitor uv)
             throws FileNotFoundException {
-        List<LogicalOperator> children = new LinkedList<>();
+        Map<String, LogicalOperator> children = new HashMap<>();
         for (String table : tables) {
-            children.add(createScanAndSelect(table, uv.getExpression(table)));
+            children.put(table, createScanAndSelect(table, uv.getExpression(table)));
         }
-        return new LogicalJoinOperator(children, uv);
+        return new LogicalJoinOperator(children, uv, tables);
     }
 
     /** Populates Catalog alias map if tables use aliases.
@@ -129,15 +85,9 @@ public class LogicalPlanBuilder {
 
         LogicalOperator subRoot;
         if (joins != null) {
-            // build left deep tree of expressions and operators
-            JoinVisitor jv = new JoinVisitor(tableNames);
-            wrapExpressionWithAnd(exp).accept(jv);
-
             UnionFindVisitor uv = new UnionFindVisitor();
             if (exp != null) exp.accept(uv);
             subRoot = createJoinOperator(tableNames, uv);
-
-            subRoot = createLeftDeepTree(tableNames, jv);
         } else {
             // if no joins, create a scan/select operator for the from table
             subRoot = createScanAndSelect(tableNames.get(0), exp);

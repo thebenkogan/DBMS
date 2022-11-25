@@ -41,6 +41,13 @@ public final class Attribute {
         return new Attribute(alias, COLUMN);
     }
 
+    /** Unaliases the attribute, no change if already unaliased
+     *
+     * @return a copy of {@code Attribute} with unaliased name */
+    public Attribute unalias() {
+        return new Attribute(Catalog.getRealTableName(TABLE), COLUMN);
+    }
+
     /** Create attribute from column
      *
      * @param c is the {@code Column} object containing (possibly aliased) table and column name

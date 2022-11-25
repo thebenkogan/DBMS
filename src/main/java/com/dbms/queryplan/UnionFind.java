@@ -3,6 +3,8 @@ package com.dbms.queryplan;
 import static com.dbms.utils.Helpers.strExpToExp;
 
 import com.dbms.utils.Attribute;
+import com.dbms.utils.Catalog;
+import com.dbms.utils.Range;
 import com.google.common.base.Joiner;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,13 +15,33 @@ import java.util.Map;
 import java.util.Set;
 import net.sf.jsqlparser.expression.Expression;
 
-/**
- * This class reads a selection condition and uses a union-find data structure to keep track of the possible bounds of an attribute.
- */
+/** This class reads a selection condition and uses a union-find data structure to keep track of the
+ * possible bounds of an attribute. */
 public class UnionFind {
 
     /** Maps an attribute to its stats, as well as other attributes that share the same stats */
     private Map<Attribute, UnionFindElement> elements = new HashMap<>();
+
+    /** @return list of attribute sets in each union find element */
+    public List<Set<Attribute>> getAllAttributeSets() {
+        List<Set<Attribute>> out = new LinkedList<>();
+        Set<Set<Attribute>> seenSets = new HashSet<>();
+        for (UnionFindElement ufe : elements.values()) {
+            if (!seenSets.contains(ufe.attributes)) {
+                out.add(ufe.attributes);
+                seenSets.add(new HashSet<>(ufe.attributes));
+            }
+        }
+        return out;
+    }
+
+    /** @param a attribute with (aliased) table name
+     * @return extent of values for this attribute within base table range and select */
+    public int getAttributeExtent(Attribute a) {
+        Range r = Catalog.STATS.getAttributeRange(a.unalias());
+        if (!elements.containsKey(a)) return r.extent();
+        return elements.get(a).extent(r);
+    }
 
     /** Get the {@code UnionFindElement} associated with an attribute. If it doesn't exist, it puts
      * a new record into the {@code UnionFind}.
@@ -189,6 +211,14 @@ class UnionFindElement {
         this.max = max;
         this.min = min;
         this.equality = max == min ? min : equality;
+    }
+
+    /** @param r range of values to use if null bounds
+     * @return number of values represented by this element's bounds within the range */
+    public int extent(Range r) {
+        int top = max != null ? max : r.max;
+        int bottom = min != null ? min : r.min;
+        return top - bottom + 1;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.dbms.utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -64,21 +65,14 @@ public class Tuple {
         return row.values();
     }
 
-    /** Projects this tuple to those in columns.
+    /** Creates a new tuple with this tuple's columns projected to the given schema.
      *
      * @param schema list of {@code ColumnName} objects containing aliased table names and column
-     *               names */
-    public void project(Schema s) {
-        List<Attribute> columns = s.get();
-        Integer[] data = new Integer[s.size()];
-        for (int i = 0; i < columns.size(); i++) {
-            data[i] = row.get(columns.get(i));
-        }
-
-        row.clear();
-        for (int i = 0; i < data.length; i++) {
-            row.put(columns.get(i), data[i]);
-        }
+     *               names; must be a subset of this tuple's schema */
+    public Tuple project(Schema s) {
+        List<Integer> data = new ArrayList<>(s.size());
+        for (Attribute a : s.get()) data.add(row.get(a));
+        return new Tuple(s, data);
     }
 
     /** @return Tuple data separated by commas without white space */
