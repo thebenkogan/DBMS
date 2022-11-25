@@ -157,7 +157,7 @@ public class PhysicalPlanBuilder {
 
     /** @param left       outer child
      * @param right          inner child
-     * @param joinExp        join expression
+     * @param joinExp        join expression, null if this is a cross product
      * @param innerTableName inner child's table name
      * @return SMJ operator if joinExp is an equijoin, otherwise a BNLJ operator
      * @throws IOException */

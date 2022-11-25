@@ -58,10 +58,10 @@ public class Helpers {
         return andExp;
     }
 
-    /** @param exps the list of expressions
-     * @return left-deep AND Expression comprised of joined expList */
+    /** @param exps the list of expressions, not null
+     * @return left-deep AND Expression comprised of joined expList, null if exps is empty */
     public static Expression wrapListOfExpressions(List<Expression> exps) {
-        assert !exps.isEmpty();
+        if (exps.isEmpty()) return null;
         if (exps.size() == 1) {
             return exps.get(0);
         }
@@ -96,7 +96,7 @@ public class Helpers {
      * sub-expressions are EqualTo expressions.
      *
      * @param exp The Expression associated with the JoinOperator. Precondition: exp is an
-     *            AndExpression
+     *            AndExpression, not null
      * @return a list of EqualsTo expressions in the EquiJoin */
     public static List<EqualsTo> getEqualityConditions(Expression exp) {
         AndExpression and = wrapExpressionWithAnd(exp);
@@ -120,6 +120,7 @@ public class Helpers {
      * @return {@code true} when {@code exp} has only {@code EqualsTo} conditions, {@code false}
      *         otherwise */
     public static boolean isEquiJoin(Expression exp) {
+        if (exp == null) return false;
         AndExpression and = wrapExpressionWithAnd(exp);
         while (and.getRightExpression() != null) {
             Expression nextAnd = and.getLeftExpression();

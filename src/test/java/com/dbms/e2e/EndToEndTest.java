@@ -35,8 +35,11 @@ class EndToEndTest {
         QueryTestSetBuilder indexed = new QueryTestSetBuilder(
                 "input/indexed/config.txt", "output/indexed", "expected/indexed", "index queries");
 
+        QueryTestSetBuilder big = new QueryTestSetBuilder("input/big/config.txt", "output/big", "expected/big", "Big");
+
         queries = joins.queries();
         queries.addAll(indexed.queries());
+        queries.addAll(big.queries());
     }
 
     /** Initializes catalog, runs the input queries file, and asserts interpreter output with

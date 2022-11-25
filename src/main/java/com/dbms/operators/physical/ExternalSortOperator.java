@@ -168,7 +168,8 @@ public class ExternalSortOperator extends SortOperator {
         boolean isNextRun;
         do {
             Boolean result = executeRun(run);
-            isNextRun = result != null && result;
+            if (result == null) break;
+            isNextRun = result;
             run++;
         } while (isNextRun);
         mergePass = 1;

@@ -1,0 +1,7 @@
+Sailors A 1 10
+Sailors B 0 13
+Reserves G 0 14
+Reserves H 0 11
+Boats D 1 12
+Boats E 0 8
+Boats F 0 13

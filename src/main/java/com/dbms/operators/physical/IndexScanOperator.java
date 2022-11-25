@@ -42,7 +42,6 @@ public class IndexScanOperator extends PhysicalOperator {
      * @throws IOException */
     public IndexScanOperator(String tableName, Index i, Integer lowkey, Integer highkey) throws IOException {
         super(Schema.from(tableName, Catalog.getAttributes(i.name.TABLE)));
-
         this.tableName = i.name.TABLE;
         attribute = i.name.COLUMN;
         this.lowkey = lowkey;
