@@ -2,7 +2,6 @@ package com.dbms.index;
 
 import com.dbms.operators.physical.ExternalSortOperator;
 import com.dbms.operators.physical.ScanOperator;
-import com.dbms.operators.physical.SortOperator;
 import com.dbms.utils.Attribute;
 import com.dbms.utils.Catalog;
 import com.dbms.utils.TupleReader;
@@ -63,7 +62,7 @@ public class TreeIndexBuilder {
         o.setExpression(c);
         List<OrderByElement> sortCondition = Arrays.asList(o);
         ScanOperator scanOp = new ScanOperator(cn.TABLE);
-        SortOperator sortOp = new ExternalSortOperator(scanOp, sortCondition, 5);
+        ExternalSortOperator sortOp = new ExternalSortOperator(scanOp, sortCondition, 5);
         sortOp.dump(Catalog.pathToTable(cn.TABLE));
         Catalog.cleanTempDir();
     }

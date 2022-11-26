@@ -14,10 +14,10 @@ import net.sf.jsqlparser.schema.Column;
 public class SortMergeJoinOperator extends PhysicalOperator {
 
     /** Sorted table on the left of the equal condition. */
-    public SortOperator left;
+    public ExternalSortOperator left;
 
     /** Sorted table on the right of the equal condition. */
-    public SortOperator right;
+    public ExternalSortOperator right;
 
     /** {@code} leftTuple} is an iterator to keep track of tuples in the left (outer) operator */
     private Tuple leftTuple;
@@ -37,7 +37,7 @@ public class SortMergeJoinOperator extends PhysicalOperator {
      *
      * @param left  outer sorted iterator of tuples
      * @param right inner sorted iterator of tuples */
-    public SortMergeJoinOperator(SortOperator left, SortOperator right) {
+    public SortMergeJoinOperator(ExternalSortOperator left, ExternalSortOperator right) {
         super(Schema.join(left.schema, right.schema));
         this.left = left;
         this.right = right;

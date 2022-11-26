@@ -2,7 +2,9 @@ package com.dbms.operators.physical;
 
 import static com.dbms.utils.Helpers.writeLevel;
 
+import com.dbms.utils.Attribute;
 import com.dbms.utils.Catalog;
+import com.dbms.utils.Schema;
 import com.dbms.utils.Tuple;
 import com.dbms.utils.TupleReader;
 import com.dbms.utils.TupleWriter;
@@ -11,12 +13,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.AbstractMap;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.UUID;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 
 /** An operator that performs an external sort algorithm on the output of the child operator and
@@ -29,7 +33,7 @@ import net.sf.jsqlparser.statement.select.OrderByElement;
  * For each merge pass: opens readers on B - 1 previous runs performs a merge sort between them by
  * buffering one tuple from each reader writes smallest of these tuples to an output file using the
  * remaining buffer */
-public class ExternalSortOperator extends SortOperator {
+public class ExternalSortOperator extends PhysicalOperator {
 
     /** {@code child} is the child operator for external sort */
     public PhysicalOperator child;
@@ -58,6 +62,9 @@ public class ExternalSortOperator extends SortOperator {
     /** Reader for the final sorted merge */
     private TupleReader sortedReader;
 
+    /** {@code orderBys} is an ordered-list of columns to sort by */
+    List<OrderByElement> orderBys;
+
     /** Reads all Tuples from child into table, then sorts in the order specified by orderBys.
      *
      * @param child    child operator
@@ -71,7 +78,7 @@ public class ExternalSortOperator extends SortOperator {
         this.pages = pages;
         numAttributes = schema.size();
         tuplesPerRun = pages * 4096 / numAttributes * 4;
-        tc = new TupleComparator(orderBys);
+        tc = new TupleComparator(orderBys, schema);
         Catalog.createTempSubDir(id);
         initialPass();
         mergePasses();
@@ -102,7 +109,6 @@ public class ExternalSortOperator extends SortOperator {
     }
 
     /** @param index is the block in memory to reset back to */
-    @Override
     public void reset(int index) {
         try {
             if (sortedReader != null) sortedReader.reset(index);
@@ -209,5 +215,53 @@ public class ExternalSortOperator extends SortOperator {
         String s = "ExternalSort" + (orderBys != null ? orderBys.toString() : "[]");
         pw.println(writeLevel(s, level));
         child.write(pw, level + 1);
+    }
+}
+
+/** A comparator that compares two Tuples by comparing their equality based on a specified
+ * column ordering. */
+class TupleComparator implements Comparator<Tuple> {
+
+    /** {@code tableColumnNames} is an ordered list of {@code ColumnName} objects that contain
+     * the columns to sort by */
+    private List<Attribute> sortOrder;
+
+    /** @param orderBys is the ordered list of columns to sort by
+     * @param schema {@code Schema} object representing the schema of our db
+     * @param rep      is a representative child tuple */
+    public TupleComparator(List<OrderByElement> orderBys, Schema s) {
+        sortOrder = getSortOrder(orderBys, s);
+    }
+
+    /** @param orderBys list of columns to prioritize for sorting
+     * @param rep      representative child tuple
+     * @param schema {@code Schema} object representing the schema of our db
+     * @return aliased table & column names in order of sorting; first the columns specified in the
+     *         ORDER BY statement, then the columns not previously mentioned as they appear in the
+     *         child Tuples */
+    private List<Attribute> getSortOrder(List<OrderByElement> orderBys, Schema s) {
+        List<Attribute> sortOrder = new LinkedList<>();
+        if (orderBys != null) {
+            for (OrderByElement orderBy : orderBys) {
+                Column col = (Column) orderBy.getExpression();
+                String tableName = col.getTable().getName();
+                String columnName = col.getColumnName();
+                sortOrder.add(Attribute.bundle(tableName, columnName));
+            }
+        }
+        for (Attribute col : s.get()) {
+            if (!sortOrder.contains(col)) sortOrder.add(col);
+        }
+        return sortOrder;
+    }
+
+    /** compares Tuples column by column as specified by tableColumnNames */
+    @Override
+    public int compare(Tuple t1, Tuple t2) {
+        for (Attribute attr : sortOrder) {
+            int comp = Integer.compare(t1.get(attr), t2.get(attr));
+            if (comp != 0) return comp;
+        }
+        return 0;
     }
 }
