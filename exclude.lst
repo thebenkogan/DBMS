@@ -1,0 +1,14 @@
+benchmarking/*
+bin/*
+build/*
+.git/*
+*.gitattributes
+.gradle/*
+.idea/*
+*.jar
+.metadata/*
+output/*
+.settings/*
+temp/*
+.vscode/*
+*.zip
