@@ -14,10 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 /** Class that keeps track of the stats of all the tables in the database. */
-public class Stats {
-
-    /** Bytes per page */
-    private static final int PAGE_SIZE = 4096;
+public class Stats extends IO {
 
     /** Maps unaliased table name to its stats */
     private Map<String, TableStats> stats = new HashMap<>();

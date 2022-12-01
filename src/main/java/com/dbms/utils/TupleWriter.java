@@ -3,31 +3,15 @@ package com.dbms.utils;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 
 /** Class for writing new tuples to a file in byte-code */
-public class TupleWriter {
-
-    /** Bytes per page */
-    private static final int PAGE_SIZE = 4096;
+public class TupleWriter extends IO {
 
     /** Number of attribute per tuple in current page */
     private int numAttributes;
 
     /** Number of tuples on current page */
     private int numTuples;
-
-    /** Write buffer */
-    private ByteBuffer buffer;
-
-    /** The index at which to write the next integer in the buffer */
-    private int bufferIndex;
-
-    /** Output stream for the query */
-    private FileOutputStream fout;
-
-    /** Channel to write the buffer to the output stream */
-    private FileChannel fc;
 
     /** @param path (unaliased) file path name
      * @throws IOException */
@@ -63,13 +47,6 @@ public class TupleWriter {
         numAttributes = 0;
         numTuples = 0;
         bufferIndex = 8;
-    }
-
-    /** Clears the buffer by filling it with zeros and resetting the position to the front. */
-    private void clearBuffer() {
-        buffer.clear();
-        buffer.put(new byte[PAGE_SIZE]); // hack to reset with zeros
-        buffer.clear();
     }
 
     /** Writes the buffer if tuples remaining and closes output writer.

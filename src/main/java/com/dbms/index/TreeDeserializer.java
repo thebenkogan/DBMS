@@ -1,38 +1,23 @@
 package com.dbms.index;
 
 import com.dbms.utils.Catalog;
+import com.dbms.utils.IO;
 import com.dbms.utils.TupleReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.List;
 
 /** A class that deserializes an index by first traversing to a leaf node, then walking across the
  * leaf layer to extract tuples. If the index is clustered, this reads directly from file after the
  * first traversal. */
-public class TreeDeserializer {
-
-    /** Bytes per page */
-    private static final int PAGE_SIZE = 4096;
+public class TreeDeserializer extends IO {
 
     /** flag telling whether the buffer can be used */
     private boolean memUsable;
 
     /** The index to deserialize */
     private Index i;
-
-    /** Read buffer */
-    private ByteBuffer buffer;
-
-    /** The index at which to read the next integer in the buffer */
-    private int bufferIndex;
-
-    /** Input stream for the file */
-    private FileInputStream fin;
-
-    /** Channel to read the stream into the buffer */
-    private FileChannel fc;
 
     /** Reader for the relation file */
     private TupleReader tr;
@@ -186,13 +171,6 @@ public class TreeDeserializer {
         int num = buffer.getInt(bufferIndex);
         bufferIndex += 4;
         return num;
-    }
-
-    /** Clears the buffer by filling it with zeros and resetting the position to the front. */
-    private void clearBuffer() {
-        buffer.clear();
-        buffer.put(new byte[PAGE_SIZE]); // hack to reset with zeros
-        buffer.clear();
     }
 
     /** @param pageNumber the page number of the node to read

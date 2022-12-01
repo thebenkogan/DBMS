@@ -5,15 +5,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
 /** Class for reading byte-code files containing relational data */
-public class TupleReader {
-
-    /** Bytes per page */
-    private static final int PAGE_SIZE = 4096;
+public class TupleReader extends IO {
 
     /** Path to file */
     private String path;
@@ -30,12 +26,6 @@ public class TupleReader {
     /** Maximum number of tuples on a page for this relation */
     private int maxTuples;
 
-    /** Read buffer */
-    private ByteBuffer buffer;
-
-    /** The index at which to read the next integer in the buffer */
-    private int bufferIndex;
-
     /** The number of tuples read for the current page */
     private int tuplesRead;
 
@@ -44,12 +34,6 @@ public class TupleReader {
 
     /** 0-based tuple index of the previously returned tuple */
     public int tupleId;
-
-    /** Input stream for the file */
-    private FileInputStream fin;
-
-    /** Channel to read the stream into the buffer */
-    private FileChannel fc;
 
     /** @param path (unaliased) table name (to represent file path)
      * @throws IOException */
@@ -118,13 +102,6 @@ public class TupleReader {
         pageId++;
         tupleId = -1;
         return true;
-    }
-
-    /** Clears the buffer by filling it with zeros and resetting the position to the front. */
-    private void clearBuffer() {
-        buffer.clear();
-        buffer.put(new byte[PAGE_SIZE]); // hack to reset with zeros
-        buffer.clear();
     }
 
     /** @return Integer list of data in the tuple, null if no tuples left or if file channel is

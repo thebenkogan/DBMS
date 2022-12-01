@@ -2,29 +2,15 @@ package com.dbms.index;
 
 import com.dbms.utils.Attribute;
 import com.dbms.utils.Catalog;
+import com.dbms.utils.IO;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.List;
 
 /** Class for serializing leaf/index nodes and writing the header node. */
-public class NodeWriter {
-    /** Bytes per page */
-    private static final int PAGE_SIZE = 4096;
-
-    /** Write buffer */
-    private ByteBuffer buffer;
-
-    /** The index at which to write the next integer in the buffer */
-    private int bufferIndex;
-
-    /** Output stream for the query */
-    private FileOutputStream fout;
-
-    /** Channel to write the buffer to the output stream */
-    private FileChannel fc;
+public class NodeWriter extends IO {
 
     /** Constructs a {@code NodeWriter} instance according to the given table and column names
      *
@@ -117,12 +103,5 @@ public class NodeWriter {
         fc.position(PAGE_SIZE * pageNumber);
         clearBuffer();
         bufferIndex = 0;
-    }
-
-    /** Clears the buffer by filling it with zeros and resetting the position to the front. */
-    private void clearBuffer() {
-        buffer.clear();
-        buffer.put(new byte[PAGE_SIZE]); // hack to reset with zeros
-        buffer.clear();
     }
 }
