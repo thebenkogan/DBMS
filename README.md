@@ -1,6 +1,6 @@
 # Database Management System
 
-## Authors: Daniel Jann, Ben Kogan, Jacob Kraizman, Robert Zhao
+## Authors: [Daniel Jann](https://www.github.com/stressmaster), [Ben Kogan](https://www.github.com/thebenkogan), [Jacob Kraizman](https://www.github.com/c4pt41n-V0Yag3R), [Robert Zhao](https://www.github.com/robertzhao2002)
 
 ### Top-Level
 
