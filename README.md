@@ -2,33 +2,26 @@
 
 ## Authors: [Daniel Jann](https://www.github.com/stressmaster), [Ben Kogan](https://www.github.com/thebenkogan), [Jacob Kraizman](https://www.github.com/c4pt41n-V0Yag3R), [Robert Zhao](https://www.github.com/robertzhao2002)
 
+### Overview of Features
+* Query Parsing & Evaluation
+    * This DBMS only supports SELECT queries with an arbitrary number of tables to join, a simple guard expression, sorting, and duplicate elimination. Tables can be joined by specifying a comma-separated list after the FROM clause. The WHERE condition supports conjunctions with simple comparisons (e.g R.A > S.B AND R.C != S.D). Columns can also be projected by adding the associated names before the FROM clause. An example query is `SELECT DISTINCT R.A, S.B FROM R, S WHERE R.A > S.B ORDER BY R.A`.
+    * Queries can contain aliased table names. The alias should be specified immediately after the full table name, and there must not be any name conflicts. An example query is `SELECT * FROM Sailors S WHERE S.A = 3`.
+    * The DBMS requires a configuration file specifying the input, output, and temporary directories. Input and output files are stored in a compact 4096 KB page binary format. Along with query outputs, the DBMS also produces the logical and physical query plans that were constructed to evaluate each query.
+* Operators
+    * The DBMS first constructs a logical plan that outlines the high-level logic that will occur during evaluation. The logical plan is then converted to a physical plan, where more fine-grained implementation details are selected based on a series of optimization algorithms. All operators can be found via a folder in the top-level of the source directory.
+    * The physical plan will use either a block nested loop join operator or a sort merge join operator to evaluate a join. All sorting is done externally (previous versions have the implementation for in-memory sort). External sorting is done in the specified temporary directory. Both BNLJ and external sort are set to use 5 buffer pages. This can be configured in the [Catalog.java](./src/main/java/com/dbms/utils/Catalog.java).
+* B+ Tree Indexes
+    * The DBMS supports creating and deserializing B+ tree indexes. Indexes can be clustered or unclustered, with clustered indexes requiring the table be sorted by the associated key. Indexes and their order/clustering are specified in the input file. Before evaluating any queries, the DBMS will first build all indexes on file, then selectively use them to minimize the cost for evaluating a query. All index logic is in the [index](./src/main/java/com/dbms/index/) directory.
+* Query Optimization
+    * There are four main optimization steps when constructing a query plan: selection pushing, selection implementation, join ordering, and join implementation.
+    * Selection pushing is the first optimization. The DBMS reads the WHERE expression and constructs a union find that finds transitive relationships between attributes. The union find is then queried for each specified table, extracting the most fine-grained selection expression such that the resulting data is as small as possible.
+    * Selection implementation is the process of choosing whether to read a relation directly via a scan operator or to also use an index on one of the attributes. The DBMS calculates the cost for all possible methods of reading the data and chooses the one with lowest cost.
+    * Join Ordering is the most complex part of the optimization process. All joins are constructed as left-deep trees, where an intermediate combination of relations is always joined with a single relation. The DBMS selects the optimal ordering of joining the tables such that the intermediate join sizes are minimized. The details are explained in the info file. At a high-level, it uses a dynamic programming algorithm to iterate through increasingly sized subsets of tables and keep track of the optimal ordering for these subsets.
+    * Join Implementation is the last step in the opimization process, and it is the relatively simple decision of whether to execute the join with a BNLJ operator or a SMJ operator. Our simple heuristic is to always use SMJ on equijoins. We observed through benchmarking that SMJ often times significantly out performs BNLJ, thus we use it whenever we can.
+
 ### Top-Level
 
 The top level class of our code is [Interpreter.java](./src/main/java/com/dbms/Interpreter.java)
-
-### Selection Pushing
-
-The selection pushing is initiated in the [LogicalPlanBuilder.java](./src/main/java/com/dbms/queryplan/LogicalPlanBuilder.java), which creates a [UnionFindVisitor.java](./src/main/java/com/dbms/queryplan/UnionFindVisitor.java) to parse the WHERE expression and use the [UnionFind.java](./src/main/java/com/dbms/queryplan/UnionFind.java) to keep track of transitive equalities and the bounds.
-
-We follow the expression visiting algorithm introduced in the handout. For each conjunct, we update the union find and keep track of any unusable expressions. We deviated slightly from the handout by also adding equalities between attributes to the unusable expressions data structure. This is because it is hard to extract this information directly from the union find, so by persisting the expression, we can easily add it back when creating the select/join condition. We will also note that we separate unusable join expressions from unusable select expressions. The difference lies in the number of tables referenced in the conjunct, and this distinction helps us easily extract one or the other without having to check the number of referenced tables later.
-
-### Selection Implementation
-
-The selection implementation is decided in the [PhysicalPlanBuilder.java](./src/main/java/com/dbms/queryplan/PhysicalPlanBuilder.java) when we visit a `LogicalSelectOperator`.
-
-We followed the cost formulas in the handout, and we utilize the [Stats.java](./src/main/java/com/dbms/utils/Stats.java) class to perform most of the calculations. We start by getting all the indexes that are for the table being selected. If no indexes are available, then we cannot perform any optimizations and just make a scan and select operator. If there are indexes, then we start by getting the cost to scan the table directly. Then, for each index, we create an [IndexExpressionVisitor.java](./src/main/java/com/dbms/index/IndexExpressionVisitor.java) to parse the select condition and get the bounds for the index attribute. We compute the reduction factor and cost for using the index based on these bounds, and save the index with lowest cost. Finally, if the best index cost is lower than the scan cost, then we use the best index and create an [IndexScanOperator.java](./src/main/java/com/dbms/operators/physical/IndexScanOperator.java), potentially adding a select operator if some conjuncts are not covered by the index. Otherwise, we create a scan and select operator.
-
-### Join Ordering
-
-The join ordering is decided in the [JoinOrderOptimizer.java](./src/main/java/com/dbms/queryplan/JoinOrderOptimizer.java).
-
-We followed the dynamic programming algorithm introduced in the handout. We iterate through increasing sizes of subsets. For each subset size, we generate all the combinations of table names, then compute their entry in the DP table. An entry contains the best join order, its associated cost, the size of the join (including the root), and the V-Values for each attribute in the join. Before creating this entry, we have to find the ordering of tables that minimizes the cost. To do this, we iterate through all possible tables to exclude from the current subset, and we obtain the cost by looking up the one-smaller subset in the DP table and adding it's cost and output size. Once we have the ordering with lowest cost, we compute the new output size and corresponding V-Values. These functions generally have three cases: single table scan, single table select, and a join between two tables. In each case, we follow the formulas in the handout. Instead of parsing the join expressions again to obtain the equalities, we make use of the union find to extract sets of equal attributes.
-
-### Join Implementation
-
-The join implementation is decided in the [PhysicalPlanBuilder.java](./src/main/java/com/dbms/queryplan/PhysicalPlanBuilder.java) via the `selectJoinImplementation` function.
-
-We followed the simple strategy of using SMJ whenever possible. More specifically, if the join expression represents an equijoin, then we create an SMJ operator, otherwise, we create a BNLJ operator. We hardcoded 5 buffer pages for the BNLJ operator.
 
 ### Running the Application
 
